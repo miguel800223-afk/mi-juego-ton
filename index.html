@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -26,6 +27,7 @@
     <div id="coin" onclick="clickCoin()">💎</div>
 
     <p>¡TOCA PARA GANAR!</p>
+<div id="ton-connect" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -50,7 +52,11 @@
 
             if (navigator.vibrate) navigator.vibrate(50);
         }
-    </script>
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: 'https://tu-usuario.github.io/tu-repositorio/tonconnect-manifest.json',
+    buttonRootId: 'ton-connect'
+});
+</script>
 </body>
 </html>
 
