@@ -42,7 +42,7 @@
                 <div class="card">
                     <button class="btn" style="background:#f7a80e;" onclick="comprarMejora()">MEJORA 0.1 TON</button>
                     <button class="btn" style="background:#28a745;color:white;" onclick="invitar()">INVITAR AMIGOS</button>
-                    <button class="btn" style="background:#6f42c1;color:white;" onclick="mision()">CANAL (+200)</button>
+                    <button id="btn-mision" class="btn" style="background:#6f42c1;color:white;" onclick="mision()">CANAL (+200)</button>
                 </div>
                 <p style="color:#f7a80e; font-weight:bold;">TOP JUGADORES</p>
                 <div class="card" id="ranking">Cargando...</div>
@@ -61,21 +61,35 @@
         const user = tg.initDataUnsafe?.user; const userId = user ? user.id.toString() : "local";
         if (user) document.getElementById('username').innerText = `ID: ${user.first_name}`;
         let pts = 0;
+        let misionCompletada = false;
+
         window.ir = (t,b) => {
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('on'));
             document.getElementById(t).classList.add('active');
             document.getElementById(b).classList.add('on');
         };
+
         async function load() {
             const d = await getDoc(doc(db, "jugadores", userId));
-            if (d.exists()) { pts = d.data().puntos || 0; document.getElementById('score').innerText = pts; }
+            if (d.exists()) { 
+                pts = d.data().puntos || 0; 
+                document.getElementById('score').innerText = pts; 
+                misionCompletada = d.data().mision_canal || false;
+                if (misionCompletada) {
+                    const btn = document.getElementById('btn-mision');
+                    btn.innerText = "CANAL COMPLETADO ✅";
+                    btn.style.opacity = "0.5";
+                }
+            }
         }
         load();
+
         onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(5)), (s) => {
             const l = document.getElementById('ranking'); l.innerHTML = "";
             s.forEach((x) => { l.innerHTML += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span>${x.data().nombre}</span><b>${x.data().puntos.toLocaleString()}</b></div>`; });
         });
+
         window.clickCoin = async (e) => {
             pts++; document.getElementById('score').innerText = pts;
             const f = document.createElement("div"); f.className = "floating-text"; f.innerText = "+1";
@@ -84,37 +98,27 @@
             if (pts % 5 === 0) await setDoc(doc(db, "jugadores", userId), { nombre: user ? user.first_name : "Anon", puntos: pts }, { merge: true });
             if (navigator.vibrate) navigator.vibrate(40);
         };
+
         const tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
+        
         window.comprarMejora = async () => {
             try { await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "100000000" }] });
             pts += 1000; document.getElementById('score').innerText = pts; await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); } catch(e){}
         };
-        window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/SuperTonClicker_bot&text=¡Únete!`);
-        window.mision = async () => {
-    const botonMision = event.target; // Capturamos el botón que se tocó
-    
-    // Abrir el canal
-    tg.openLink("https://t.me/+eMrzkqBJInk3MTkx"); 
 
-    // Cambiar el texto del botón para indicar que estamos "verificando"
-    botonMision.innerText = "VERIFICANDO... (espera 5s)";
-    botonMision.disabled = true;
-    botonMision.style.opacity = "0.5";
-
-    // Esperar 5 segundos antes de dar el premio
-    setTimeout(async () => {
-        pts += 200; // Nueva cuantía: 200 puntos
-        document.getElementById('score').innerText = pts;
+        window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/TuBot&text=¡Únete!`);
         
-        // Guardar en la base de datos
-        await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true });
-        
-        botonMision.innerText = "¡MISIÓN COMPLETADA! +200";
-        botonMision.style.background = "#28a745"; // Cambia a verde al terminar
-        alert("¡Felicidades! Se han sumado 200 puntos por seguir el canal.");
-    }, 5000); // 5000 milisegundos = 5 segundos
-};
-
+        window.mision = async () => { 
+            if (misionCompletada) return; // Si ya se hizo, no hace nada
+            tg.openLink("https://t.me/TuCanal"); 
+            pts += 200; 
+            misionCompletada = true;
+            document.getElementById('score').innerText = pts; 
+            const btn = document.getElementById('btn-mision');
+            btn.innerText = "CANAL COMPLETADO ✅";
+            btn.style.opacity = "0.5";
+            await setDoc(doc(db, "jugadores", userId), { puntos: pts, mision_canal: true }, { merge: true }); 
+        };
     </script>
 </body>
 </html>
