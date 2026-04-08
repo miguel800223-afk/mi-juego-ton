@@ -3,62 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mi TON Clicker</title>
+    <title>TON Clicker Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Esto es lo que da color y forma al juego */
-        body { 
-            background-color: #0088cc; 
-            color: white; 
-            text-align: center; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-        h1 { font-size: 3rem; margin: 10px 0; }
-        p { font-size: 1.2rem; opacity: 0.8; }
-        
-        /* Estilo de la moneda */
-        .coin-container {
-            perspective: 1000px;
-        }
-        #coin { 
-            width: 220px; 
-            height: 220px;
-            cursor: pointer; 
-            transition: transform 0.05s;
-            filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.3));
-        }
-        #coin:active { 
-            transform: scale(0.9) rotate(2deg); 
-        }
+        body { background-color: #0088cc; color: white; text-align: center; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; justify-content: center; height: 100vh; overflow: hidden; }
+        .user-info { position: absolute; top: 10px; left: 10px; font-size: 14px; text-align: left; }
+        h1 { font-size: 80px; margin: 10px 0; }
+        #coin { font-size: 150px; cursor: pointer; transition: transform 0.1s; display: inline-block; user-select: none; }
+        #coin:active { transform: scale(0.8); }
+        .btn-save { margin-top: 20px; padding: 10px 20px; background: white; color: #0088cc; border: none; border-radius: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <div class="user-info">
+        <span id="username">Cargando jugador...</span>
+    </div>
+
     <p>Puntos acumulados</p>
     <h1 id="score">0</h1>
-
-    <div class="coin-container">
-    <div id="coin" style="font-size: 150px; cursor: pointer; user-select: none;" onclick="clickCoin()">💎</div>
+    
+    <div id="coin" onclick="clickCoin()">💎</div>
 
     <p>¡TOCA PARA GANAR!</p>
 
     <script>
-        // Esta es la lógica: que el número suba al tocar
-        let count = 0;
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Abre la app a pantalla completa
+
+        // Intentar obtener el nombre del usuario de Telegram
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('username').innerText = `Jugador: ${user.first_name}`;
+        }
+
+        // Cargar puntos guardados anteriormente
+        let count = parseInt(localStorage.getItem('puntos')) || 0;
+        document.getElementById('score').innerText = count;
+
         function clickCoin() {
             count++;
             document.getElementById('score').innerText = count;
             
-            // Efecto de vibración simple en el celular si el navegador lo permite
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
+            // Guardar en la memoria del celular
+            localStorage.setItem('puntos', count);
+
+            if (navigator.vibrate) navigator.vibrate(50);
         }
     </script>
 </body>
 </html>
+
