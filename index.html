@@ -90,7 +90,31 @@
             pts += 1000; document.getElementById('score').innerText = pts; await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); } catch(e){}
         };
         window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/SuperTonClicker_bot&text=¡Únete!`);
-        window.mision = async () => { tg.openLink("https://t.me/TuCanal"); pts += 2000; document.getElementById('score').innerText = pts; await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); };
+        window.mision = async () => {
+    const botonMision = event.target; // Capturamos el botón que se tocó
+    
+    // Abrir el canal
+    tg.openLink("https://t.me/TuCanal"); 
+
+    // Cambiar el texto del botón para indicar que estamos "verificando"
+    botonMision.innerText = "VERIFICANDO... (espera 5s)";
+    botonMision.disabled = true;
+    botonMision.style.opacity = "0.5";
+
+    // Esperar 5 segundos antes de dar el premio
+    setTimeout(async () => {
+        pts += 200; // Nueva cuantía: 200 puntos
+        document.getElementById('score').innerText = pts;
+        
+        // Guardar en la base de datos
+        await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true });
+        
+        botonMision.innerText = "¡MISIÓN COMPLETADA! +200";
+        botonMision.style.background = "#28a745"; // Cambia a verde al terminar
+        alert("¡Felicidades! Se han sumado 200 puntos por seguir el canal.");
+    }, 5000); // 5000 milisegundos = 5 segundos
+};
+
     </script>
 </body>
 </html>
