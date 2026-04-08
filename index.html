@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mi TON Clicker</title>
+    <style>
+        /* Esto es lo que da color y forma al juego */
+        body { 
+            background-color: #0088cc; 
+            color: white; 
+            text-align: center; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        h1 { font-size: 3rem; margin: 10px 0; }
+        p { font-size: 1.2rem; opacity: 0.8; }
+        
+        /* Estilo de la moneda */
+        .coin-container {
+            perspective: 1000px;
+        }
+        #coin { 
+            width: 220px; 
+            height: 220px;
+            cursor: pointer; 
+            transition: transform 0.05s;
+            filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.3));
+        }
+        #coin:active { 
+            transform: scale(0.9) rotate(2deg); 
+        }
+    </style>
+</head>
+<body>
+
+    <p>Puntos acumulados</p>
+    <h1 id="score">0</h1>
+
+    <div class="coin-container">
+        <img id="coin" src="https://cryptologos.cc/logos/toncoin-ton-logo.png" alt="Moneda TON" onclick="clickCoin()">
+    </div>
+
+    <p>¡TOCA PARA GANAR!</p>
+
+    <script>
+        // Esta es la lógica: que el número suba al tocar
+        let count = 0;
+        function clickCoin() {
+            count++;
+            document.getElementById('score').innerText = count;
+            
+            // Efecto de vibración simple en el celular si el navegador lo permite
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+    </script>
+</body>
+</html>
