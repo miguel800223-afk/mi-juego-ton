@@ -7,103 +7,208 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
+        /* BASE SIN DESPLAZAMIENTO */
         body { 
             background: radial-gradient(circle, #0088cc 0%, #004466 100%); 
-            color: white; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; overflow: hidden; 
+            color: white; text-align: center; font-family: 'Segoe UI', sans-serif; 
+            margin: 0; padding: 0; height: 100vh; overflow: hidden; 
+            display: flex; flex-direction: column;
         }
 
-        /* Contenedor de la parte superior */
-        .header {
-            position: absolute; top: 15px; left: 0; width: 100%;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; box-sizing: border-box;
+        /* CABECERA FIJA ARRIBA */
+        .header { 
+            height: 60px; display: flex; justify-content: space-between; 
+            align-items: center; padding: 0 15px; z-index: 100;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(5px);
         }
-
-        .user-info { 
-            background: rgba(255,255,255,0.1); padding: 5px 12px; 
-            border-radius: 12px; font-size: 14px; border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        /* Ajuste para que el botón de wallet no se vea gigante */
+        .user-info { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 12px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
         #ton-connect button { scale: 0.8; transform-origin: right; }
 
-        h1 { font-size: 75px; margin: 10px 0; text-shadow: 0 4px 15px rgba(0,0,0,0.4); font-weight: 800; }
+        /* CONTENEDOR DE PANTALLAS */
+        .content-container { flex: 1; position: relative; width: 100%; }
+
+        .tab-content { 
+            display: none; width: 100%; height: 100%; 
+            flex-direction: column; align-items: center; justify-content: center;
+            position: absolute; top: 0; left: 0;
+        }
+        .active-tab { display: flex !important; }
+
+        /* ESTILOS MINAR */
+        h1 { font-size: 80px; margin: 5px 0; text-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        #coin { font-size: 140px; cursor: pointer; transition: transform 0.1s; user-select: none; filter: drop-shadow(0 0 20px rgba(0, 136, 204, 0.8)); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        #coin:active { transform: scale(0.9); }
+
+        /* ESTILOS TAREAS Y RANKING */
+        .scroll-area { width: 90%; max-width: 400px; height: 100%; overflow-y: auto; padding: 20px 0; }
+        .card { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .section-title { color: #f7a80e; font-weight: bold; margin-bottom: 15px; font-size: 18px; }
         
-        #coin { 
-            font-size: 130px; cursor: pointer; transition: transform 0.1s; 
-            display: inline-block; user-select: none; margin: 10px 0; 
-            filter: drop-shadow(0 0 20px rgba(0, 136, 204, 0.8)); 
-            animation: float 3s ease-in-out infinite; 
+        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 14px; }
+        .btn-buy { background: #f7a80e; color: black; }
+        .btn-invite { background: #28a745; color: white; }
+        .btn-task { background: #6f42c1; color: white; }
+
+        .ranking-item { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* NAVEGACIÓN INFERIOR */
+        .nav-bar { 
+            height: 70px; background: rgba(0,0,0,0.6); display: flex; 
+            border-top: 1px solid rgba(255,255,255,0.1); z-index: 100;
         }
+        .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0.5; font-weight: bold; transition: 0.3s; }
+        .nav-item.active { opacity: 1; color: #f7a80e; border-top: 3px solid #f7a80e; background: rgba(255,255,255,0.05); }
 
-        @keyframes float { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-20px); } 
-        }
-
-        #coin:active { transform: scale(0.85); }
-
-        .floating-text { 
-            position: absolute; color: #f7a80e; font-weight: bold; 
-            font-size: 28px; pointer-events: none; 
-            animation: moveUp 0.8s ease-out forwards; text-shadow: 1px 1px 5px black;
-        }
-
-        @keyframes moveUp { 
-            from { opacity: 1; transform: translateY(0); } 
-            to { opacity: 0; transform: translateY(-120px); } 
-        }
-
-        .btn-compra { 
-            margin-top: 10px; padding: 12px 20px; background: #f7a80e; 
-            border: none; border-radius: 15px; color: black; 
-            font-weight: bold; cursor: pointer; font-size: 16px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.2s;
-        }
-
-        .btn-compra:active { transform: scale(0.95); }
-
-        .ranking-container { 
-            background: rgba(0, 0, 0, 0.3); border-radius: 20px; 
-            padding: 15px; width: 85%; max-width: 320px; 
-            margin-top: 25px; border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .ranking-title { 
-            font-weight: bold; margin-bottom: 12px; 
-            border-bottom: 1px solid rgba(255,255,255,0.2); 
-            padding-bottom: 8px; font-size: 18px; color: #f7a80e;
-        }
-
-        .ranking-item { 
-            display: flex; justify-content: space-between; 
-            font-size: 15px; margin: 8px 0; padding: 0 5px;
-        }
+        .floating-text { position: absolute; color: #f7a80e; font-weight: bold; font-size: 30px; pointer-events: none; animation: moveUp 0.8s ease-out forwards; }
+        @keyframes moveUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="user-info">
-            <span id="username">Cargando...</span>
-        </div>
+        <div class="user-info"><span id="username">ID: Cargando...</span></div>
         <div id="ton-connect"></div>
     </div>
 
-    <p style="margin-top: 60px; margin-bottom: 0; opacity: 0.8;">Puntos acumulados</p>
-    <h1 id="score">0</h1>
-    
-    <div id="coin" onclick="clickCoin(event)">💎</div>
+    <div class="content-container">
+        
+        <div id="tab-game" class="tab-content active-tab">
+            <p style="margin:0; opacity: 0.7;">Puntos acumulados</p>
+            <h1 id="score">0</h1>
+            <div id="coin" onclick="clickCoin(event)">💎</div>
+            <p style="margin-top:20px; letter-spacing: 2px; font-weight: bold; opacity: 0.8;">TOCA EL DIAMANTE</p>
+        </div>
 
-    <button class="btn-compra" onclick="comprarMejora()">
-        Comprar Mejora (0.1 TON)
-    </button>
+        <div id="tab-tasks" class="tab-content">
+            <div class="scroll-area">
+                
+                <div class="section-title">⚡ MEJORAS Y TAREAS</div>
+                <div class="card">
+                    <button class="btn-action btn-buy" onclick="comprarMejora()">⚡ MEJORA (+1000 pts) | 0.1 TON</button>
+                    <button class="btn-action btn-invite" onclick="invitarAmigo()">👥 INVITAR AMIGOS</button>
+                    <button class="btn-action btn-task" onclick="hacerMision()">📢 SEGUIR CANAL (+2000)</button>
+                </div>
 
-    <div class="ranking-container">
-        <div class="ranking-title">🏆 TOP JUGADORES</div>
-        <div id="lista-ranking">Cargando ranking...</div>
+                <div class="section-title">🏆 TOP JUGADORES</div>
+                <div class="card" id="lista-ranking">
+                    Cargando ranking...
+                </div>
+
+                <div style="height: 50px;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-bar">
+        <div id="nav-game" class="nav-item active" onclick="switchTab('game')">MINAR 💎</div>
+        <div id="nav-tasks" class="nav-item" onclick="switchTab('tasks')">TAREAS 🏆</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I",
+            authDomain: "mytonclicker.firebaseapp.com",
+            projectId: "mytonclicker",
+            storageBucket: "mytonclicker.firebasestorage.app",
+            messagingSenderId: "847124098754",
+            appId: "1:847124098754:web:17c7f23ae15acdfef2155b",
+            measurementId: "G-SRHQ8CS0JT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const user = tg.initDataUnsafe?.user;
+        const userId = user ? user.id.toString() : "usuario_local";
+        if (user) document.getElementById('username').innerText = `ID: ${user.first_name}`;
+
+        let count = 0;
+
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active-tab');
+            document.getElementById('nav-' + tab).classList.add('active');
+        }
+
+        async function cargarPuntos() {
+            const docRef = doc(db, "jugadores", userId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                count = docSnap.data().puntos || 0;
+                document.getElementById('score').innerText = count;
+            }
+        }
+        cargarPuntos();
+
+        const q = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(5));
+        onSnapshot(q, (snapshot) => {
+            const listaHtml = document.getElementById('lista-ranking');
+            listaHtml.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                listaHtml.innerHTML += `<div class="ranking-item"><span>${data.nombre || "Anónimo"}</span><b>${data.puntos.toLocaleString()}</b></div>`;
+            });
+        });
+
+        window.clickCoin = async function(e) {
+            count++;
+            document.getElementById('score').innerText = count;
+            const floating = document.createElement("div");
+            floating.innerText = "+1";
+            floating.className = "floating-text";
+            floating.style.left = e.clientX + "px";
+            floating.style.top = e.clientY + "px";
+            document.body.appendChild(floating);
+            setTimeout(() => floating.remove(), 800);
+            
+            if (count % 5 === 0) {
+                await setDoc(doc(db, "jugadores", userId), { nombre: user ? user.first_name : "Anónimo", puntos: count }, { merge: true });
+            }
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+
+        window.invitarAmigo = function() {
+            const link = `https://t.me/TuBot?start=${userId}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=¡Gana TON conmigo!`);
+        }
+
+        window.hacerMision = async function() {
+            tg.openLink("https://t.me/TuCanal");
+            count += 2000;
+            document.getElementById('score').innerText = count;
+            await setDoc(doc(db, "jugadores", userId), { puntos: count }, { merge: true });
+            alert("¡+2000 puntos!");
+        }
+
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect'
+        });
+
+        window.comprarMejora = async function() {
+            if (!tonConnectUI.connected) { alert("Conecta tu wallet"); return; }
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 60,
+                messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "100000000" }]
+            };
+            try {
+                await tonConnectUI.sendTransaction(transaction);
+                count += 1000;
+                document.getElementById('score').innerText = count;
+                await setDoc(doc(db, "jugadores", userId), { puntos: count }, { merge: true });
+            } catch (e) { console.error(e); }
+        }
+    </script>
+</body>
+</html>
     </div>
 
     <script type="module">
