@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TON Clicker Pro v3.0</title>
+    <title>TON Clicker Pro v4.0 - Offline Mining</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,145 +11,69 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-bg: #031525;
-            --secondary-bg: #061e33;
-            --ton-blue: #0088cc;
-            --accent-gold: #f7a80e;
-            --text-color: #ffffff;
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-bg: rgba(255, 255, 255, 0.03);
+            --primary-bg: #031525; --secondary-bg: #061e33; --ton-blue: #0088cc;
+            --accent-gold: #f7a80e; --text-color: #ffffff;
+            --card-border: rgba(255, 255, 255, 0.08); --card-bg: rgba(255, 255, 255, 0.03);
             --font-main: 'Poppins', sans-serif;
         }
 
         body {
             background-color: var(--primary-bg);
             background-image: radial-gradient(circle at center, var(--secondary-bg) 0%, var(--primary-bg) 100%);
-            color: var(--text-color);
-            text-align: center;
-            font-family: var(--font-main);
-            margin: 0;
-            height: 100vh;
-            overflow: hidden;
-            display: flex; flex-direction: column;
+            color: var(--text-color); text-align: center; font-family: var(--font-main);
+            margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
         .header {
-            height: 65px;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--card-border);
-            z-index: 100;
+            height: 65px; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border); z-index: 100;
         }
 
         #username {
-            background: var(--card-bg);
-            padding: 6px 15px; border-radius: 20px;
-            font-size: 14px; font-weight: 600;
-            border: 1px solid var(--card-border);
-            color: var(--ton-blue);
+            background: var(--card-bg); padding: 6px 15px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid var(--card-border); color: var(--ton-blue);
         }
 
         .main { flex: 1; position: relative; overflow: hidden; }
-        
-        .tab {
-            display: none; width: 100%; height: 100%;
-            flex-direction: column; align-items: center; justify-content: center;
-            position: absolute; top: 0; left: 0;
-        }
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; }
         .active { display: flex !important; }
 
-        /* Estilos de Contenedores */
-        .scroll-container {
-            width: 90%; max-height: 90%;
-            overflow-y: auto; padding-top: 20px;
-        }
+        .scroll-container { width: 90%; max-height: 90%; overflow-y: auto; padding-top: 20px; }
         .scroll-container::-webkit-scrollbar { display: none; }
 
-        /* TAB 1: MINAR */
-        #score-container {
-            margin-bottom: 30px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px 30px; border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        h1 {
-            font-size: 60px; font-weight: 800; margin: 0;
-            background: linear-gradient(180deg, #fff 30%, #aaa 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        #coin {
-            font-size: 140px; user-select: none;
-            animation: float 4s infinite ease-in-out;
-            filter: drop-shadow(0 0 20px rgba(0, 136, 204, 0.4));
-            cursor: pointer;
-        }
+        #score-container { margin-bottom: 30px; background: rgba(0,0,0,0.2); padding: 10px 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h1 { font-size: 60px; font-weight: 800; margin: 0; background: linear-gradient(180deg, #fff 30%, #aaa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        #coin { font-size: 140px; user-select: none; animation: float 4s infinite ease-in-out; filter: drop-shadow(0 0 20px rgba(0, 136, 204, 0.4)); cursor: pointer; transition: transform 0.1s; }
+        #coin:active { transform: scale(0.9); }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* CARDS Y BOTONES */
-        .section-title {
-            color: var(--accent-gold); font-weight: 800; font-size: 16px;
-            text-transform: uppercase; letter-spacing: 1px;
-            margin: 20px 0 10px 0; text-align: left;
-        }
-        .card {
-            background: var(--card-bg); border-radius: 18px;
-            padding: 15px; margin-bottom: 15px;
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(5px);
-        }
-        .btn {
-            width: 100%; padding: 14px; border-radius: 12px; border: none;
-            font-weight: 700; font-family: var(--font-main);
-            margin: 6px 0; font-size: 14px; cursor: pointer;
-        }
+        .section-title { color: var(--accent-gold); font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 0; text-align: left; }
+        .card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--card-border); backdrop-filter: blur(5px); }
+        
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-family: var(--font-main); margin: 6px 0; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .btn-upgrade { background: linear-gradient(90deg, #f7a80e, #ffc107); color: #4a3100; }
+        .btn-auto { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: white; }
         .btn-invite { background: linear-gradient(90deg, #28a745, #34ce57); color: white; }
         .btn-mission { background: linear-gradient(90deg, #6f42c1, #8e65e6); color: white; }
         .btn-completed { background: #333 !important; color: #777 !important; opacity: 0.6; pointer-events: none; }
 
-        /* RANKING */
-        .rank-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 5px; border-bottom: 1px solid var(--card-border);
-        }
+        .rank-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--card-border); }
         .rank-item b { color: var(--accent-gold); }
 
-        /* NAVEGACIÓN */
-        .nav {
-            height: 75px; display: flex;
-            background: rgba(4, 16, 29, 0.95);
-            border-top: 1px solid var(--card-border);
-        }
-        .nav-btn {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            opacity: 0.4; font-weight: 600; font-size: 10px;
-            color: white; transition: 0.3s;
-        }
+        .nav { height: 75px; display: flex; background: rgba(4, 16, 29, 0.95); border-top: 1px solid var(--card-border); }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-weight: 600; font-size: 10px; color: white; transition: 0.3s; position: relative; }
         .nav-btn.on { opacity: 1; color: var(--accent-gold); }
-        .nav-btn.on::before {
-            content: ''; position: absolute; top: 0; width: 30px; height: 3px;
-            background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold);
-        }
+        .nav-btn.on::before { content: ''; position: absolute; top: 0; width: 30px; height: 3px; background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
 
-        /* ANIMACIÓN +1 */
-        .floating-text {
-            position: absolute; color: white; font-weight: 800; font-size: 30px;
-            pointer-events: none; animation: moveUpFade 0.7s forwards;
-            text-shadow: 0 0 10px var(--ton-blue); z-index: 50;
-        }
-        @keyframes moveUpFade {
-            0% { opacity: 0; transform: translateY(0) scale(0.5); }
-            20% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
+        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 30px; pointer-events: none; animation: moveUpFade 0.7s forwards; text-shadow: 0 0 10px var(--ton-blue); z-index: 50; }
+        @keyframes moveUpFade { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 20% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
     <div class="header">
-        <div id="username">ID: Cargando...</div>
+        <div id="username">ID: ...</div>
         <div id="ton-connect"></div>
     </div>
 
@@ -170,7 +94,11 @@
 
         <div id="t2" class="tab">
             <div class="scroll-container">
-                <div class="section-title">✅ Tareas Disponibles</div>
+                <div class="section-title">⚡ Automatización</div>
+                <div class="card">
+                    <button id="btn-autoclicker" class="btn btn-auto" onclick="comprarAutoClicker()">AUTO-CLICKER (+5/s) - 0.2 TON</button>
+                </div>
+                <div class="section-title">✅ Tareas Especiales</div>
                 <div class="card">
                     <button class="btn btn-upgrade" onclick="comprarMejora()">MEJORA (+1000) - 0.1 TON</button>
                     <button class="btn btn-invite" onclick="invitar()">INVITAR AMIGOS</button>
@@ -181,24 +109,17 @@
     </div>
 
     <div class="nav">
-        <div id="b0" class="nav-btn" onclick="ir('t0','b0')">
-            <span style="font-size:20px;">🏆</span><span>RANKING</span>
-        </div>
-        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')">
-            <span style="font-size:20px;">💎</span><span>MINAR</span>
-        </div>
-        <div id="b2" class="nav-btn" onclick="ir('t2','b2')">
-            <span style="font-size:20px;">✅</span><span>TAREAS</span>
-        </div>
+        <div id="b0" class="nav-btn" onclick="ir('t0','b0')"><span style="font-size:20px;">🏆</span><span>RANKING</span></div>
+        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')"><span style="font-size:20px;">💎</span><span>MINAR</span></div>
+        <div id="b2" class="nav-btn" onclick="ir('t2','b2')"><span style="font-size:20px;">✅</span><span>TAREAS</span></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = { apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", authDomain: "mytonclicker.firebaseapp.com", projectId: "mytonclicker", storageBucket: "mytonclicker.firebasestorage.app", messagingSenderId: "847124098754", appId: "1:847124098754:web:17c7f23ae15acdfef2155b" };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         const tg = window.Telegram.WebApp; tg.expand();
 
         const user = tg.initDataUnsafe?.user;
@@ -207,7 +128,8 @@
         if (user) document.getElementById('username').innerText = firstName;
 
         let pts = 0;
-        let misionCompletada = false;
+        let tieneAutoClicker = false;
+        const VALOR_AUTO = 5; // Puntos por segundo
 
         window.ir = (t,b) => {
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -217,15 +139,109 @@
             if (navigator.vibrate) navigator.vibrate(10);
         };
 
+        // --- LÓGICA DE CARGA Y MINADO OFFLINE ---
         async function load() {
             const d = await getDoc(doc(db, "jugadores", userId));
             if (d.exists()) {
-                pts = d.data().puntos || 0;
-                document.getElementById('score').innerText = pts.toLocaleString();
-                if (d.data().mision_canal) setMissionUI();
+                const data = d.data();
+                pts = data.puntos || 0;
+                tieneAutoClicker = data.autoclicker || false;
+
+                if (tieneAutoClicker) {
+                    setAutoClickerUI();
+                    // Calcular Minado Offline
+                    if (data.lastSeen) {
+                        const ahora = Math.floor(Date.now() / 1000);
+                        const antes = data.lastSeen.seconds;
+                        const segundosPasados = ahora - antes;
+                        const ganadoOffline = segundosPasados * VALOR_AUTO;
+                        
+                        if (ganadoOffline > 0) {
+                            pts += ganadoOffline;
+                            tg.showAlert(`¡Bienvenido de nuevo!\nTu Auto-Clicker minó ${ganadoOffline.toLocaleString()} 💎 mientras estabas fuera.`);
+                        }
+                    }
+                }
+                if (data.mision_canal) setMissionUI();
+                updateDisplay();
             }
+            iniciarCicloMinado();
         }
-        load();
+
+        function iniciarCicloMinado() {
+            setInterval(async () => {
+                if (tieneAutoClicker) {
+                    pts += VALOR_AUTO;
+                    updateDisplay();
+                }
+                // Guardar posición y tiempo cada 20 segundos
+                if (new Date().getSeconds() % 20 === 0) {
+                    saveAll();
+                }
+            }, 1000);
+        }
+
+        async function saveAll() {
+            await setDoc(doc(db, "jugadores", userId), { 
+                nombre: firstName, 
+                puntos: pts, 
+                lastSeen: serverTimestamp() 
+            }, { merge: true });
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').innerText = pts.toLocaleString();
+        }
+
+        // --- ACCIONES ---
+        window.clickCoin = (e) => {
+            pts++; updateDisplay();
+            createPop(e.clientX, e.clientY);
+            if (navigator.vibrate) navigator.vibrate(35);
+        };
+
+        function createPop(x, y) {
+            const f = document.createElement("div"); f.className = "floating-text"; f.innerText = "+1";
+            f.style.left = (x - 15) + "px"; f.style.top = (y - 20) + "px";
+            document.body.appendChild(f); setTimeout(() => f.remove(), 700);
+        }
+
+        const tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
+
+        window.comprarAutoClicker = async () => {
+            try {
+                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "200000000" }] });
+                tieneAutoClicker = true; setAutoClickerUI();
+                await setDoc(doc(db, "jugadores", userId), { autoclicker: true, lastSeen: serverTimestamp() }, { merge: true });
+                tg.showAlert("¡Auto-Clicker activado! Minando incluso offline.");
+            } catch(e) {}
+        };
+
+        window.comprarMejora = async () => {
+            try {
+                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "100000000" }] });
+                pts += 1000; updateDisplay();
+                await saveAll();
+            } catch(e) {}
+        };
+
+        window.mision = async () => {
+            tg.openLink("https://t.me/TuCanal");
+            setTimeout(async () => {
+                pts += 200; setMissionUI(); updateDisplay();
+                await setDoc(doc(db, "jugadores", userId), { puntos: pts, mision_canal: true }, { merge: true });
+            }, 2000);
+        };
+
+        function setAutoClickerUI() {
+            const b = document.getElementById('btn-autoclicker');
+            if(b) { b.innerText = "AUTO-MINADO ACTIVO ⚡"; b.className = "btn btn-completed"; b.onclick = null; }
+        }
+
+        function setMissionUI() {
+            const b = document.getElementById('btn-mision');
+            if(b) { b.innerText = "COMPLETADO ✅"; b.className = "btn btn-completed"; b.onclick = null; }
+        }
 
         onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
             const l = document.getElementById('ranking'); l.innerHTML = "";
@@ -236,47 +252,7 @@
             });
         });
 
-        window.clickCoin = async (e) => {
-            pts++;
-            document.getElementById('score').innerText = pts.toLocaleString();
-            createPop(e.clientX, e.clientY);
-            if (navigator.vibrate) navigator.vibrate(35);
-            if (pts % 10 === 0) await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: pts }, { merge: true });
-        };
-
-        function createPop(x, y) {
-            const f = document.createElement("div");
-            f.className = "floating-text"; f.innerText = "+1";
-            f.style.left = (x - 15) + "px"; f.style.top = (y - 20) + "px";
-            document.body.appendChild(f);
-            setTimeout(() => f.remove(), 700);
-        }
-
-        const tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
-
-        window.comprarMejora = async () => {
-            try {
-                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "100000000" }] });
-                pts += 1000; document.getElementById('score').innerText = pts.toLocaleString();
-                await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true });
-            } catch(e) {}
-        };
-
-        window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/TuBot&text=¡Únete!`);
-
-        window.mision = async () => {
-            tg.openLink("https://t.me/TuCanal");
-            setTimeout(async () => {
-                pts += 200; setMissionUI();
-                document.getElementById('score').innerText = pts.toLocaleString();
-                await setDoc(doc(db, "jugadores", userId), { puntos: pts, mision_canal: true }, { merge: true });
-            }, 2000);
-        };
-
-        function setMissionUI() {
-            const b = document.getElementById('btn-mision');
-            b.innerText = "COMPLETADO ✅"; b.className = "btn btn-completed";
-        }
+        load();
     </script>
 </body>
 </html>
