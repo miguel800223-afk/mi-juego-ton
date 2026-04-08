@@ -89,7 +89,7 @@
             try { await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "100000000" }] });
             pts += 1000; document.getElementById('score').innerText = pts; await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); } catch(e){}
         };
-        window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/TuBot&text=¡Únete!`);
+        window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/SuperTonClicker_bot&text=¡Únete!`);
         window.mision = async () => { tg.openLink("https://t.me/TuCanal"); pts += 2000; document.getElementById('score').innerText = pts; await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); };
     </script>
 </body>
