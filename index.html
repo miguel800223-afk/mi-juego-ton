@@ -7,37 +7,40 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
-        body { background-color: #0088cc; color: white; text-align: center; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; justify-content: center; height: 100vh; overflow: hidden; }
-        .user-info { position: absolute; top: 10px; left: 10px; font-size: 14px; text-align: left; }
-        h1 { font-size: 80px; margin: 10px 0; }
-        #coin { font-size: 150px; cursor: pointer; transition: transform 0.1s; display: inline-block; user-select: none; }
-        #coin:active { transform: scale(0.8); }
-        #ton-connect { display: flex; justify-content: center; margin-top: 20px; }
-        .btn-compra { margin-top: 20px; padding: 12px 20px; background: #f7a80e; border: none; border-radius: 15px; color: black; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        body { background-color: #0088cc; color: white; text-align: center; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        .user-info { position: absolute; top: 10px; left: 10px; font-size: 14px; }
+        h1 { font-size: 60px; margin: 10px 0; }
+        #coin { font-size: 120px; cursor: pointer; transition: transform 0.1s; display: inline-block; user-select: none; margin: 20px 0; }
+        #coin:active { transform: scale(0.9); }
+        #ton-connect { margin-top: 10px; }
+        .btn-compra { padding: 10px 15px; background: #f7a80e; border: none; border-radius: 12px; color: black; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        
+        /* Estilos del Ranking */
+        .ranking-container { background: rgba(0, 0, 0, 0.2); border-radius: 15px; padding: 15px; width: 80%; max-width: 300px; margin-top: 20px; }
+        .ranking-title { font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; }
+        .ranking-item { display: flex; justify-content: space-between; font-size: 14px; margin: 5px 0; }
     </style>
 </head>
 <body>
 
-    <div class="user-info">
-        <span id="username">Cargando jugador...</span>
-    </div>
+    <div class="user-info"><span id="username">Cargando...</span></div>
 
-    <p>Puntos acumulados</p>
+    <p>Mis Puntos</p>
     <h1 id="score">0</h1>
     
     <div id="coin" onclick="clickCoin()">💎</div>
 
-    <p>¡TOCA PARA GANAR!</p>
-    
     <div id="ton-connect"></div>
+    <button class="btn-compra" onclick="comprarMejora()">+1000 Puntos (0.1 TON)</button>
 
-    <button class="btn-compra" onclick="comprarMejora()">
-        Comprar Mejora (0.1 TON)
-    </button>
+    <div class="ranking-container">
+        <div class="ranking-title">🏆 TOP JUGADORES</div>
+        <div id="lista-ranking">Cargando ranking...</div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I",
@@ -60,7 +63,8 @@
 
         let count = 0;
 
-        async function cargarPuntos() {
+        // Cargar mis puntos personales
+        async function cargarMisPuntos() {
             const docRef = doc(db, "jugadores", userId);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -68,7 +72,22 @@
                 document.getElementById('score').innerText = count;
             }
         }
-        cargarPuntos();
+        cargarMisPuntos();
+
+        // --- LÓGICA DEL RANKING EN TIEMPO REAL ---
+        const q = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(5));
+        onSnapshot(q, (snapshot) => {
+            const listaHtml = document.getElementById('lista-ranking');
+            listaHtml.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                listaHtml.innerHTML += `
+                    <div class="ranking-item">
+                        <span>${data.nombre || "Anónimo"}</span>
+                        <b>${data.puntos}</b>
+                    </div>`;
+            });
+        });
 
         window.clickCoin = async function() {
             count++;
@@ -82,41 +101,26 @@
             if (navigator.vibrate) navigator.vibrate(50);
         }
 
-        // --- SISTEMA DE PAGOS ---
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json',
             buttonRootId: 'ton-connect'
         });
 
         window.comprarMejora = async function() {
-            if (!tonConnectUI.connected) {
-                alert("Primero debes conectar tu billetera.");
-                return;
-            }
-
+            if (!tonConnectUI.connected) { alert("Conecta tu wallet"); return; }
             const transaction = {
                 validUntil: Math.floor(Date.now() / 1000) + 60,
-                messages: [
-                    {
-                        address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", // TU WALLET
-                        amount: "100000000" // 0.1 TON en nanotons
-                    }
-                ]
+                messages: [{
+                    address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj",
+                    amount: "100000000"
+                }]
             };
-
             try {
                 await tonConnectUI.sendTransaction(transaction);
-                alert("¡Transacción enviada! Gracias por tu compra.");
-                
-                // Opcional: Sumar puntos extra por la compra
                 count += 1000;
                 document.getElementById('score').innerText = count;
                 await setDoc(doc(db, "jugadores", userId), { puntos: count }, { merge: true });
-                
-            } catch (e) {
-                console.error("Error:", e);
-                alert("Pago cancelado o fallido.");
-            }
+            } catch (e) { console.error(e); }
         }
     </script>
 </body>
