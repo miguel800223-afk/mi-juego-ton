@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>TON Clicker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         body { background-color: #0088cc; color: white; text-align: center; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; justify-content: center; height: 100vh; overflow: hidden; }
         .user-info { position: absolute; top: 10px; left: 10px; font-size: 14px; text-align: left; }
         h1 { font-size: 80px; margin: 10px 0; }
         #coin { font-size: 150px; cursor: pointer; transition: transform 0.1s; display: inline-block; user-select: none; }
         #coin:active { transform: scale(0.8); }
-        .btn-save { margin-top: 20px; padding: 10px 20px; background: white; color: #0088cc; border: none; border-radius: 20px; font-weight: bold; }
+        #ton-connect { display: flex; justify-content: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -27,36 +27,33 @@
     <div id="coin" onclick="clickCoin()">💎</div>
 
     <p>¡TOCA PARA GANAR!</p>
-<div id="ton-connect" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
+    
+    <div id="ton-connect"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Abre la app a pantalla completa
+        tg.expand();
 
-        // Intentar obtener el nombre del usuario de Telegram
         const user = tg.initDataUnsafe?.user;
         if (user) {
             document.getElementById('username').innerText = `Jugador: ${user.first_name}`;
         }
 
-        // Cargar puntos guardados anteriormente
         let count = parseInt(localStorage.getItem('puntos')) || 0;
         document.getElementById('score').innerText = count;
 
         function clickCoin() {
             count++;
             document.getElementById('score').innerText = count;
-            
-            // Guardar en la memoria del celular
             localStorage.setItem('puntos', count);
-
             if (navigator.vibrate) navigator.vibrate(50);
         }
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: 'https://tu-usuario.github.io/tu-repositorio/tonconnect-manifest.json',
-    buttonRootId: 'ton-connect'
-});
-</script>
+
+        // Conexión con tu usuario y repo real
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect'
+        });
+    </script>
 </body>
 </html>
-
