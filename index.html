@@ -30,26 +30,76 @@
     
     <div id="ton-connect"></div>
 
-    <script>
+    <script type="module">
+        // Importamos Firebase desde la web
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Tus datos reales de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I",
+            authDomain: "mytonclicker.firebaseapp.com",
+            projectId: "mytonclicker",
+            storageBucket: "mytonclicker.firebasestorage.app",
+            messagingSenderId: "847124098754",
+            appId: "1:847124098754:web:17c7f23ae15acdfef2155b",
+            measurementId: "G-SRHQ8CS0JT"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const user = tg.initDataUnsafe?.user;
+        const userId = user ? user.id.toString() : "usuario_local";
+
         if (user) {
             document.getElementById('username').innerText = `Jugador: ${user.first_name}`;
         }
 
-        let count = parseInt(localStorage.getItem('puntos')) || 0;
-        document.getElementById('score').innerText = count;
+        let count = 0;
 
-        function clickCoin() {
+        // 1. Cargar puntos desde Firebase al abrir el juego
+        async function cargarPuntos() {
+            try {
+                const docRef = doc(db, "jugadores", userId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    count = docSnap.data().puntos || 0;
+                    document.getElementById('score').innerText = count;
+                }
+            } catch (e) {
+                console.error("Error al cargar:", e);
+            }
+        }
+        cargarPuntos();
+
+        // 2. Función para ganar puntos y guardar en la nube
+        window.clickCoin = async function() {
             count++;
             document.getElementById('score').innerText = count;
-            localStorage.setItem('puntos', count);
+            
+            // Guardar en la nube cada 5 clics
+            if (count % 5 === 0) {
+                try {
+                    await setDoc(doc(db, "jugadores", userId), {
+                        nombre: user ? user.first_name : "Anónimo",
+                        puntos: count,
+                        ultima_actualizacion: new Date()
+                    }, { merge: true });
+                } catch (e) {
+                    console.error("Error al guardar:", e);
+                }
+            }
+            
             if (navigator.vibrate) navigator.vibrate(50);
         }
 
-        // Conexión con tu usuario y repo real
+        // 3. Conexión de billetera (lo que ya tenías funcionando)
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json',
             buttonRootId: 'ton-connect'
