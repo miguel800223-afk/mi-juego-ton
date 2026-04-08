@@ -13,6 +13,7 @@
         #coin { font-size: 150px; cursor: pointer; transition: transform 0.1s; display: inline-block; user-select: none; }
         #coin:active { transform: scale(0.8); }
         #ton-connect { display: flex; justify-content: center; margin-top: 20px; }
+        .btn-compra { margin-top: 20px; padding: 12px 20px; background: #f7a80e; border: none; border-radius: 15px; color: black; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -30,12 +31,14 @@
     
     <div id="ton-connect"></div>
 
+    <button class="btn-compra" onclick="comprarMejora()">
+        Comprar Mejora (0.1 TON)
+    </button>
+
     <script type="module">
-        // Importamos Firebase desde la web
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Tus datos reales de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I",
             authDomain: "mytonclicker.firebaseapp.com",
@@ -46,64 +49,75 @@
             measurementId: "G-SRHQ8CS0JT"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id.toString() : "usuario_local";
-
-        if (user) {
-            document.getElementById('username').innerText = `Jugador: ${user.first_name}`;
-        }
+        if (user) document.getElementById('username').innerText = `Jugador: ${user.first_name}`;
 
         let count = 0;
 
-        // 1. Cargar puntos desde Firebase al abrir el juego
         async function cargarPuntos() {
-            try {
-                const docRef = doc(db, "jugadores", userId);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    count = docSnap.data().puntos || 0;
-                    document.getElementById('score').innerText = count;
-                }
-            } catch (e) {
-                console.error("Error al cargar:", e);
+            const docRef = doc(db, "jugadores", userId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                count = docSnap.data().puntos || 0;
+                document.getElementById('score').innerText = count;
             }
         }
         cargarPuntos();
 
-        // 2. Función para ganar puntos y guardar en la nube
         window.clickCoin = async function() {
             count++;
             document.getElementById('score').innerText = count;
-            
-            // Guardar en la nube cada 5 clics
             if (count % 5 === 0) {
-                try {
-                    await setDoc(doc(db, "jugadores", userId), {
-                        nombre: user ? user.first_name : "Anónimo",
-                        puntos: count,
-                        ultima_actualizacion: new Date()
-                    }, { merge: true });
-                } catch (e) {
-                    console.error("Error al guardar:", e);
-                }
+                await setDoc(doc(db, "jugadores", userId), {
+                    nombre: user ? user.first_name : "Anónimo",
+                    puntos: count
+                }, { merge: true });
             }
-            
             if (navigator.vibrate) navigator.vibrate(50);
         }
 
-        // 3. Conexión de billetera (lo que ya tenías funcionando)
+        // --- SISTEMA DE PAGOS ---
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json',
             buttonRootId: 'ton-connect'
         });
+
+        window.comprarMejora = async function() {
+            if (!tonConnectUI.connected) {
+                alert("Primero debes conectar tu billetera.");
+                return;
+            }
+
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 60,
+                messages: [
+                    {
+                        address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", // TU WALLET
+                        amount: "100000000" // 0.1 TON en nanotons
+                    }
+                ]
+            };
+
+            try {
+                await tonConnectUI.sendTransaction(transaction);
+                alert("¡Transacción enviada! Gracias por tu compra.");
+                
+                // Opcional: Sumar puntos extra por la compra
+                count += 1000;
+                document.getElementById('score').innerText = count;
+                await setDoc(doc(db, "jugadores", userId), { puntos: count }, { merge: true });
+                
+            } catch (e) {
+                console.error("Error:", e);
+                alert("Pago cancelado o fallido.");
+            }
+        }
     </script>
 </body>
 </html>
