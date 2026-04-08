@@ -7,31 +7,88 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
-        body { background-color: #0088cc; color: white; text-align: center; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
-        .user-info { position: absolute; top: 10px; left: 10px; font-size: 14px; }
-        h1 { font-size: 60px; margin: 10px 0; }
-        #coin { font-size: 120px; cursor: pointer; transition: transform 0.1s; display: inline-block; user-select: none; margin: 20px 0; }
-        #coin:active { transform: scale(0.9); }
-        #ton-connect { margin-top: 10px; }
-        .btn-compra { padding: 10px 15px; background: #f7a80e; border: none; border-radius: 12px; color: black; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        body { 
+            background: radial-gradient(circle, #0088cc 0%, #004466 100%); 
+            color: white; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 100vh; overflow: hidden; 
+        }
+
+        .user-info { 
+            position: absolute; top: 15px; left: 15px; 
+            background: rgba(255,255,255,0.1); padding: 5px 12px; 
+            border-radius: 12px; font-size: 14px; border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        h1 { font-size: 75px; margin: 10px 0; text-shadow: 0 4px 15px rgba(0,0,0,0.4); font-weight: 800; }
         
-        /* Estilos del Ranking */
-        .ranking-container { background: rgba(0, 0, 0, 0.2); border-radius: 15px; padding: 15px; width: 80%; max-width: 300px; margin-top: 20px; }
-        .ranking-title { font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; }
-        .ranking-item { display: flex; justify-content: space-between; font-size: 14px; margin: 5px 0; }
+        #coin { 
+            font-size: 130px; cursor: pointer; transition: transform 0.1s; 
+            display: inline-block; user-select: none; margin: 10px 0; 
+            filter: drop-shadow(0 0 20px rgba(0, 136, 204, 0.8)); 
+            animation: float 3s ease-in-out infinite; 
+        }
+
+        @keyframes float { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-20px); } 
+        }
+
+        #coin:active { transform: scale(0.85); }
+
+        .floating-text { 
+            position: absolute; color: #f7a80e; font-weight: bold; 
+            font-size: 28px; pointer-events: none; 
+            animation: moveUp 0.8s ease-out forwards; text-shadow: 1px 1px 5px black;
+        }
+
+        @keyframes moveUp { 
+            from { opacity: 1; transform: translateY(0); } 
+            to { opacity: 0; transform: translateY(-120px); } 
+        }
+
+        .btn-compra { 
+            margin-top: 10px; padding: 12px 20px; background: #f7a80e; 
+            border: none; border-radius: 15px; color: black; 
+            font-weight: bold; cursor: pointer; font-size: 16px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.2s;
+        }
+
+        .btn-compra:active { transform: scale(0.95); }
+
+        .ranking-container { 
+            background: rgba(0, 0, 0, 0.3); border-radius: 20px; 
+            padding: 15px; width: 85%; max-width: 320px; 
+            margin-top: 25px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ranking-title { 
+            font-weight: bold; margin-bottom: 12px; 
+            border-bottom: 1px solid rgba(255,255,255,0.2); 
+            padding-bottom: 8px; font-size: 18px; color: #f7a80e;
+        }
+
+        .ranking-item { 
+            display: flex; justify-content: space-between; 
+            font-size: 15px; margin: 8px 0; padding: 0 5px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="user-info"><span id="username">Cargando...</span></div>
+    <div class="user-info">
+        <span id="username">Cargando jugador...</span>
+    </div>
 
-    <p>Mis Puntos</p>
+    <p style="margin-bottom: 0; opacity: 0.8;">Puntos acumulados</p>
     <h1 id="score">0</h1>
     
-    <div id="coin" onclick="clickCoin()">💎</div>
+    <div id="coin" onclick="clickCoin(event)">💎</div>
 
     <div id="ton-connect"></div>
-    <button class="btn-compra" onclick="comprarMejora()">+1000 Puntos (0.1 TON)</button>
+    <button class="btn-compra" onclick="comprarMejora()">
+        Comprar Mejora (0.1 TON)
+    </button>
 
     <div class="ranking-container">
         <div class="ranking-title">🏆 TOP JUGADORES</div>
@@ -63,8 +120,8 @@
 
         let count = 0;
 
-        // Cargar mis puntos personales
-        async function cargarMisPuntos() {
+        // Cargar mis puntos
+        async function cargarPuntos() {
             const docRef = doc(db, "jugadores", userId);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -72,9 +129,9 @@
                 document.getElementById('score').innerText = count;
             }
         }
-        cargarMisPuntos();
+        cargarPuntos();
 
-        // --- LÓGICA DEL RANKING EN TIEMPO REAL ---
+        // Ranking en vivo
         const q = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(5));
         onSnapshot(q, (snapshot) => {
             const listaHtml = document.getElementById('lista-ranking');
@@ -84,35 +141,50 @@
                 listaHtml.innerHTML += `
                     <div class="ranking-item">
                         <span>${data.nombre || "Anónimo"}</span>
-                        <b>${data.puntos}</b>
+                        <b>${data.puntos.toLocaleString()}</b>
                     </div>`;
             });
         });
 
-        window.clickCoin = async function() {
+        // Click con efecto flotante
+        window.clickCoin = async function(e) {
             count++;
             document.getElementById('score').innerText = count;
+
+            // Animación +1
+            const floating = document.createElement("div");
+            floating.innerText = "+1";
+            floating.className = "floating-text";
+            floating.style.left = (e.clientX || window.innerWidth / 2) + "px";
+            floating.style.top = (e.clientY || window.innerHeight / 2) + "px";
+            document.body.appendChild(floating);
+            setTimeout(() => floating.remove(), 800);
+            
             if (count % 5 === 0) {
                 await setDoc(doc(db, "jugadores", userId), {
                     nombre: user ? user.first_name : "Anónimo",
                     puntos: count
                 }, { merge: true });
             }
-            if (navigator.vibrate) navigator.vibrate(50);
+            if (navigator.vibrate) navigator.vibrate(40);
         }
 
+        // Sistema de pagos
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json',
             buttonRootId: 'ton-connect'
         });
 
         window.comprarMejora = async function() {
-            if (!tonConnectUI.connected) { alert("Conecta tu wallet"); return; }
+            if (!tonConnectUI.connected) {
+                alert("Primero conecta tu billetera arriba.");
+                return;
+            }
             const transaction = {
                 validUntil: Math.floor(Date.now() / 1000) + 60,
                 messages: [{
                     address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj",
-                    amount: "100000000"
+                    amount: "100000000" // 0.1 TON
                 }]
             };
             try {
@@ -120,7 +192,10 @@
                 count += 1000;
                 document.getElementById('score').innerText = count;
                 await setDoc(doc(db, "jugadores", userId), { puntos: count }, { merge: true });
-            } catch (e) { console.error(e); }
+                alert("¡Compra exitosa! +1000 puntos.");
+            } catch (e) {
+                alert("Pago no realizado.");
+            }
         }
     </script>
 </body>
