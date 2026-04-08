@@ -14,11 +14,20 @@
             min-height: 100vh; overflow: hidden; 
         }
 
+        /* Contenedor de la parte superior */
+        .header {
+            position: absolute; top: 15px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; box-sizing: border-box;
+        }
+
         .user-info { 
-            position: absolute; top: 15px; left: 15px; 
             background: rgba(255,255,255,0.1); padding: 5px 12px; 
             border-radius: 12px; font-size: 14px; border: 1px solid rgba(255,255,255,0.2);
         }
+
+        /* Ajuste para que el botón de wallet no se vea gigante */
+        #ton-connect button { scale: 0.8; transform-origin: right; }
 
         h1 { font-size: 75px; margin: 10px 0; text-shadow: 0 4px 15px rgba(0,0,0,0.4); font-weight: 800; }
         
@@ -76,16 +85,18 @@
 </head>
 <body>
 
-    <div class="user-info">
-        <span id="username">Cargando jugador...</span>
+    <div class="header">
+        <div class="user-info">
+            <span id="username">Cargando...</span>
+        </div>
+        <div id="ton-connect"></div>
     </div>
 
-    <p style="margin-bottom: 0; opacity: 0.8;">Puntos acumulados</p>
+    <p style="margin-top: 60px; margin-bottom: 0; opacity: 0.8;">Puntos acumulados</p>
     <h1 id="score">0</h1>
     
     <div id="coin" onclick="clickCoin(event)">💎</div>
 
-    <div id="ton-connect"></div>
     <button class="btn-compra" onclick="comprarMejora()">
         Comprar Mejora (0.1 TON)
     </button>
@@ -116,11 +127,13 @@
 
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id.toString() : "usuario_local";
-        if (user) document.getElementById('username').innerText = `Jugador: ${user.first_name}`;
+        
+        if (user) {
+            document.getElementById('username').innerText = `ID: ${user.first_name}`;
+        }
 
         let count = 0;
 
-        // Cargar mis puntos
         async function cargarPuntos() {
             const docRef = doc(db, "jugadores", userId);
             const docSnap = await getDoc(docRef);
@@ -131,7 +144,6 @@
         }
         cargarPuntos();
 
-        // Ranking en vivo
         const q = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(5));
         onSnapshot(q, (snapshot) => {
             const listaHtml = document.getElementById('lista-ranking');
@@ -146,12 +158,10 @@
             });
         });
 
-        // Click con efecto flotante
         window.clickCoin = async function(e) {
             count++;
             document.getElementById('score').innerText = count;
 
-            // Animación +1
             const floating = document.createElement("div");
             floating.innerText = "+1";
             floating.className = "floating-text";
@@ -169,7 +179,6 @@
             if (navigator.vibrate) navigator.vibrate(40);
         }
 
-        // Sistema de pagos
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json',
             buttonRootId: 'ton-connect'
@@ -184,7 +193,7 @@
                 validUntil: Math.floor(Date.now() / 1000) + 60,
                 messages: [{
                     address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj",
-                    amount: "100000000" // 0.1 TON
+                    amount: "100000000"
                 }]
             };
             try {
