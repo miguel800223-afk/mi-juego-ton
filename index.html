@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TON Clicker Pro v2.0</title>
+    <title>TON Clicker Pro v3.0</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,16 +30,12 @@
             margin: 0;
             height: 100vh;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
         }
 
-        /* HEADER - Más limpio */
         .header {
             height: 65px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             padding: 0 15px;
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
@@ -49,218 +45,105 @@
 
         #username {
             background: var(--card-bg);
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
+            padding: 6px 15px; border-radius: 20px;
+            font-size: 14px; font-weight: 600;
             border: 1px solid var(--card-border);
             color: var(--ton-blue);
         }
 
-        #ton-connect button {
-            scale: 0.85;
-            transition: transform 0.2s ease;
-        }
-        #ton-connect button:active { transform: scale(0.8); }
-
-        /* MAIN & TABS */
         .main { flex: 1; position: relative; overflow: hidden; }
+        
         .tab {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: 0; left: 0;
-            padding-top: 10px;
+            display: none; width: 100%; height: 100%;
+            flex-direction: column; align-items: center; justify-content: center;
+            position: absolute; top: 0; left: 0;
         }
         .active { display: flex !important; }
 
-        /* TAB 1: MINAR - Nuevo look del diamante y marcadores */
+        /* Estilos de Contenedores */
+        .scroll-container {
+            width: 90%; max-height: 90%;
+            overflow-y: auto; padding-top: 20px;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+
+        /* TAB 1: MINAR */
         #score-container {
             margin-bottom: 30px;
             background: rgba(0,0,0,0.2);
-            padding: 10px 30px;
-            border-radius: 20px;
+            padding: 10px 30px; border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-
         h1 {
-            font-size: 70px;
-            font-weight: 800;
-            margin: 0;
+            font-size: 60px; font-weight: 800; margin: 0;
             background: linear-gradient(180deg, #fff 30%, #aaa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        #coin-wrapper {
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        #coin-wrapper:active { transform: scale(0.95); }
-
         #coin {
-            font-size: 150px;
-            user-select: none;
+            font-size: 140px; user-select: none;
             animation: float 4s infinite ease-in-out;
-            display: inline-block;
-            filter: drop-shadow(0 0 20px rgba(0, 136, 204, 0.5));
+            filter: drop-shadow(0 0 20px rgba(0, 136, 204, 0.4));
+            cursor: pointer;
         }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* Animación de flotación más suave */
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(2deg); }
-        }
-
-        /* TAB 2: TAREAS - Cards más profesionales */
-        .tasks-container {
-            width: 90%;
-            max-height: 90%;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        /* Scrollbar oculto pero funcional */
-        .tasks-container::-webkit-scrollbar { width: 4px; }
-        .tasks-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
+        /* CARDS Y BOTONES */
         .section-title {
-            color: var(--accent-gold);
-            font-weight: 800;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 25px 0 10px 0;
-            text-align: left;
-            padding-left: 10px;
+            color: var(--accent-gold); font-weight: 800; font-size: 16px;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin: 20px 0 10px 0; text-align: left;
         }
-
         .card {
-            background: var(--card-bg);
-            border-radius: 18px;
-            padding: 18px;
-            margin-bottom: 15px;
+            background: var(--card-bg); border-radius: 18px;
+            padding: 15px; margin-bottom: 15px;
             border: 1px solid var(--card-border);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             backdrop-filter: blur(5px);
         }
-
         .btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 700;
-            font-family: var(--font-main);
-            margin: 6px 0;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 100%; padding: 14px; border-radius: 12px; border: none;
+            font-weight: 700; font-family: var(--font-main);
+            margin: 6px 0; font-size: 14px; cursor: pointer;
         }
+        .btn-upgrade { background: linear-gradient(90deg, #f7a80e, #ffc107); color: #4a3100; }
+        .btn-invite { background: linear-gradient(90deg, #28a745, #34ce57); color: white; }
+        .btn-mission { background: linear-gradient(90deg, #6f42c1, #8e65e6); color: white; }
+        .btn-completed { background: #333 !important; color: #777 !important; opacity: 0.6; pointer-events: none; }
 
-        .btn:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        /* RANKING */
+        .rank-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 5px; border-bottom: 1px solid var(--card-border);
+        }
+        .rank-item b { color: var(--accent-gold); }
 
-        /* Estilos específicos de botones */
-        .btn-upgrade {
-            background: linear-gradient(90deg, #f7a80e 0%, #ffc107 100%);
-            color: #4a3100;
-        }
-        .btn-invite {
-            background: linear-gradient(90deg, #28a745 0%, #34ce57 100%);
-            color: white;
-        }
-        .btn-mission {
-            background: linear-gradient(90deg, #6f42c1 0%, #8e65e6 100%);
-            color: white;
-        }
-        .btn:disabled, .btn-completed {
-            background: #333 !important;
-            color: #777 !important;
-            opacity: 0.7;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        /* RANKING - Mejor espaciado */
-        #ranking div {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 5px;
-            border-bottom: 1px solid var(--card-border);
-        }
-        #ranking div:last-child { border-bottom: none; }
-        #ranking span { color: rgba(255,255,255,0.8); font-size: 15px; }
-        #ranking b { color: var(--accent-gold); font-size: 16px; font-weight: 600; }
-
-        /* NAVIGATION - Botones más claros */
+        /* NAVEGACIÓN */
         .nav {
-            height: 75px;
-            display: flex;
-            background: rgba(4, 16, 29, 0.9);
+            height: 75px; display: flex;
+            background: rgba(4, 16, 29, 0.95);
             border-top: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-            padding-bottom: env(safe-area-inset-bottom); /* Para iPhones nuevos */
         }
-
         .nav-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.5;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: white;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            opacity: 0.4; font-weight: 600; font-size: 10px;
+            color: white; transition: 0.3s;
         }
-
-        .nav-btn.on {
-            opacity: 1;
-            color: var(--accent-gold);
-        }
-        
-        /* Indicador visual de pestaña activa */
+        .nav-btn.on { opacity: 1; color: var(--accent-gold); }
         .nav-btn.on::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            width: 40px;
-            height: 4px;
-            background-color: var(--accent-gold);
-            border-radius: 0 0 4px 4px;
-            box-shadow: 0 0 10px var(--accent-gold);
+            content: ''; position: absolute; top: 0; width: 30px; height: 3px;
+            background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold);
         }
 
-        /* ANIMACIÓN DE IMPACTO: +1 */
+        /* ANIMACIÓN +1 */
         .floating-text {
-            position: absolute;
-            color: white;
-            font-weight: 800;
-            font-size: 32px;
-            pointer-events: none; /* No interrumpe los clics */
-            animation: moveUpAndFade 0.7s ease-out forwards;
-            font-family: var(--font-main);
-            text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px var(--ton-blue);
-            z-index: 50;
+            position: absolute; color: white; font-weight: 800; font-size: 30px;
+            pointer-events: none; animation: moveUpFade 0.7s forwards;
+            text-shadow: 0 0 10px var(--ton-blue); z-index: 50;
         }
-
-        @keyframes moveUpAndFade {
-            0% { opacity: 0; transform: translateY(0) scale(0.5) rotate(-10deg); }
-            15% { opacity: 1; transform: translateY(-10px) scale(1.2) rotate(0deg); }
-            100% { opacity: 0; transform: translateY(-120px) scale(1) rotate(10deg); }
+        @keyframes moveUpFade {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            20% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: translateY(-100px); }
         }
     </style>
 </head>
@@ -269,180 +152,131 @@
         <div id="username">ID: Cargando...</div>
         <div id="ton-connect"></div>
     </div>
+
     <div class="main">
-        <div id="t1" class="tab active">
-            <div id="score-container">
-                <p style="margin:0 0 5px 0;opacity:0.7;font-size:14px;letter-spacing:1px;text-transform:uppercase;">Puntos</p>
-                <h1 id="score">0</h1>
-            </div>
-            <div id="coin-wrapper" onclick="clickCoin(event)">
-                <div id="coin">💎</div>
+        <div id="t0" class="tab">
+            <div class="scroll-container">
+                <div class="section-title">🏆 Top Líderes</div>
+                <div class="card" id="ranking">Cargando ranking...</div>
             </div>
         </div>
+
+        <div id="t1" class="tab active">
+            <div id="score-container">
+                <h1 id="score">0</h1>
+            </div>
+            <div id="coin" onclick="clickCoin(event)">💎</div>
+        </div>
+
         <div id="t2" class="tab">
-            <div class="tasks-container">
-                <div class="section-title">TAREAS ESPECIALES</div>
+            <div class="scroll-container">
+                <div class="section-title">✅ Tareas Disponibles</div>
                 <div class="card">
-                    <button class="btn btn-upgrade" onclick="comprarMejora()">MEJORA ESTÁNDAR (+1000 Pts) - 0.1 TON</button>
+                    <button class="btn btn-upgrade" onclick="comprarMejora()">MEJORA (+1000) - 0.1 TON</button>
                     <button class="btn btn-invite" onclick="invitar()">INVITAR AMIGOS</button>
                     <button id="btn-mision" class="btn btn-mission" onclick="mision()">UNIRSE AL CANAL (+200)</button>
                 </div>
-                <div class="section-title">LÍDERES GLOBALES</div>
-                <div class="card" id="ranking">Cargando...</div>
             </div>
         </div>
     </div>
+
     <div class="nav">
+        <div id="b0" class="nav-btn" onclick="ir('t0','b0')">
+            <span style="font-size:20px;">🏆</span><span>RANKING</span>
+        </div>
         <div id="b1" class="nav-btn on" onclick="ir('t1','b1')">
-            <span style="font-size:24px;margin-bottom:4px;">💎</span>
-            <span>MINAR</span>
+            <span style="font-size:20px;">💎</span><span>MINAR</span>
         </div>
         <div id="b2" class="nav-btn" onclick="ir('t2','b2')">
-            <span style="font-size:24px;margin-bottom:4px;">🏆</span>
-            <span>TAREAS</span>
+            <span style="font-size:20px;">✅</span><span>TAREAS</span>
         </div>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
-        // --- CONFIGURACIÓN FIREBASE (Mantenemos la tuya) ---
         const firebaseConfig = { apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", authDomain: "mytonclicker.firebaseapp.com", projectId: "mytonclicker", storageBucket: "mytonclicker.firebasestorage.app", messagingSenderId: "847124098754", appId: "1:847124098754:web:17c7f23ae15acdfef2155b" };
-        const app = initializeApp(firebaseConfig); 
-        const db = getFirestore(app); 
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
         const tg = window.Telegram.WebApp; tg.expand();
-        if (tg.BackgroundColor) tg.setHeaderColor(tg.BackgroundColor); // Adaptar color de cabecera de Telegram
 
-        const user = tg.initDataUnsafe?.user; 
+        const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id.toString() : "local";
-        const firstName = user ? user.first_name : "Anon";
-        if (user) document.getElementById('username').innerText = ` ${firstName}`;
-        
+        const firstName = user ? user.first_name : "Jugador";
+        if (user) document.getElementById('username').innerText = firstName;
+
         let pts = 0;
         let misionCompletada = false;
-        let savesInProgress = 0;
 
-        // --- NAVEGACIÓN ---
         window.ir = (t,b) => {
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('on'));
             document.getElementById(t).classList.add('active');
             document.getElementById(b).classList.add('on');
-            if (navigator.vibrate) navigator.vibrate(10); // Feedback táctil suave al cambiar de pestaña
+            if (navigator.vibrate) navigator.vibrate(10);
         };
 
-        // --- CARGA DE DATOS ---
         async function load() {
-            try {
-                const d = await getDoc(doc(db, "jugadores", userId));
-                if (d.exists()) { 
-                    pts = d.data().puntos || 0; 
-                    updateScoreDisplay();
-                    misionCompletada = d.data().mision_canal || false;
-                    if (misionCompletada) setMissionCompletedUI();
-                } else {
-                    // Crear usuario si no existe
-                    await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: 0 }, { merge: true });
-                }
-            } catch(e) { console.error("Error cargando datos:", e); }
+            const d = await getDoc(doc(db, "jugadores", userId));
+            if (d.exists()) {
+                pts = d.data().puntos || 0;
+                document.getElementById('score').innerText = pts.toLocaleString();
+                if (d.data().mision_canal) setMissionUI();
+            }
         }
         load();
 
-        // --- RANKING EN TIEMPO REAL ---
-        onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(5)), (s) => {
+        onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
             const l = document.getElementById('ranking'); l.innerHTML = "";
             let i = 1;
-            s.forEach((x) => { 
-                const data = x.data();
-                const corona = i === 1 ? "🥇 " : i === 2 ? "🥈 " : i === 3 ? "🥉 " : `#${i} `;
-                l.innerHTML += `<div><span>${corona}${data.nombre}</span><b>${data.puntos.toLocaleString()}</b></div>`; 
+            s.forEach(x => {
+                l.innerHTML += `<div class="rank-item"><span>${i}. ${x.data().nombre}</span><b>${x.data().puntos.toLocaleString()}</b></div>`;
                 i++;
             });
         });
 
-        // --- FUNCIÓN PRINCIPAL DE CLIC ---
         window.clickCoin = async (e) => {
-            pts++; 
-            updateScoreDisplay();
-            
-            // Animación de impacto (+1)
-            createFloatingText(e.clientX, e.clientY);
-            
-            // Feedback táctil (Vibración)
-            if (navigator.vibrate) navigator.vibrate(30);
-
-            // Guardado optimizado (cada 10 clics y si no hay otro guardado en proceso pesado)
-            if (pts % 10 === 0) {
-                try {
-                    savesInProgress++;
-                    await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: pts }, { merge: true });
-                } catch(e) { console.error("Error guardando:", e); }
-                finally { savesInProgress--; }
-            }
+            pts++;
+            document.getElementById('score').innerText = pts.toLocaleString();
+            createPop(e.clientX, e.clientY);
+            if (navigator.vibrate) navigator.vibrate(35);
+            if (pts % 10 === 0) await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: pts }, { merge: true });
         };
 
-        // --- AUXILIARES DE UI ---
-        function updateScoreDisplay() {
-            document.getElementById('score').innerText = pts.toLocaleString();
-        }
-
-        function createFloatingText(x, y) {
-            const f = document.createElement("div"); 
-            f.className = "floating-text"; 
-            f.innerText = "+1";
-            // Centrar el texto en el punto del clic
-            f.style.left = (x - 20) + "px"; 
-            f.style.top = (y - 30) + "px";
-            
-            // Variación aleatoria ligera en X para que no salgan todos rectos
-            const randomX = (Math.random() - 0.5) * 30;
-            f.style.setProperty('--random-x', `${randomX}px`);
-
-            document.body.appendChild(f); 
+        function createPop(x, y) {
+            const f = document.createElement("div");
+            f.className = "floating-text"; f.innerText = "+1";
+            f.style.left = (x - 15) + "px"; f.style.top = (y - 20) + "px";
+            document.body.appendChild(f);
             setTimeout(() => f.remove(), 700);
         }
 
-        function setMissionCompletedUI() {
-            const btn = document.getElementById('btn-mision');
-            btn.innerText = "CANAL COMPLETADO ✅";
-            btn.className = "btn btn-mission btn-completed"; // Cambia estilo a completado
-            btn.onclick = null; // Desactiva el clic
-        }
-
-        // --- TON CONNECT & TRANSACCIONES (Mantenemos tu lógica) ---
         const tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
-        
+
         window.comprarMejora = async () => {
-            try { 
-                // 0.1 TON en Nanoton: 100,000,000
-                const tx = { validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "100000000" }] };
-                await tonUI.sendTransaction(tx);
-                // Si la tx tiene éxito:
-                pts += 1000; 
-                updateScoreDisplay();
-                await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); 
-                tg.showAlert("¡Mejora comprada! +1000 puntos.");
-            } catch(e){
-                console.error("Error en transacción:", e);
-                tg.showAlert("La transacción no se completó.");
-            }
+            try {
+                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "100000000" }] });
+                pts += 1000; document.getElementById('score').innerText = pts.toLocaleString();
+                await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true });
+            } catch(e) {}
         };
 
-        window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/TuBot&text=¡Únete a TON Clicker Pro y gana 💎!`);
-        
-        window.mision = async () => { 
-            if (misionCompletada) return; 
-            tg.openLink("https://t.me/TuCanal"); 
-            // Pequeño delay para simular verificación
+        window.invitar = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/TuBot&text=¡Únete!`);
+
+        window.mision = async () => {
+            tg.openLink("https://t.me/TuCanal");
             setTimeout(async () => {
-                pts += 200; 
-                misionCompletada = true;
-                updateScoreDisplay();
-                setMissionCompletedUI();
+                pts += 200; setMissionUI();
+                document.getElementById('score').innerText = pts.toLocaleString();
                 await setDoc(doc(db, "jugadores", userId), { puntos: pts, mision_canal: true }, { merge: true });
-                tg.showAlert("¡Gracias por unirte! +200 puntos.");
-            }, 1000);
+            }, 2000);
         };
+
+        function setMissionUI() {
+            const b = document.getElementById('btn-mision');
+            b.innerText = "COMPLETADO ✅"; b.className = "btn btn-completed";
+        }
     </script>
 </body>
 </html>
