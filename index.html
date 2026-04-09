@@ -13,6 +13,7 @@
             --accent-gold: #f7a80e; --text-color: #ffffff;
             --card-border: rgba(255, 255, 255, 0.08); --card-bg: rgba(255, 255, 255, 0.03);
             --font-main: 'Poppins', sans-serif;
+            --futuristic-glow: #00f2fe; 
         }
 
         body {
@@ -34,11 +35,7 @@
             font-size: 13px; font-weight: 600; 
             border: 1px solid rgba(0, 136, 204, 0.3); 
             color: var(--ton-blue);
-            min-width: 50px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 120px;
+            min-width: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
         }
 
         .main { flex: 1; position: relative; overflow: hidden; }
@@ -48,21 +45,37 @@
         .scroll-container { width: 90%; max-height: 90%; overflow-y: auto; padding-top: 20px; }
         .scroll-container::-webkit-scrollbar { display: none; }
 
-        .energy-container { width: 85%; margin-top: 20px; text-align: left; }
-        .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-top: 5px; }
-        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f7a80e, #ffee00); transition: width 0.3s; }
+        /* ENERGÍA ACTUALIZADA */
+        .energy-container { width: 85%; margin-top: 25px; text-align: left; }
+        .energy-bar-bg { width: 100%; height: 14px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(0, 242, 254, 0.2); overflow: hidden; margin-top: 5px; }
+        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #0088cc, #00f2fe); transition: width 0.5s ease; box-shadow: 0 0 10px var(--futuristic-glow); }
 
         #score-container { 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             background: rgba(255,255,255,0.05); 
-            padding: 20px 40px; border-radius: 25px;
+            padding: 15px 30px; border-radius: 25px;
             min-width: 180px;
         }
-        h1 { font-size: 65px; font-weight: 800; margin: 0; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        h1 { font-size: 50px; font-weight: 800; margin: 0; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
         
-        #coin { font-size: 150px; user-select: none; animation: float 4s infinite ease-in-out; filter: drop-shadow(0 0 30px rgba(0, 136, 204, 0.5)); cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
-        #coin:active { transform: scale(0.92); }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        #coin-container {
+            width: 220px; height: 220px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s;
+            animation: floatFuturistic 4s infinite ease-in-out, neonGlow 2s infinite alternate;
+            border-radius: 50%; position: relative;
+        }
+
+        #coin-icon { width: 90%; height: 90%; object-fit: contain; filter: drop-shadow(0 0 15px var(--futuristic-glow)); }
+        #coin-container:active { transform: scale(0.94); }
+
+        @keyframes floatFuturistic { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+        @keyframes neonGlow {
+            0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.1); }
+            100% { box-shadow: 0 0 30px rgba(0, 242, 254, 0.4); }
+        }
 
         .section-title { color: var(--accent-gold); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 8px 0; text-align: left; }
         .card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--card-border); }
@@ -74,15 +87,12 @@
         .btn-mission { background: linear-gradient(90deg, #6f42c1, #8e65e6); color: white; }
         .btn-completed { background: #333 !important; color: #777 !important; opacity: 0.6; pointer-events: none; }
 
-        .rank-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid var(--card-border); font-size: 14px; }
-        .rank-item b { color: var(--accent-gold); }
-
         .nav { height: 75px; display: flex; background: rgba(4, 16, 29, 0.95); border-top: 1px solid var(--card-border); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-weight: 600; font-size: 10px; color: white; transition: 0.3s; position: relative; }
-        .nav-btn.on { opacity: 1; color: var(--accent-gold); }
-        .nav-btn.on::before { content: ''; position: absolute; top: 0; width: 35px; height: 3px; background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
+        .nav-btn.on { opacity: 1; color: var(--futuristic-glow); }
+        .nav-btn.on::before { content: ''; position: absolute; top: 0; width: 35px; height: 3px; background: var(--futuristic-glow); box-shadow: 0 0 10px var(--futuristic-glow); }
 
-        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUpFade 0.7s forwards; text-shadow: 0 0 10px var(--ton-blue); z-index: 50; }
+        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUpFade 0.7s forwards; text-shadow: 0 0 10px var(--futuristic-glow); z-index: 50; }
         @keyframes moveUpFade { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 20% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
@@ -104,11 +114,15 @@
             <div id="score-container">
                 <h1 id="score">0</h1>
             </div>
-            <div id="coin" onclick="clickCoin(event)">💎</div>
+            
+            <div id="coin-container" onclick="clickCoin(event)">
+                <img src="https://i.ibb.co/5R40pY4/futuristic-energy-core.png" alt="Minar" id="coin-icon">
+            </div>
+            
             <div class="energy-container">
-                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold;">
+                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; color: var(--futuristic-glow);">
                     <span>⚡ Energía</span>
-                    <span id="energy-text">1000/1000</span>
+                    <span id="energy-text">500/500</span>
                 </div>
                 <div class="energy-bar-bg"><div id="energy-fill"></div></div>
             </div>
@@ -132,7 +146,7 @@
 
     <div class="nav">
         <div id="b0" class="nav-btn" onclick="ir('t0','b0')"><span style="font-size:20px;">🏆</span><span>TOP</span></div>
-        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')"><span style="font-size:20px;">💎</span><span>MINAR</span></div>
+        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')"><span style="font-size:20px;">⚡</span><span>MINAR</span></div>
         <div id="b2" class="nav-btn" onclick="ir('t2','b2')"><span style="font-size:20px;">✅</span><span>TAREAS</span></div>
     </div>
 
@@ -154,8 +168,9 @@
         document.getElementById('username').innerText = firstName;
 
         let pts = 0, tieneAutoClicker = false, nivelClic = 1;
-        let energiaActual = 1000, maxEnergia = 1000;
-        let lastClickTime = 0; // Para evitar bots de clic rápido
+        let energiaActual = 500, maxEnergia = 500; // REDUCIDO A 500
+        let lastClickTime = 0; 
+        let regenCounter = 0; // Para controlar la velocidad lenta de recuperación
 
         async function load() {
             const d = await getDoc(doc(db, "jugadores", userId));
@@ -179,7 +194,6 @@
                         if (ganado > 0) { pts += ganado; tg.showAlert(`Minado offline: +${ganado.toLocaleString()}`); }
                     }
                 }
-                if (data.mision_canal) setMissionUI();
             }
             document.getElementById('lv-clic').innerText = nivelClic;
             updateDisplay();
@@ -188,13 +202,16 @@
 
         function iniciarCiclo() {
             setInterval(() => {
-                // Auto-clicker pasivo
                 if (tieneAutoClicker) { pts += 5; updateDisplay(); }
                 
-                // Regeneración de energía controlada (+1 por segundo)
-                if (energiaActual < maxEnergia) { 
-                    energiaActual = Math.min(maxEnergia, energiaActual + 1); 
-                    updateEnergyUI(); 
+                // RECUPERACIÓN LENTA: +1 cada 3 segundos
+                regenCounter++;
+                if (regenCounter >= 3) {
+                    if (energiaActual < maxEnergia) { 
+                        energiaActual = Math.min(maxEnergia, energiaActual + 1); 
+                        updateEnergyUI(); 
+                    }
+                    regenCounter = 0;
                 }
                 
                 if (new Date().getSeconds() % 20 === 0) saveAll();
@@ -203,8 +220,7 @@
 
         window.clickCoin = (e) => {
             const now = Date.now();
-            
-            // ANTI-BOT: Bloquea si hay menos de 80ms entre clics (máximo ~12 clics/seg)
+            // Anti-bot: Cooldown de 80ms
             if (now - lastClickTime < 80) return;
             lastClickTime = now;
 
@@ -219,7 +235,6 @@
             updateDisplay(); 
             updateEnergyUI();
             createPop(e.clientX, e.clientY, `+${nivelClic}`);
-            
             if (navigator.vibrate) navigator.vibrate(35);
         };
 
@@ -269,7 +284,6 @@
         }
 
         function setAutoClickerUI() { const b = document.getElementById('btn-autoclicker'); if(b) { b.innerText = "AUTO-MINADO ACTIVO ⚡"; b.className = "btn btn-completed"; b.onclick = null; } }
-        function setMissionUI() { const b = document.getElementById('btn-mision'); if(b) { b.innerText = "COMPLETADO ✅"; b.className = "btn btn-completed"; b.onclick = null; } }
         
         onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
             const l = document.getElementById('ranking'); l.innerHTML = "";
