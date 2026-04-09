@@ -10,9 +10,9 @@
     <style>
         :root {
             --primary-bg: #031525; --secondary-bg: #061e33; --ton-blue: #0088cc;
-            --accent-gold: #f7a80e; --text-color: #ffffff;
-            --card-border: rgba(255, 255, 255, 0.08); --card-bg: rgba(255, 255, 255, 0.03);
-            --font-main: 'Poppins', sans-serif;
+            --accent-gold: #f7a80e; --accent-silver: #c0c0c0; --accent-bronze: #cd7f32;
+            --text-color: #ffffff; --card-border: rgba(255, 255, 255, 0.08);
+            --card-bg: rgba(255, 255, 255, 0.03); --font-main: 'Poppins', sans-serif;
             --futuristic-glow: #00f2fe; 
         }
 
@@ -30,70 +30,68 @@
         }
 
         #username { 
-            background: rgba(0, 136, 204, 0.1); 
-            padding: 6px 15px; border-radius: 20px; 
-            font-size: 13px; font-weight: 600; 
-            border: 1px solid rgba(0, 136, 204, 0.3); 
-            color: var(--ton-blue);
-            min-width: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
+            background: rgba(0, 136, 204, 0.1); padding: 6px 15px; border-radius: 20px; 
+            font-size: 13px; font-weight: 600; border: 1px solid rgba(0, 136, 204, 0.3); 
+            color: var(--ton-blue); min-width: 50px;
         }
 
         .main { flex: 1; position: relative; overflow: hidden; }
         .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; }
         .active { display: flex !important; }
 
-        .scroll-container { width: 90%; max-height: 90%; overflow-y: auto; padding-top: 20px; }
+        .scroll-container { width: 92%; max-height: 90%; overflow-y: auto; padding-top: 20px; margin: 0 auto; }
         .scroll-container::-webkit-scrollbar { display: none; }
 
-        /* ENERGÍA ACTUALIZADA */
+        /* RANKING CON TROFEOS */
+        .rank-item { 
+            display: grid; grid-template-columns: 50px 1fr auto; 
+            align-items: center; padding: 14px 18px; 
+            background: rgba(255,255,255,0.03); margin-bottom: 10px;
+            border-radius: 16px; border: 1px solid var(--card-border);
+            text-align: left; transition: 0.3s;
+        }
+        .rank-number { font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+        .rank-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+        .rank-score { font-weight: 800; color: white; font-size: 16px; }
+
+        /* Estilos de medallas */
+        .gold { border-color: var(--accent-gold); background: rgba(247, 168, 14, 0.05); }
+        .gold .rank-score { color: var(--accent-gold); }
+        .silver { border-color: var(--accent-silver); background: rgba(192, 192, 192, 0.05); }
+        .silver .rank-score { color: var(--accent-silver); }
+        .bronze { border-color: var(--accent-bronze); background: rgba(205, 127, 50, 0.05); }
+        .bronze .rank-score { color: var(--accent-bronze); }
+
+        /* ENERGÍA */
         .energy-container { width: 85%; margin-top: 25px; text-align: left; }
-        .energy-bar-bg { width: 100%; height: 14px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(0, 242, 254, 0.2); overflow: hidden; margin-top: 5px; }
-        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #0088cc, #00f2fe); transition: width 0.5s ease; box-shadow: 0 0 10px var(--futuristic-glow); }
+        .energy-bar-bg { width: 100%; height: 14px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(0, 242, 254, 0.2); overflow: hidden; }
+        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #0088cc, #00f2fe); box-shadow: 0 0 10px var(--futuristic-glow); transition: width 0.5s; }
 
         #score-container { 
-            margin-bottom: 15px; 
-            background: rgba(255,255,255,0.05); 
-            padding: 15px 30px; border-radius: 25px;
-            min-width: 180px;
+            background: rgba(255,255,255,0.05); padding: 15px 40px; border-radius: 25px; margin-bottom: 20px;
+            border: 1px solid var(--card-border);
         }
-        h1 { font-size: 50px; font-weight: 800; margin: 0; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        h1 { font-size: 55px; margin: 0; text-shadow: 0 0 20px rgba(0, 242, 254, 0.3); }
         
         #coin-container {
-            width: 220px; height: 220px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            transition: transform 0.1s;
-            animation: floatFuturistic 4s infinite ease-in-out, neonGlow 2s infinite alternate;
-            border-radius: 50%; position: relative;
+            width: 220px; height: 220px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+            animation: floatFuturistic 4s infinite ease-in-out;
         }
+        #coin-icon { width: 100%; height: 100%; filter: drop-shadow(0 0 20px var(--futuristic-glow)); }
 
-        #coin-icon { width: 90%; height: 90%; object-fit: contain; filter: drop-shadow(0 0 15px var(--futuristic-glow)); }
-        #coin-container:active { transform: scale(0.94); }
+        @keyframes floatFuturistic { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        @keyframes floatFuturistic { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
-        @keyframes neonGlow {
-            0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.1); }
-            100% { box-shadow: 0 0 30px rgba(0, 242, 254, 0.4); }
-        }
-
-        .section-title { color: var(--accent-gold); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 8px 0; text-align: left; }
-        .card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--card-border); }
-        
-        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-family: var(--font-main); margin: 6px 0; font-size: 13px; cursor: pointer; }
-        .btn-upgrade { background: linear-gradient(90deg, #f7a80e, #ffc107); color: #4a3100; }
-        .btn-auto { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: white; }
-        .btn-invite { background: linear-gradient(90deg, #28a745, #34ce57); color: white; }
-        .btn-mission { background: linear-gradient(90deg, #6f42c1, #8e65e6); color: white; }
-        .btn-completed { background: #333 !important; color: #777 !important; opacity: 0.6; pointer-events: none; }
-
-        .nav { height: 75px; display: flex; background: rgba(4, 16, 29, 0.95); border-top: 1px solid var(--card-border); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-weight: 600; font-size: 10px; color: white; transition: 0.3s; position: relative; }
+        .nav { height: 75px; display: flex; background: rgba(4, 16, 29, 0.98); border-top: 1px solid var(--card-border); }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 10px; color: white; transition: 0.3s; }
         .nav-btn.on { opacity: 1; color: var(--futuristic-glow); }
         .nav-btn.on::before { content: ''; position: absolute; top: 0; width: 35px; height: 3px; background: var(--futuristic-glow); box-shadow: 0 0 10px var(--futuristic-glow); }
 
-        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUpFade 0.7s forwards; text-shadow: 0 0 10px var(--futuristic-glow); z-index: 50; }
-        @keyframes moveUpFade { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 20% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: translateY(-100px); } }
+        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUpFade 0.7s forwards; text-shadow: 0 0 10px var(--futuristic-glow); }
+        @keyframes moveUpFade { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 100% { opacity: 0; transform: translateY(-120px) scale(1.2); } }
+        
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; margin: 6px 0; cursor: pointer; color: #fff; font-family: var(--font-main); }
+        .btn-upgrade { background: linear-gradient(90deg, #f7a80e, #ffc107); color: #4a3100; }
     </style>
 </head>
 <body>
@@ -105,24 +103,25 @@
     <div class="main">
         <div id="t0" class="tab">
             <div class="scroll-container">
-                <div class="section-title">🏆 Top Líderes</div>
-                <div class="card" id="ranking">Cargando...</div>
+                <div style="color:var(--accent-gold); font-weight:800; text-align:left; margin-bottom:15px; font-size: 14px; letter-spacing: 1px;">🏆 TOP LÍDERES</div>
+                <div id="ranking">Cargando lista...</div>
             </div>
         </div>
 
         <div id="t1" class="tab active">
-            <div id="score-container">
-                <h1 id="score">0</h1>
-            </div>
-            
+            <div id="score-container"><h1 id="score">0</h1></div>
             <div id="coin-container" onclick="clickCoin(event)">
-                <img src="https://i.ibb.co/5R40pY4/futuristic-energy-core.png" alt="Minar" id="coin-icon">
+                <svg id="coin-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" stroke="#00f2fe" stroke-width="2" fill="rgba(0,242,254,0.1)"/>
+                    <path d="M50 20V80M20 50H80" stroke="#00f2fe" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="50" cy="50" r="15" fill="#00f2fe">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+                    </circle>
+                </svg>
             </div>
-            
             <div class="energy-container">
-                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; color: var(--futuristic-glow);">
-                    <span>⚡ Energía</span>
-                    <span id="energy-text">500/500</span>
+                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; color:var(--futuristic-glow);">
+                    <span>⚡ Energía</span> <span id="energy-text">500/500</span>
                 </div>
                 <div class="energy-bar-bg"><div id="energy-fill"></div></div>
             </div>
@@ -130,24 +129,16 @@
 
         <div id="t2" class="tab">
             <div class="scroll-container">
-                <div class="section-title">📈 Mejoras de Clic</div>
-                <div class="card">
-                    <button id="btn-multiclic" class="btn btn-upgrade" onclick="comprarMultiClic()">MEJORAR CLIC (Nivel <span id="lv-clic">1</span>) - 0.05 TON</button>
-                    <button id="btn-autoclicker" class="btn btn-auto" onclick="comprarAutoClicker()">AUTO-CLICKER (+5/s) - 0.2 TON</button>
-                </div>
-                <div class="section-title">👥 Comunidad</div>
-                <div class="card">
-                    <button class="btn btn-invite" onclick="invitar()">INVITAR Y GANAR (+2500)</button>
-                    <button id="btn-mision" class="btn btn-mission" onclick="mision()">UNIRSE AL CANAL (+200)</button>
-                </div>
+                <div style="color:var(--accent-gold); font-weight:800; text-align:left; margin-bottom:15px;">📈 MEJORAS</div>
+                <button class="btn btn-upgrade" onclick="comprarMultiClic()">MEJORAR CLIC (Nivel <span id="lv-clic">1</span>)</button>
             </div>
         </div>
     </div>
 
     <div class="nav">
-        <div id="b0" class="nav-btn" onclick="ir('t0','b0')"><span style="font-size:20px;">🏆</span><span>TOP</span></div>
-        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')"><span style="font-size:20px;">⚡</span><span>MINAR</span></div>
-        <div id="b2" class="nav-btn" onclick="ir('t2','b2')"><span style="font-size:20px;">✅</span><span>TAREAS</span></div>
+        <div id="b0" class="nav-btn" onclick="ir('t0','b0')"><span>🏆</span><span>TOP</span></div>
+        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')"><span>⚡</span><span>MINAR</span></div>
+        <div id="b2" class="nav-btn" onclick="ir('t2','b2')"><span>✅</span><span>TAREAS</span></div>
     </div>
 
     <script type="module">
@@ -158,82 +149,46 @@
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         
         const tg = window.Telegram.WebApp;
-        tg.expand();
-
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id.toString() : "local";
         const firstName = user ? user.first_name : "Jugador";
-        const refBy = tg.initDataUnsafe?.start_param; 
 
         document.getElementById('username').innerText = firstName;
 
-        let pts = 0, tieneAutoClicker = false, nivelClic = 1;
-        let energiaActual = 500, maxEnergia = 500; // REDUCIDO A 500
-        let lastClickTime = 0; 
-        let regenCounter = 0; // Para controlar la velocidad lenta de recuperación
+        let pts = 0, nivelClic = 1, energiaActual = 500, maxEnergia = 500;
+        let lastClickTime = 0, regenCounter = 0;
 
         async function load() {
             const d = await getDoc(doc(db, "jugadores", userId));
-            if (!d.exists()) {
-                if (refBy && refBy !== userId) {
-                    await setDoc(doc(db, "jugadores", refBy), { puntos: increment(2500) }, { merge: true });
-                    pts = 2500;
-                    tg.showAlert("¡Bono de 2500 💎 por invitación!");
-                }
-                await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: pts, nivelClic: 1, autoclicker: false, lastSeen: serverTimestamp() });
-            } else {
+            if (d.exists()) {
                 const data = d.data();
                 pts = data.puntos || 0;
                 nivelClic = data.nivelClic || 1;
-                tieneAutoClicker = data.autoclicker || false;
-                if (tieneAutoClicker) {
-                    setAutoClickerUI();
-                    if(data.lastSeen) {
-                        const segs = Math.floor(Date.now()/1000) - data.lastSeen.seconds;
-                        const ganado = segs * 5;
-                        if (ganado > 0) { pts += ganado; tg.showAlert(`Minado offline: +${ganado.toLocaleString()}`); }
-                    }
-                }
+            } else {
+                await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: 0, nivelClic: 1 });
             }
             document.getElementById('lv-clic').innerText = nivelClic;
             updateDisplay();
-            iniciarCiclo();
+            iniciarRegen();
         }
 
-        function iniciarCiclo() {
+        function iniciarRegen() {
             setInterval(() => {
-                if (tieneAutoClicker) { pts += 5; updateDisplay(); }
-                
-                // RECUPERACIÓN LENTA: +1 cada 3 segundos
                 regenCounter++;
                 if (regenCounter >= 3) {
-                    if (energiaActual < maxEnergia) { 
-                        energiaActual = Math.min(maxEnergia, energiaActual + 1); 
-                        updateEnergyUI(); 
-                    }
+                    if (energiaActual < maxEnergia) { energiaActual++; updateEnergyUI(); }
                     regenCounter = 0;
                 }
-                
                 if (new Date().getSeconds() % 20 === 0) saveAll();
             }, 1000);
         }
 
         window.clickCoin = (e) => {
             const now = Date.now();
-            // Anti-bot: Cooldown de 80ms
-            if (now - lastClickTime < 80) return;
+            if (now - lastClickTime < 80 || energiaActual < nivelClic) return;
             lastClickTime = now;
-
-            if (energiaActual < nivelClic) { 
-                if(navigator.vibrate) navigator.vibrate(100); 
-                return; 
-            }
-
-            pts += nivelClic; 
-            energiaActual -= nivelClic;
-            
-            updateDisplay(); 
-            updateEnergyUI();
+            pts += nivelClic; energiaActual -= nivelClic;
+            updateDisplay(); updateEnergyUI();
             createPop(e.clientX, e.clientY, `+${nivelClic}`);
             if (navigator.vibrate) navigator.vibrate(35);
         };
@@ -244,30 +199,6 @@
             document.getElementById('energy-fill').style.width = `${(energiaActual/maxEnergia)*100}%`;
         }
 
-        const tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
-
-        window.comprarMultiClic = async () => {
-            try {
-                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "50000000" }] });
-                nivelClic++;
-                document.getElementById('lv-clic').innerText = nivelClic;
-                await setDoc(doc(db, "jugadores", userId), { nivelClic: nivelClic }, { merge: true });
-            } catch(e) {}
-        };
-
-        window.comprarAutoClicker = async () => {
-            try {
-                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "200000000" }] });
-                tieneAutoClicker = true; setAutoClickerUI();
-                await setDoc(doc(db, "jugadores", userId), { autoclicker: true }, { merge: true });
-            } catch(e) {}
-        };
-
-        window.invitar = () => {
-            const link = `https://t.me/SuperTonClicker_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=¡Gana 💎 gratis en Super TON Clicker! Recibe 2500 de bono.`);
-        };
-
         window.ir = (t,b) => {
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('on'));
@@ -275,19 +206,35 @@
             document.getElementById(b).classList.add('on');
         };
 
-        async function saveAll() { await setDoc(doc(db, "jugadores", userId), { puntos: pts, lastSeen: serverTimestamp() }, { merge: true }); }
-        
+        async function saveAll() { await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); }
+
         function createPop(x, y, txt) {
             const f = document.createElement("div"); f.className = "floating-text"; f.innerText = txt;
             f.style.left = (x - 20) + "px"; f.style.top = (y - 30) + "px";
             document.body.appendChild(f); setTimeout(() => f.remove(), 700);
         }
 
-        function setAutoClickerUI() { const b = document.getElementById('btn-autoclicker'); if(b) { b.innerText = "AUTO-MINADO ACTIVO ⚡"; b.className = "btn btn-completed"; b.onclick = null; } }
-        
+        // --- SISTEMA DE RANKING CON TROFEOS ---
         onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
             const l = document.getElementById('ranking'); l.innerHTML = "";
-            let i = 1; s.forEach(x => { l.innerHTML += `<div class="rank-item"><span>${i}. ${x.data().nombre}</span><b>${x.data().puntos.toLocaleString()}</b></div>`; i++; });
+            let i = 1;
+            s.forEach(x => {
+                const data = x.data();
+                let trophy = i;
+                let extraClass = "";
+
+                if (i === 1) { trophy = "🥇"; extraClass = "gold"; }
+                else if (i === 2) { trophy = "🥈"; extraClass = "silver"; }
+                else if (i === 3) { trophy = "🥉"; extraClass = "bronze"; }
+
+                l.innerHTML += `
+                    <div class="rank-item ${extraClass}">
+                        <div class="rank-number">${trophy}</div>
+                        <div class="rank-name">${data.nombre}</div>
+                        <div class="rank-score">${data.puntos.toLocaleString()}</div>
+                    </div>`;
+                i++;
+            });
         });
 
         load();
