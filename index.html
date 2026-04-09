@@ -22,7 +22,6 @@
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* HEADER CORREGIDO */
         .header {
             height: 65px; display: flex; justify-content: space-between; align-items: center;
             padding: 0 15px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
@@ -49,7 +48,6 @@
         .scroll-container { width: 90%; max-height: 90%; overflow-y: auto; padding-top: 20px; }
         .scroll-container::-webkit-scrollbar { display: none; }
 
-        /* ENERGÍA */
         .energy-container { width: 85%; margin-top: 20px; text-align: left; }
         .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-top: 5px; }
         #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f7a80e, #ffee00); transition: width 0.3s; }
@@ -148,17 +146,16 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- SOLUCIÓN PARA EL NOMBRE DE USUARIO ---
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id.toString() : "local";
         const firstName = user ? user.first_name : "Jugador";
         const refBy = tg.initDataUnsafe?.start_param; 
 
-        // Pintar nombre inmediatamente
         document.getElementById('username').innerText = firstName;
 
         let pts = 0, tieneAutoClicker = false, nivelClic = 1;
         let energiaActual = 1000, maxEnergia = 1000;
+        let lastClickTime = 0; // Para evitar bots de clic rápido
 
         async function load() {
             const d = await getDoc(doc(db, "jugadores", userId));
@@ -191,17 +188,38 @@
 
         function iniciarCiclo() {
             setInterval(() => {
+                // Auto-clicker pasivo
                 if (tieneAutoClicker) { pts += 5; updateDisplay(); }
-                if (energiaActual < maxEnergia) { energiaActual = Math.min(maxEnergia, energiaActual + 2); updateEnergyUI(); }
+                
+                // Regeneración de energía controlada (+1 por segundo)
+                if (energiaActual < maxEnergia) { 
+                    energiaActual = Math.min(maxEnergia, energiaActual + 1); 
+                    updateEnergyUI(); 
+                }
+                
                 if (new Date().getSeconds() % 20 === 0) saveAll();
             }, 1000);
         }
 
         window.clickCoin = (e) => {
-            if (energiaActual < nivelClic) { if(navigator.vibrate) navigator.vibrate(100); return; }
-            pts += nivelClic; energiaActual -= nivelClic;
-            updateDisplay(); updateEnergyUI();
+            const now = Date.now();
+            
+            // ANTI-BOT: Bloquea si hay menos de 80ms entre clics (máximo ~12 clics/seg)
+            if (now - lastClickTime < 80) return;
+            lastClickTime = now;
+
+            if (energiaActual < nivelClic) { 
+                if(navigator.vibrate) navigator.vibrate(100); 
+                return; 
+            }
+
+            pts += nivelClic; 
+            energiaActual -= nivelClic;
+            
+            updateDisplay(); 
+            updateEnergyUI();
             createPop(e.clientX, e.clientY, `+${nivelClic}`);
+            
             if (navigator.vibrate) navigator.vibrate(35);
         };
 
@@ -231,7 +249,7 @@
         };
 
         window.invitar = () => {
-            const link = `https://t.me/SuperTonClicker_bot?start=${userId}`; // REEMPLAZA TuBot POR EL TUYO
+            const link = `https://t.me/SuperTonClicker_bot?start=${userId}`;
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=¡Gana 💎 gratis en Super TON Clicker! Recibe 2500 de bono.`);
         };
 
