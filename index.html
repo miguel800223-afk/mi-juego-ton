@@ -39,38 +39,37 @@
         .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; }
         .active { display: flex !important; }
 
-        .scroll-container { width: 92%; max-height: 90%; overflow-y: auto; padding-top: 20px; margin: 0 auto; }
+        .scroll-container { width: 92%; max-height: 90%; overflow-y: auto; padding-top: 10px; margin: 0 auto; padding-bottom: 20px;}
         .scroll-container::-webkit-scrollbar { display: none; }
 
         /* RANKING */
         .rank-item { 
             display: grid; grid-template-columns: 50px 1fr auto; 
-            align-items: center; padding: 14px 18px; 
-            background: rgba(255,255,255,0.03); margin-bottom: 10px;
+            align-items: center; padding: 12px 18px; 
+            background: rgba(255,255,255,0.03); margin-bottom: 8px;
             border-radius: 16px; border: 1px solid var(--card-border);
             text-align: left;
         }
         .rank-number { font-weight: 800; font-size: 16px; text-align: center; }
-        .gold { border-color: var(--accent-gold); background: rgba(247, 168, 14, 0.05); }
-        .silver { border-color: var(--accent-silver); background: rgba(192, 192, 192, 0.05); }
-        .bronze { border-color: var(--accent-bronze); background: rgba(205, 127, 50, 0.05); }
+        .gold { border-color: var(--accent-gold); }
+        .silver { border-color: var(--accent-silver); }
+        .bronze { border-color: var(--accent-bronze); }
 
         /* ENERGÍA */
-        .energy-container { width: 85%; margin-top: 25px; text-align: left; }
-        .energy-bar-bg { width: 100%; height: 14px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(0, 242, 254, 0.2); overflow: hidden; }
+        .energy-container { width: 85%; margin-top: 15px; text-align: left; }
+        .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(0, 242, 254, 0.1); overflow: hidden; }
         #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #0088cc, #00f2fe); box-shadow: 0 0 10px var(--futuristic-glow); transition: width 0.5s; }
 
         #score-container { 
-            background: rgba(255,255,255,0.05); padding: 15px 40px; border-radius: 25px; margin-bottom: 10px;
+            background: rgba(255,255,255,0.05); padding: 10px 40px; border-radius: 25px; margin-bottom: 10px;
             border: 1px solid var(--card-border);
         }
-        h1 { font-size: 55px; margin: 0; text-shadow: 0 0 20px rgba(0, 242, 254, 0.3); }
+        h1 { font-size: 50px; margin: 0; text-shadow: 0 0 20px rgba(0, 242, 254, 0.3); }
         
         #coin-container {
-            width: 220px; height: 220px; display: flex; align-items: center; justify-content: center;
+            width: 210px; height: 210px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
-            animation: floatFuturistic 4s infinite ease-in-out;
-            position: relative;
+            animation: floatFuturistic 4s infinite ease-in-out; position: relative;
         }
         #coin-icon { width: 100%; height: 100%; filter: drop-shadow(0 0 20px var(--futuristic-glow)); }
 
@@ -78,21 +77,23 @@
 
         /* NAV */
         .nav { height: 75px; display: flex; background: rgba(4, 16, 29, 0.98); border-top: 1px solid var(--card-border); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 10px; color: white; transition: 0.3s; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 10px; color: white; transition: 0.3s; position: relative; }
         .nav-btn.on { opacity: 1; color: var(--futuristic-glow); }
-        .nav-btn.on::before { content: ''; position: absolute; top: 0; width: 35px; height: 3px; background: var(--futuristic-glow); box-shadow: 0 0 10px var(--futuristic-glow); }
+        .nav-btn.on::before { content: ''; position: absolute; top: 0; width: 35px; height: 3px; background: var(--futuristic-glow); }
 
         /* FLOATING TEXT */
         .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUpFade 0.7s forwards; text-shadow: 0 0 10px var(--futuristic-glow); z-index: 1000; }
         @keyframes moveUpFade { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 20% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: translateY(-120px); } }
         
-        /* BOTONES Y TAREAS */
-        .card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--card-border); }
-        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; margin: 6px 0; cursor: pointer; color: #fff; font-family: var(--font-main); }
+        /* BOTONES */
+        .card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--card-border); text-align: left;}
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; margin: 6px 0; cursor: pointer; color: #fff; font-family: var(--font-main); font-size: 13px;}
         .btn-upgrade { background: linear-gradient(90deg, #f7a80e, #ffc107); color: #4a3100; }
+        .btn-auto { background: linear-gradient(90deg, #00d2ff, #3a7bd5); }
         .btn-invite { background: linear-gradient(90deg, #28a745, #34ce57); }
         .btn-mission { background: linear-gradient(90deg, #6f42c1, #8e65e6); }
         .btn-completed { background: #333 !important; color: #777 !important; opacity: 0.6; pointer-events: none; }
+        .section-label { color: var(--accent-gold); font-weight: 800; font-size: 12px; letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -104,7 +105,7 @@
     <div class="main">
         <div id="t0" class="tab">
             <div class="scroll-container">
-                <div style="color:var(--accent-gold); font-weight:800; text-align:left; margin-bottom:15px; font-size: 14px; letter-spacing: 1px;">🏆 TOP LÍDERES</div>
+                <span class="section-label">🏆 TOP LÍDERES</span>
                 <div id="ranking">Cargando lista...</div>
             </div>
         </div>
@@ -121,7 +122,7 @@
                 </svg>
             </div>
             <div class="energy-container">
-                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; color:var(--futuristic-glow);">
+                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; color:var(--futuristic-glow); margin-bottom: 5px;">
                     <span>⚡ Energía</span> <span id="energy-text">500/500</span>
                 </div>
                 <div class="energy-bar-bg"><div id="energy-fill"></div></div>
@@ -130,14 +131,17 @@
 
         <div id="t2" class="tab">
             <div class="scroll-container">
-                <div style="color:var(--accent-gold); font-weight:800; text-align:left; margin-bottom:10px;">📈 MEJORAS</div>
+                <span class="section-label">📈 MEJORAS TECNOLÓGICAS</span>
                 <div class="card">
                     <button class="btn btn-upgrade" onclick="comprarMultiClic()">MEJORAR CLIC (LV <span id="lv-clic">1</span>) - 0.05 TON</button>
+                    <button id="btn-autoclicker" class="btn btn-auto" onclick="comprarAutoClicker()">AUTO-MINADO (+5/s) - 0.2 TON</button>
                 </div>
-                <div style="color:var(--accent-gold); font-weight:800; text-align:left; margin-bottom:10px;">👥 TAREAS</div>
+                
+                <span class="section-label">👥 MISIONES DE COMUNIDAD</span>
                 <div class="card">
-                    <button class="btn btn-invite" onclick="invitar()">INVITAR AMIGO (+2500)</button>
-                    <button id="btn-mision" class="btn btn-mission" onclick="mision()">UNIRSE AL CANAL (+200)</button>
+                    <button class="btn btn-invite" onclick="invitar()">INVITAR AMIGO (+2500 💎)</button>
+                    <button id="btn-mision-canal" class="btn btn-mission" onclick="mision('canal')">UNIRSE AL CANAL (+500 💎)</button>
+                    <button id="btn-mision-grupo" class="btn btn-mission" onclick="mision('grupo')">UNIRSE AL GRUPO (+500 💎)</button>
                 </div>
             </div>
         </div>
@@ -164,10 +168,9 @@
 
         document.getElementById('username').innerText = firstName;
 
-        let pts = 0, nivelClic = 1, energiaActual = 500, maxEnergia = 500;
+        let pts = 0, nivelClic = 1, energiaActual = 500, maxEnergia = 500, tieneAuto = false;
         let lastClickTime = 0, regenCounter = 0;
 
-        // INICIALIZAR TON CONNECT
         const tonUI = new TON_CONNECT_UI.TonConnectUI({ 
             manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', 
             buttonRootId: 'ton-connect' 
@@ -179,7 +182,10 @@
                 const data = d.data();
                 pts = data.puntos || 0;
                 nivelClic = data.nivelClic || 1;
-                if (data.mision_canal) setMissionUI();
+                tieneAuto = data.autoclicker || false;
+                if (data.mision_canal) setMissionUI('btn-mision-canal');
+                if (data.mision_grupo) setMissionUI('btn-mision-grupo');
+                if (tieneAuto) setAutoUI();
             } else {
                 if (refBy && refBy !== userId) {
                     await setDoc(doc(db, "jugadores", refBy), { puntos: increment(2500) }, { merge: true });
@@ -194,6 +200,7 @@
 
         function iniciarRegen() {
             setInterval(() => {
+                if (tieneAuto) { pts += 5; updateDisplay(); }
                 regenCounter++;
                 if (regenCounter >= 3) {
                     if (energiaActual < maxEnergia) { energiaActual++; updateEnergyUI(); }
@@ -207,12 +214,8 @@
             const now = Date.now();
             if (now - lastClickTime < 80 || energiaActual < nivelClic) return;
             lastClickTime = now;
-            
-            pts += nivelClic; 
-            energiaActual -= nivelClic;
-            
-            updateDisplay(); 
-            updateEnergyUI();
+            pts += nivelClic; energiaActual -= nivelClic;
+            updateDisplay(); updateEnergyUI();
             createPop(e.clientX, e.clientY, `+${nivelClic}`);
             if (navigator.vibrate) navigator.vibrate(35);
         };
@@ -231,43 +234,47 @@
         };
 
         function createPop(x, y, txt) {
-            const f = document.createElement("div"); 
-            f.className = "floating-text"; 
-            f.innerText = txt;
-            f.style.left = (x - 20) + "px"; 
-            f.style.top = (y - 40) + "px";
-            document.body.appendChild(f); 
-            setTimeout(() => f.remove(), 700);
+            const f = document.createElement("div"); f.className = "floating-text"; f.innerText = txt;
+            f.style.left = (x - 20) + "px"; f.style.top = (y - 40) + "px";
+            document.body.appendChild(f); setTimeout(() => f.remove(), 700);
         }
 
-        // TAREAS Y MEJORAS
         window.comprarMultiClic = async () => {
             try {
                 await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "50000000" }] });
-                nivelClic++;
-                document.getElementById('lv-clic').innerText = nivelClic;
+                nivelClic++; document.getElementById('lv-clic').innerText = nivelClic;
                 await setDoc(doc(db, "jugadores", userId), { nivelClic: nivelClic }, { merge: true });
-            } catch(e) { console.log("Tx cancelada"); }
+            } catch(e) {}
+        };
+
+        window.comprarAutoClicker = async () => {
+            try {
+                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "200000000" }] });
+                tieneAuto = true; setAutoUI();
+                await setDoc(doc(db, "jugadores", userId), { autoclicker: true }, { merge: true });
+            } catch(e) {}
         };
 
         window.invitar = () => {
             const link = `https://t.me/SuperTonClicker_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=¡Gana 💎 minando en Super TON Clicker!`);
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=¡Únete a la minería del futuro!`);
         };
 
-        window.mision = async () => {
-            tg.openTelegramLink("https://t.me/TuCanalAqui");
+        window.mision = async (tipo) => {
+            const url = tipo === 'canal' ? "https://t.me/TuCanal" : "https://t.me/TuGrupo";
+            tg.openTelegramLink(url);
             setTimeout(async () => {
-                pts += 200; updateDisplay(); setMissionUI();
-                await setDoc(doc(db, "jugadores", userId), { puntos: pts, mision_canal: true }, { merge: true });
-            }, 2000);
+                pts += 500; updateDisplay();
+                const field = tipo === 'canal' ? { mision_canal: true } : { mision_grupo: true };
+                setMissionUI(tipo === 'canal' ? 'btn-mision-canal' : 'btn-mision-grupo');
+                await setDoc(doc(db, "jugadores", userId), { puntos: pts, ...field }, { merge: true });
+            }, 3000);
         };
 
-        function setMissionUI() { const b = document.getElementById('btn-mision'); b.innerText = "COMPLETADO ✅"; b.className = "btn btn-completed"; }
+        function setMissionUI(id) { const b = document.getElementById(id); b.innerText = "COMPLETADO ✅"; b.className = "btn btn-completed"; }
+        function setAutoUI() { const b = document.getElementById('btn-autoclicker'); b.innerText = "AUTO-MINADO ACTIVO ⚡"; b.className = "btn btn-completed"; }
+        async function saveAll() { await setDoc(doc(db, "jugadores", userId), { puntos: pts, lastSeen: serverTimestamp() }, { merge: true }); }
 
-        async function saveAll() { await setDoc(doc(db, "jugadores", userId), { puntos: pts }, { merge: true }); }
-
-        // RANKING
         onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
             const l = document.getElementById('ranking'); l.innerHTML = "";
             let i = 1;
