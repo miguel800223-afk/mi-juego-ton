@@ -22,6 +22,7 @@
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
+        /* HEADER CORREGIDO */
         .header {
             height: 65px; display: flex; justify-content: space-between; align-items: center;
             padding: 0 15px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
@@ -34,7 +35,11 @@
             font-size: 13px; font-weight: 600; 
             border: 1px solid rgba(0, 136, 204, 0.3); 
             color: var(--ton-blue);
-            max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            min-width: 50px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
         }
 
         .main { flex: 1; position: relative; overflow: hidden; }
@@ -44,6 +49,7 @@
         .scroll-container { width: 90%; max-height: 90%; overflow-y: auto; padding-top: 20px; }
         .scroll-container::-webkit-scrollbar { display: none; }
 
+        /* ENERGÍA */
         .energy-container { width: 85%; margin-top: 20px; text-align: left; }
         .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-top: 5px; }
         #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f7a80e, #ffee00); transition: width 0.3s; }
@@ -52,29 +58,34 @@
             margin-bottom: 20px; 
             background: rgba(255,255,255,0.05); 
             padding: 20px 40px; border-radius: 25px;
+            min-width: 180px;
         }
-        h1 { font-size: 60px; font-weight: 800; margin: 0; color: white; }
+        h1 { font-size: 65px; font-weight: 800; margin: 0; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
         
-        #coin { font-size: 140px; user-select: none; animation: float 4s infinite ease-in-out; filter: drop-shadow(0 0 30px rgba(0, 136, 204, 0.5)); cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
+        #coin { font-size: 150px; user-select: none; animation: float 4s infinite ease-in-out; filter: drop-shadow(0 0 30px rgba(0, 136, 204, 0.5)); cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
         #coin:active { transform: scale(0.92); }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .section-title { color: var(--accent-gold); font-weight: 800; font-size: 14px; text-transform: uppercase; margin: 15px 0 8px 0; text-align: left; }
+        .section-title { color: var(--accent-gold); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 8px 0; text-align: left; }
         .card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--card-border); }
         
-        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; margin: 6px 0; cursor: pointer; }
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-family: var(--font-main); margin: 6px 0; font-size: 13px; cursor: pointer; }
         .btn-upgrade { background: linear-gradient(90deg, #f7a80e, #ffc107); color: #4a3100; }
         .btn-auto { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: white; }
-        .btn-completed { background: #333 !important; color: #777 !important; cursor: default; }
+        .btn-invite { background: linear-gradient(90deg, #28a745, #34ce57); color: white; }
+        .btn-mission { background: linear-gradient(90deg, #6f42c1, #8e65e6); color: white; }
+        .btn-completed { background: #333 !important; color: #777 !important; opacity: 0.6; pointer-events: none; }
 
-        .rank-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid var(--card-border); }
+        .rank-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid var(--card-border); font-size: 14px; }
+        .rank-item b { color: var(--accent-gold); }
 
         .nav { height: 75px; display: flex; background: rgba(4, 16, 29, 0.95); border-top: 1px solid var(--card-border); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 10px; color: white; }
-        .nav-btn.on { opacity: 1; color: var(--accent-gold); border-top: 3px solid var(--accent-gold); }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-weight: 600; font-size: 10px; color: white; transition: 0.3s; position: relative; }
+        .nav-btn.on { opacity: 1; color: var(--accent-gold); }
+        .nav-btn.on::before { content: ''; position: absolute; top: 0; width: 35px; height: 3px; background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
 
-        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUpFade 0.7s forwards; z-index: 50; }
-        @keyframes moveUpFade { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-100px); } }
+        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUpFade 0.7s forwards; text-shadow: 0 0 10px var(--ton-blue); z-index: 50; }
+        @keyframes moveUpFade { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 20% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
@@ -87,16 +98,19 @@
         <div id="t0" class="tab">
             <div class="scroll-container">
                 <div class="section-title">🏆 Top Líderes</div>
-                <div class="card" id="ranking">Cargando ranking...</div>
+                <div class="card" id="ranking">Cargando...</div>
             </div>
         </div>
 
         <div id="t1" class="tab active">
-            <div id="score-container"><h1 id="score">0</h1></div>
+            <div id="score-container">
+                <h1 id="score">0</h1>
+            </div>
             <div id="coin" onclick="clickCoin(event)">💎</div>
             <div class="energy-container">
-                <div style="display:flex; justify-content:space-between; font-size:14px;">
-                    <span>⚡ Energía</span><span id="energy-text">1000/1000</span>
+                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold;">
+                    <span>⚡ Energía</span>
+                    <span id="energy-text">1000/1000</span>
                 </div>
                 <div class="energy-bar-bg"><div id="energy-fill"></div></div>
             </div>
@@ -104,19 +118,24 @@
 
         <div id="t2" class="tab">
             <div class="scroll-container">
-                <div class="section-title">📈 Mejoras</div>
+                <div class="section-title">📈 Mejoras de Clic</div>
                 <div class="card">
                     <button id="btn-multiclic" class="btn btn-upgrade" onclick="comprarMultiClic()">MEJORAR CLIC (Nivel <span id="lv-clic">1</span>) - 0.05 TON</button>
                     <button id="btn-autoclicker" class="btn btn-auto" onclick="comprarAutoClicker()">AUTO-CLICKER (+5/s) - 0.2 TON</button>
+                </div>
+                <div class="section-title">👥 Comunidad</div>
+                <div class="card">
+                    <button class="btn btn-invite" onclick="invitar()">INVITAR Y GANAR (+2500)</button>
+                    <button id="btn-mision" class="btn btn-mission" onclick="mision()">UNIRSE AL CANAL (+200)</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="nav">
-        <div id="b0" class="nav-btn" onclick="ir('t0','b0')">🏆<span>TOP</span></div>
-        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')">💎<span>MINAR</span></div>
-        <div id="b2" class="nav-btn" onclick="ir('t2','b2')">✅<span>TAREAS</span></div>
+        <div id="b0" class="nav-btn" onclick="ir('t0','b0')"><span style="font-size:20px;">🏆</span><span>TOP</span></div>
+        <div id="b1" class="nav-btn on" onclick="ir('t1','b1')"><span style="font-size:20px;">💎</span><span>MINAR</span></div>
+        <div id="b2" class="nav-btn" onclick="ir('t2','b2')"><span style="font-size:20px;">✅</span><span>TAREAS</span></div>
     </div>
 
     <script type="module">
@@ -125,41 +144,57 @@
         
         const firebaseConfig = { apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", authDomain: "mytonclicker.firebaseapp.com", projectId: "mytonclicker", storageBucket: "mytonclicker.firebasestorage.app", messagingSenderId: "847124098754", appId: "1:847124098754:web:17c7f23ae15acdfef2155b" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
-        const tg = window.Telegram.WebApp; tg.expand();
+        
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
+        // --- SOLUCIÓN PARA EL NOMBRE DE USUARIO ---
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id.toString() : "local";
         const firstName = user ? user.first_name : "Jugador";
+        const refBy = tg.initDataUnsafe?.start_param; 
+
+        // Pintar nombre inmediatamente
         document.getElementById('username').innerText = firstName;
 
-        let pts = 0, tieneAutoClicker = false, nivelClic = 1, energiaActual = 1000, maxEnergia = 1000;
+        let pts = 0, tieneAutoClicker = false, nivelClic = 1;
+        let energiaActual = 1000, maxEnergia = 1000;
 
         async function load() {
             const d = await getDoc(doc(db, "jugadores", userId));
             if (!d.exists()) {
-                await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: 0, nivelClic: 1, autoclicker: false, lastSeen: serverTimestamp() });
+                if (refBy && refBy !== userId) {
+                    await setDoc(doc(db, "jugadores", refBy), { puntos: increment(2500) }, { merge: true });
+                    pts = 2500;
+                    tg.showAlert("¡Bono de 2500 💎 por invitación!");
+                }
+                await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: pts, nivelClic: 1, autoclicker: false, lastSeen: serverTimestamp() });
             } else {
                 const data = d.data();
                 pts = data.puntos || 0;
                 nivelClic = data.nivelClic || 1;
                 tieneAutoClicker = data.autoclicker || false;
-                if (tieneAutoClicker) setAutoClickerUI();
+                if (tieneAutoClicker) {
+                    setAutoClickerUI();
+                    if(data.lastSeen) {
+                        const segs = Math.floor(Date.now()/1000) - data.lastSeen.seconds;
+                        const ganado = segs * 5;
+                        if (ganado > 0) { pts += ganado; tg.showAlert(`Minado offline: +${ganado.toLocaleString()}`); }
+                    }
+                }
+                if (data.mision_canal) setMissionUI();
             }
             document.getElementById('lv-clic').innerText = nivelClic;
             updateDisplay();
-            iniciarCiclos();
-            cargarRanking();
+            iniciarCiclo();
         }
 
-        function iniciarCiclos() {
-            // Ciclo visual y de lógica rápida (1 segundo)
+        function iniciarCiclo() {
             setInterval(() => {
                 if (tieneAutoClicker) { pts += 5; updateDisplay(); }
                 if (energiaActual < maxEnergia) { energiaActual = Math.min(maxEnergia, energiaActual + 2); updateEnergyUI(); }
+                if (new Date().getSeconds() % 20 === 0) saveAll();
             }, 1000);
-
-            // Ciclo de guardado lento (cada 20 segundos) para evitar reinicios/lags
-            setInterval(saveAll, 20000);
         }
 
         window.clickCoin = (e) => {
@@ -178,28 +213,27 @@
 
         const tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
 
-        async function saveAll() { 
+        window.comprarMultiClic = async () => {
             try {
-                await setDoc(doc(db, "jugadores", userId), { puntos: pts, lastSeen: serverTimestamp() }, { merge: true }); 
-            } catch(e) { console.error("Error saving", e); }
-        }
+                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "50000000" }] });
+                nivelClic++;
+                document.getElementById('lv-clic').innerText = nivelClic;
+                await setDoc(doc(db, "jugadores", userId), { nivelClic: nivelClic }, { merge: true });
+            } catch(e) {}
+        };
 
-        function cargarRanking() {
-            onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
-                const l = document.getElementById('ranking'); l.innerHTML = "";
-                let i = 1; s.forEach(x => { 
-                    const d = x.data();
-                    l.innerHTML += `<div class="rank-item"><span>${i}. ${d.nombre}</span><b>${(d.puntos || 0).toLocaleString()}</b></div>`; 
-                    i++; 
-                });
-            });
-        }
+        window.comprarAutoClicker = async () => {
+            try {
+                await tonUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj", amount: "200000000" }] });
+                tieneAutoClicker = true; setAutoClickerUI();
+                await setDoc(doc(db, "jugadores", userId), { autoclicker: true }, { merge: true });
+            } catch(e) {}
+        };
 
-        function createPop(x, y, txt) {
-            const f = document.createElement("div"); f.className = "floating-text"; f.innerText = txt;
-            f.style.left = (x - 20) + "px"; f.style.top = (y - 30) + "px";
-            document.body.appendChild(f); setTimeout(() => f.remove(), 700);
-        }
+        window.invitar = () => {
+            const link = `https://t.me/TuBot?start=${userId}`; // REEMPLAZA TuBot POR EL TUYO
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=¡Gana 💎 gratis en Super TON Clicker! Recibe 2500 de bono.`);
+        };
 
         window.ir = (t,b) => {
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -208,7 +242,21 @@
             document.getElementById(b).classList.add('on');
         };
 
+        async function saveAll() { await setDoc(doc(db, "jugadores", userId), { puntos: pts, lastSeen: serverTimestamp() }, { merge: true }); }
+        
+        function createPop(x, y, txt) {
+            const f = document.createElement("div"); f.className = "floating-text"; f.innerText = txt;
+            f.style.left = (x - 20) + "px"; f.style.top = (y - 30) + "px";
+            document.body.appendChild(f); setTimeout(() => f.remove(), 700);
+        }
+
         function setAutoClickerUI() { const b = document.getElementById('btn-autoclicker'); if(b) { b.innerText = "AUTO-MINADO ACTIVO ⚡"; b.className = "btn btn-completed"; b.onclick = null; } }
+        function setMissionUI() { const b = document.getElementById('btn-mision'); if(b) { b.innerText = "COMPLETADO ✅"; b.className = "btn btn-completed"; b.onclick = null; } }
+        
+        onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
+            const l = document.getElementById('ranking'); l.innerHTML = "";
+            let i = 1; s.forEach(x => { l.innerHTML += `<div class="rank-item"><span>${i}. ${x.data().nombre}</span><b>${x.data().puntos.toLocaleString()}</b></div>`; i++; });
+        });
 
         load();
     </script>
