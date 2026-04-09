@@ -30,16 +30,17 @@
         #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #0088cc, #00f2fe); transition: width 0.3s; }
         #score-container { background: rgba(255,255,255,0.05); padding: 10px 40px; border-radius: 25px; margin-bottom: 10px; }
         h1 { font-size: 50px; margin: 0; }
-        #coin-container { width: 210px; height: 210px; cursor: pointer; position: relative; }
+        #coin-container { width: 210px; height: 210px; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
+        .coin-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--ton-blue)); }
         .nav { height: 75px; display: flex; background: rgba(4, 16, 29, 0.98); border-top: 1px solid var(--card-border); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 10px; color: white; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 10px; color: white; cursor: pointer; }
         .nav-btn.on { opacity: 1; color: var(--futuristic-glow); border-top: 3px solid var(--futuristic-glow); }
         .card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--card-border); text-align: left;}
         .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; margin: 6px 0; cursor: pointer; color: #fff; }
         .btn-upgrade { background: linear-gradient(90deg, #f7a80e, #ffc107); }
         .btn-auto { background: linear-gradient(90deg, #00d2ff, #3a7bd5); }
         .btn-ads { background: linear-gradient(90deg, #6f42c1, #a176ff); border: 1px solid #fff; }
-        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUp 0.7s forwards; }
+        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUp 0.7s forwards; z-index: 1000; }
         @keyframes moveUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
@@ -59,7 +60,7 @@
         <div id="t1" class="tab active">
             <div id="score-container"><h1 id="score">0</h1></div>
             <div id="coin-container" onclick="clickCoin(event)">
-                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#0088cc"/></svg>
+                <svg class="coin-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#0088cc" stroke="#00f2fe" stroke-width="2"/></svg>
             </div>
             <div class="energy-container">
                 <span id="energy-text">500/500</span>
@@ -86,26 +87,40 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", authDomain: "mytonclicker.firebaseapp.com", projectId: "mytonclicker", storageBucket: "mytonclicker.firebasestorage.app", messagingSenderId: "847124098754", appId: "1:847124098754:web:17c7f23ae15acdfef2155b" };
+        // CONFIGURACIÓN FIREBASE
+        const firebaseConfig = { 
+            apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", 
+            authDomain: "mytonclicker.firebaseapp.com", 
+            projectId: "mytonclicker", 
+            storageBucket: "mytonclicker.firebasestorage.app", 
+            messagingSenderId: "847124098754", 
+            appId: "1:847124098754:web:17c7f23ae15acdfef2155b" 
+        };
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
 
+        // TELEGRAM WEB APP
         const tg = window.Telegram.WebApp;
+        tg.expand();
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id.toString() : "local_user";
         const firstName = user ? user.first_name : "Jugador";
 
-        // INICIALIZAR ADSGRAM CON TU ID
+        // ADSGRAM ID
         const AdController = window.Adsgram.init({ blockId: "27310" });
 
         document.getElementById('username').innerText = firstName;
         let pts = 0, nivelClic = 1, energiaActual = 500, maxEnergia = 500, tieneAuto = false;
 
-        const tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
+        // TON CONNECT
+        const tonUI = new TON_CONNECT_UI.TonConnectUI({ 
+            manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', 
+            buttonRootId: 'ton-connect' 
+        });
 
-        // Función para cambiar de pestaña
+        // NAVEGACIÓN
         window.ir = (t, b) => {
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('on'));
@@ -113,16 +128,17 @@
             document.getElementById(b).classList.add('on');
         };
 
-        // Función de Clic
+        // CLICK PRINCIPAL
         window.clickCoin = (e) => {
             if (energiaActual < nivelClic) return;
-            pts += nivelClic; energiaActual -= nivelClic;
+            pts += nivelClic; 
+            energiaActual -= nivelClic;
             updateDisplay();
             createPop(e.clientX, e.clientY, `+${nivelClic}`);
             if (navigator.vibrate) navigator.vibrate(30);
         };
 
-        // FUNCIÓN DEL ANUNCIO (RECOMPENSA)
+        // RECOMPENSA POR ANUNCIO (CORREGIDO)
         window.showRewardAd = async () => {
             try {
                 const result = await AdController.show();
@@ -130,7 +146,7 @@
                     energiaActual = Math.min(energiaActual + 200, maxEnergia);
                     updateDisplay();
                     tg.showAlert("¡Recibiste +200 de energía! ⚡");
-                    saveData();
+                    await saveData(); // Confirmación inmediata en la DB
                 }
             } catch (e) {
                 tg.showAlert("No hay videos disponibles ahora.");
@@ -138,48 +154,70 @@
         };
 
         function updateDisplay() {
-            document.getElementById('score').innerText = pts.toLocaleString();
-            document.getElementById('energy-text').innerText = `${energiaActual}/${maxEnergia}`;
+            document.getElementById('score').innerText = Math.floor(pts).toLocaleString();
+            document.getElementById('energy-text').innerText = `${Math.floor(energiaActual)}/${maxEnergia}`;
             document.getElementById('energy-fill').style.width = `${(energiaActual/maxEnergia)*100}%`;
         }
 
         function createPop(x, y, txt) {
-            const f = document.createElement("div"); f.className = "floating-text"; f.innerText = txt;
-            f.style.left = x + "px"; f.style.top = y + "px";
-            document.body.appendChild(f); setTimeout(() => f.remove(), 700);
+            const f = document.createElement("div"); 
+            f.className = "floating-text"; 
+            f.innerText = txt;
+            f.style.left = x + "px"; 
+            f.style.top = y + "px";
+            document.body.appendChild(f); 
+            setTimeout(() => f.remove(), 700);
         }
 
+        // GUARDADO DE DATOS (ENERGÍA INCLUIDA)
         async function saveData() {
-            await setDoc(doc(db, "jugadores", userId), { puntos: pts, nivelClic, autoclicker: tieneAuto, lastSeen: serverTimestamp() }, { merge: true });
+            try {
+                await setDoc(doc(db, "jugadores", userId), { 
+                    nombre: firstName,
+                    puntos: pts, 
+                    nivelClic: nivelClic, 
+                    autoclicker: tieneAuto, 
+                    energia: energiaActual,
+                    lastSeen: serverTimestamp() 
+                }, { merge: true });
+            } catch (e) { console.error("Error guardando:", e); }
         }
 
+        // CARGA DE DATOS (ENERGÍA RECUPERADA)
         async function loadData() {
-            const d = await getDoc(doc(db, "jugadores", userId));
-            if (d.exists()) {
-                const data = d.data();
-                pts = data.puntos || 0;
-                nivelClic = data.nivelClic || 1;
-                tieneAuto = data.autoclicker || false;
-            } else {
-                await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: 0, nivelClic: 1 });
-            }
-            updateDisplay();
+            try {
+                const d = await getDoc(doc(db, "jugadores", userId));
+                if (d.exists()) {
+                    const data = d.data();
+                    pts = data.puntos || 0;
+                    nivelClic = data.nivelClic || 1;
+                    tieneAuto = data.autoclicker || false;
+                    energiaActual = data.energia || 500;
+                } else {
+                    await saveData();
+                }
+                updateDisplay();
+            } catch (e) { console.error("Error cargando:", e); }
         }
 
-        // Sistema de auto-minado y recuperación de energía
+        // AUTO-SAVE CADA 30 SEGUNDOS
+        setInterval(saveData, 30000);
+
+        // REGENERACIÓN Y AUTO-CLICK
         setInterval(() => {
-            if (tieneAuto) pts += 5;
-            if (energiaActual < maxEnergia) energiaActual++;
+            if (tieneAuto) pts += 0.5; // Ajustado para ser balanceado
+            if (energiaActual < maxEnergia) energiaActual += 0.5;
             updateDisplay();
         }, 1000);
 
-        // Ranking en tiempo real
+        // RANKING REAL-TIME
         onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
-            const l = document.getElementById('ranking'); l.innerHTML = "🏆 TOP LÍDERES<br><br>";
+            const l = document.getElementById('ranking'); 
+            l.innerHTML = "🏆 TOP LÍDERES<br><br>";
             let i = 1;
             s.forEach(doc => {
                 const d = doc.data();
-                l.innerHTML += `<div class="rank-item"><div>#${i}</div><div>${d.nombre}</div><b>${(d.puntos||0).toLocaleString()}</b></div>`;
+                l.innerHTML += `<div class="rank-item"><div>#${i}</div><div>${d.nombre || 'Anon'}</div><b>${Math.floor(d.puntos||0).toLocaleString()}</b></div>`;
                 i++;
             });
         });
