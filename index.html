@@ -8,32 +8,101 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --primary-bg: #031525; --ton-blue: #0088cc; --text-color: #ffffff; --card-border: rgba(255, 255, 255, 0.1); --futuristic-glow: #00f2fe; }
-        body { background-color: var(--primary-bg); color: var(--text-color); text-align: center; font-family: 'Poppins', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        .header { height: 65px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid var(--card-border); }
+        :root { 
+            --primary-bg: #031525; 
+            --ton-blue: #0088cc; 
+            --text-color: #ffffff; 
+            --card-border: rgba(255, 255, 255, 0.1); 
+            --futuristic-glow: #00f2fe;
+            --accent-gold: #f59e0b;
+        }
+        
+        body { 
+            background-color: var(--primary-bg); 
+            color: var(--text-color); 
+            text-align: center; 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            user-select: none;
+        }
+
+        /* Header */
+        .header { 
+            height: 65px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 15px; 
+            background: rgba(0, 0, 0, 0.4); 
+            border-bottom: 1px solid var(--card-border); 
+        }
         #username { background: rgba(0, 136, 204, 0.2); padding: 6px 15px; border-radius: 20px; font-size: 13px; color: var(--ton-blue); font-weight: 600; }
-        .main { flex: 1; position: relative; width: 100%; }
-        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; }
+
+        /* Main Tabs */
+        .main { flex: 1; position: relative; width: 100%; overflow: hidden; }
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; position: absolute; top: 0; padding-top: 20px; }
         .tab.active { display: flex !important; }
-        .scroll-container { width: 90%; max-height: 85%; overflow-y: auto; padding: 20px 0; }
-        .rank-item { display: grid; grid-template-columns: 40px 1fr auto; padding: 12px; background: rgba(255,255,255,0.05); margin-bottom: 8px; border-radius: 12px; text-align: left; }
-        #coin-container { width: 200px; height: 200px; cursor: pointer; touch-action: manipulation; transition: transform 0.1s; }
-        #coin-container:active { transform: scale(0.95); }
-        .energy-container { width: 80%; margin-top: 20px; }
-        .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #0088cc, #00f2fe); transition: width 0.2s; }
-        .nav { height: 70px; display: flex; background: #04101d; border-top: 1px solid var(--card-border); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5; font-size: 11px; cursor: pointer; }
+
+        /* Scrollable area for Tasks/Ranking */
+        .scroll-container { width: 90%; height: 80%; overflow-y: auto; padding-bottom: 20px; }
+        
+        /* Ranking Style */
+        .rank-item { display: grid; grid-template-columns: 40px 1fr auto; padding: 12px; background: rgba(255,255,255,0.05); margin-bottom: 8px; border-radius: 12px; text-align: left; align-items: center; }
+
+        /* Click Area */
+        #coin-container { 
+            width: 220px; 
+            height: 220px; 
+            cursor: pointer; 
+            touch-action: manipulation; 
+            transition: transform 0.05s;
+            margin: 40px 0;
+        }
+        #coin-container:active { transform: scale(0.92); }
+
+        /* Energy */
+        .energy-container { width: 80%; }
+        .energy-bar-bg { width: 100%; height: 14px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--ton-blue), var(--futuristic-glow)); transition: width 0.2s; }
+
+        /* Task Cards */
+        .task-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: 15px; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            text-align: left;
+            border: 1px solid var(--card-border);
+        }
+        .task-info b { color: var(--accent-gold); display: block; font-size: 14px; }
+
+        /* Buttons */
+        .btn { padding: 10px 20px; border-radius: 20px; border: none; font-weight: 700; color: #fff; cursor: pointer; font-size: 12px; transition: opacity 0.2s; }
+        .btn-blue { background: var(--ton-blue); }
+        .btn-ads { background: linear-gradient(90deg, #6f42c1, #a176ff); width: 100%; margin-bottom: 15px; padding: 15px; font-size: 14px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Nav Bar */
+        .nav { height: 75px; display: flex; background: #04101d; border-top: 1px solid var(--card-border); padding-bottom: env(safe-area-inset-bottom); }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 11px; cursor: pointer; transition: 0.3s; }
         .nav-btn.on { opacity: 1; color: var(--futuristic-glow); border-top: 3px solid var(--futuristic-glow); }
-        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 700; margin: 8px 0; color: #fff; cursor: pointer; }
-        .btn-ads { background: linear-gradient(90deg, #6f42c1, #a176ff); }
-        .btn-upgrade { background: #f7a80e; }
-        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 28px; pointer-events: none; animation: moveUp 0.6s forwards; }
-        @keyframes moveUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
+
+        /* Floating Text */
+        .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUp 0.6s forwards; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        @keyframes moveUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
+
     <div class="header">
         <div id="username">Cargando...</div>
         <div id="ton-connect"></div>
@@ -45,22 +114,42 @@
         </div>
 
         <div id="t1" class="tab active">
-            <div id="score-container"><h1><span id="score">0</span></h1></div>
+            <h1 style="font-size: 2.5rem; margin: 0;"><span id="score">0</span></h1>
             <div id="coin-container" onclick="handleCoinClick(event)">
-                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#0088cc" stroke="#00f2fe" stroke-width="3"/></svg>
+                <svg viewBox="0 0 100 100">
+                    <defs>
+                        <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" style="stop-color:#00f2fe;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#0088cc;stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="45" fill="url(#grad)" stroke="white" stroke-width="2"/>
+                    <text x="50" y="58" font-family="Poppins" font-size="25" fill="white" font-weight="800" text-anchor="middle">TON</text>
+                </svg>
             </div>
             <div class="energy-container">
-                <div style="margin-bottom: 5px;"><span id="energy-text">500/500</span> ⚡</div>
+                <div style="margin-bottom: 8px; font-weight: 600;">⚡ <span id="energy-text">500/500</span></div>
                 <div class="energy-bar-bg"><div id="energy-fill"></div></div>
             </div>
         </div>
 
         <div id="t2" class="tab">
             <div class="scroll-container">
-                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;">
-                    <button class="btn btn-ads" onclick="triggerAd()">🎬 VIDEO (+200 ENERGÍA)</button>
-                    <button class="btn btn-upgrade" onclick="buyUpgrade()">MEJORAR CLIC (0.05 TON)</button>
-                    <button class="btn btn-upgrade" style="background:#3a7bd5" onclick="buyAuto()">AUTO-CLICK (0.2 TON)</button>
+                <button class="btn btn-ads" id="ad-btn" onclick="triggerAd()">🎬 VER VIDEO (+250 ENERGÍA)</button>
+
+                <div class="task-card">
+                    <div class="task-info">Unirse al Canal <b>+5,000 Puntos</b></div>
+                    <button class="btn btn-blue" onclick="claimSocial('canal')">IR</button>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-info">Invitar Amigos <b>+2,500 Puntos</b></div>
+                    <button class="btn btn-blue" onclick="claimSocial('ref')">INVITAR</button>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-info">Mejorar Clic <b>Nivel <span id="click-lvl">1</span></b></div>
+                    <button class="btn btn-blue" style="background:#f7a80e" onclick="buyUpgrade()">0.05 TON</button>
                 </div>
             </div>
         </div>
@@ -76,18 +165,19 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = { apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", authDomain: "mytonclicker.firebaseapp.com", projectId: "mytonclicker", storageBucket: "mytonclicker.firebasestorage.app", messagingSenderId: "847124098754", appId: "1:847124098754:web:17c7f23ae15acdfef2155b" };
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let pts = 0, nivelClic = 1, energiaActual = 500, maxEnergia = 500, tieneAuto = false;
+        let pts = 0, nivelClic = 1, energiaActual = 500, maxEnergia = 500;
         let adController = null;
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "local_user";
         const firstName = tg.initDataUnsafe?.user?.first_name || "Jugador";
 
-        // --- NAVEGACIÓN (Reparada) ---
+        // --- NAVEGACIÓN ---
         window.ir = (tabId, btnId) => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
@@ -95,48 +185,74 @@
             document.getElementById(btnId).classList.add('on');
         };
 
-        // --- JUEGO ---
+        // --- LÓGICA DE CLIC ---
         window.handleCoinClick = (e) => {
-            if (energiaActual < nivelClic) return;
-            pts += nivelClic; energiaActual -= nivelClic;
+            if (energiaActual < nivelClic) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+            pts += nivelClic; 
+            energiaActual -= nivelClic;
             updateUI();
-            createPop(e.clientX, e.clientY, `+${nivelClic}`);
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            createPop(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, `+${nivelClic}`);
+            tg.HapticFeedback.impactOccurred('medium');
         };
 
+        // --- ANUNCIOS (ADSGRAM REAL) ---
         window.triggerAd = async () => {
-            if (!adController) return tg.showAlert("Anuncios cargando...");
-            try {
-                const res = await adController.show();
-                if (res.done) {
-                    energiaActual = Math.min(energiaActual + 200, maxEnergia);
+            if (!adController) return tg.showAlert("Anuncio no listo");
+            const btn = document.getElementById('ad-btn');
+            btn.disabled = true;
+            
+            adController.show().then((result) => {
+                if (result.done) {
+                    energiaActual = Math.min(energiaActual + 250, maxEnergia);
                     updateUI();
-                    await saveData();
-                    tg.showAlert("¡Energía recargada!");
+                    saveData();
+                    tg.showAlert("¡Recibiste +250 de Energía!");
                 }
-            } catch(e) { tg.showAlert("No hay videos"); }
+            }).catch(() => {
+                tg.showAlert("No hay videos disponibles ahora.");
+            }).finally(() => {
+                btn.disabled = false;
+            });
         };
 
-        // Placeholder para funciones de compra (Necesitas lógica TON aquí)
-        window.buyUpgrade = () => tg.showAlert("Función de pago TON próximamente");
-        window.buyAuto = () => tg.showAlert("Función de pago TON próximamente");
+        // --- TAREAS SOCIALES ---
+        window.claimSocial = (type) => {
+            if (type === 'canal') {
+                tg.openTelegramLink('https://t.me/TuCanalAqui');
+                // Simulación de recompensa tras click
+                pts += 5000;
+                tg.showAlert("¡+5,000 puntos por unirte!");
+            } else {
+                const link = `https://t.me/share/url?url=https://t.me/TuBot_bot?start=${userId}&text=¡Gana TON jugando conmigo!`;
+                tg.openTelegramLink(link);
+            }
+            updateUI();
+            saveData();
+        };
+
+        window.buyUpgrade = () => tg.showAlert("Conecta tu wallet para comprar con TON");
 
         function updateUI() {
             document.getElementById('score').innerText = Math.floor(pts).toLocaleString();
             document.getElementById('energy-text').innerText = `${Math.floor(energiaActual)}/${maxEnergia}`;
             document.getElementById('energy-fill').style.width = `${(energiaActual/maxEnergia)*100}%`;
+            document.getElementById('click-lvl').innerText = nivelClic;
         }
 
         function createPop(x, y, txt) {
             const f = document.createElement("div"); f.className = "floating-text"; f.innerText = txt;
-            f.style.left = x + "px"; f.style.top = y + "px";
+            f.style.left = (x - 20) + "px"; f.style.top = (y - 50) + "px";
             document.body.appendChild(f); setTimeout(() => f.remove(), 600);
         }
 
+        // --- DATOS ---
         async function saveData() {
             try {
                 await setDoc(doc(db, "jugadores", userId), { 
-                    nombre: firstName, puntos: pts, nivelClic, autoclicker: tieneAuto, 
+                    nombre: firstName, puntos: pts, nivelClic, 
                     energia: energiaActual, lastSeen: serverTimestamp() 
                 }, { merge: true });
             } catch (e) {}
@@ -149,28 +265,36 @@
                 const data = d.data();
                 pts = data.puntos || 0;
                 nivelClic = data.nivelClic || 1;
-                tieneAuto = data.autoclicker || false;
                 energiaActual = data.energia ?? 500;
             }
             updateUI();
         }
 
-        // --- INICIO ---
+        // --- INIT ---
         window.onload = async () => {
+            // Inicializar Adsgram (ID de bloque de ejemplo)
             if (window.Adsgram) adController = window.Adsgram.init({ blockId: "27310" });
-            if (window.TON_CONNECT_UI) new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
+            
+            // Inicializar TonConnect
+            if (window.TON_CONNECT_UI) {
+                new TON_CONNECT_UI.TonConnectUI({
+                    manifestUrl: 'https://tu-repositorio.github.io/tonconnect-manifest.json',
+                    buttonRootId: 'ton-connect'
+                });
+            }
             await loadData();
         };
 
+        // Recuperación de energía y guardado automático
         setInterval(() => {
-            if (tieneAuto) pts += 0.5;
-            if (energiaActual < maxEnergia) energiaActual = Math.min(energiaActual + 1, maxEnergia);
-            updateUI();
+            if (energiaActual < maxEnergia) {
+                energiaActual = Math.min(energiaActual + 1.5, maxEnergia);
+                updateUI();
+            }
         }, 1000);
+        setInterval(saveData, 15000);
 
-        setInterval(saveData, 20000);
-
-        // Ranking Real-Time
+        // Ranking Tiempo Real
         onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
             const container = document.getElementById('ranking');
             container.innerHTML = "<h3 style='margin-bottom:15px'>🏆 TOP LÍDERES</h3>";
