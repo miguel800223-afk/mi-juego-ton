@@ -6,6 +6,7 @@
     <title>Super Ton Clicker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -88,6 +89,8 @@
         .btn-invite { background: linear-gradient(90deg, #28a745, #34ce57); }
         .btn-mission { background: linear-gradient(90deg, #6f42c1, #8e65e6); }
         .btn-completed { background: #333 !important; color: #777 !important; opacity: 0.6; pointer-events: none; }
+        /* Estilo para el botón de anuncios */
+        .btn-ads { background: linear-gradient(90deg, #0088cc, #00f2fe); box-shadow: 0 0 10px rgba(0, 242, 254, 0.4); }
         .section-label { color: var(--accent-gold); font-weight: 800; font-size: 12px; letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase; }
     </style>
 </head>
@@ -129,6 +132,12 @@
                     <button class="btn btn-upgrade" onclick="comprarMultiClic()">MEJORAR CLIC (LV <span id="lv-clic">1</span>) - 0.05 TON</button>
                     <button id="btn-autoclicker" class="btn btn-auto" onclick="comprarAutoClicker()">AUTO-MINADO (+5/s) - 0.2 TON</button>
                 </div>
+
+                <span class="section-label">⚡ RECARGA DE ENERGÍA</span>
+                <div class="card">
+                    <button class="btn btn-ads" onclick="showAd()">VER VIDEO (+200 ⚡)</button>
+                </div>
+
                 <span class="section-label">👥 MISIONES DE COMUNIDAD</span>
                 <div class="card">
                     <button class="btn btn-invite" onclick="invitar()">INVITAR AMIGO (+2500 💎)</button>
@@ -157,6 +166,9 @@
         const userId = user ? user.id.toString() : "local";
         const firstName = user ? user.first_name : "Jugador";
         const refBy = tg.initDataUnsafe?.start_param;
+
+        // INICIALIZAR ADSGRAM (Block ID: 27310)
+        const AdController = window.Adsgram.init({ blockId: "27310" });
 
         document.getElementById('username').innerText = firstName;
         let pts = 0, nivelClic = 1, energiaActual = 500, maxEnergia = 500, tieneAuto = false;
@@ -196,6 +208,26 @@
             updateDisplay(); updateEnergyUI();
             createPop(e.clientX, e.clientY, `+${nivelClic}`);
             if (navigator.vibrate) navigator.vibrate(35);
+        };
+
+        // FUNCIÓN PARA MOSTRAR ANUNCIO Y DAR RECOMPENSA
+        window.showAd = async () => {
+            try {
+                const result = await AdController.show();
+                if (result.done) {
+                    // Recompensa: +200 de energía
+                    energiaActual = Math.min(energiaActual + 200, maxEnergia);
+                    updateEnergyUI();
+                    saveAll(); // Guardar progreso
+                    tg.showAlert("¡Recibiste +200 de energía ⚡!");
+                }
+            } catch (error) {
+                if (error.description === "User skipped video") {
+                    tg.showAlert("Debes ver el video completo para la recompensa.");
+                } else {
+                    tg.showAlert("No hay anuncios disponibles. Intenta más tarde.");
+                }
+            }
         };
 
         function updateDisplay() { document.getElementById('score').innerText = pts.toLocaleString(); }
