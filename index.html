@@ -3,102 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Super Ton Clicker Pro - Elite</title>
+    <title>Super Ton Clicker - Edición Élite</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+        /* ESTILO GLOBAL (Basado en tus capturas) */
         :root { 
-            --primary-bg: #031525; --ton-blue: #0088cc; --text-color: #ffffff; 
-            --card-border: rgba(255, 255, 255, 0.1); --futuristic-glow: #00f2fe; 
-            --accent-gold: #f59e0b; --purple-inbox: #8c5af5;
+            --bg-oscuro: #030d17; --bg-tarjeta: rgba(255,255,255,0.05);
+            --azul-ton: #0088cc; --cyan-neon: #00f2fe; --texto: #ffffff;
+            --card-border: rgba(255, 255, 255, 0.1); --oro: #f59e0b;
+            --purpura-boinkers: #8c5af5;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            background-color: var(--primary-bg); color: var(--text-color); 
-            text-align: center; font-family: 'Poppins', sans-serif; 
-            margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
+            background-color: var(--bg-oscuro); color: var(--texto); 
+            font-family: 'Poppins', sans-serif; margin: 0; height: 100vh; 
+            overflow: hidden; display: flex; flex-direction: column; 
         }
 
+        /* HEADER */
         .header { height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--card-border); }
+        #username { font-weight: 600; font-size: 14px; }
+
+        /* CONTENEDOR PRINCIPAL Y PESTAÑAS */
         .main { flex: 1; position: relative; width: 100%; overflow: hidden; }
-        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; position: absolute; top: 0; }
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; position: absolute; top: 0; padding: 15px; }
         .tab.active { display: flex; }
 
-        /* RANKING ESTILO ELITE */
-        .ranking-container { width: 100%; height: 100%; display: flex; flex-direction: column; }
-        .ranking-scroll { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px; width: 100%; }
+        /* --- JUEGO (T1) --- */
+        #estadisticas { display: flex; gap: 20px; font-size: 18px; margin: 10px 0; }
+        
+        /* RULETA (DIBUJADA CON CÓDIGO) */
+        #wheel-container { position: relative; width: 300px; height: 300px; margin: 20px auto; }
+        .pointer { 
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%); 
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; 
+            border-top: 25px solid var(--azul-ton); z-index: 10; 
+        }
+        #fortune-wheel { 
+            width: 100%; height: 100%; border-radius: 50%; 
+            border: 8px solid #1a2a3a; box-shadow: 0 0 25px rgba(0, 136, 204, 0.5);
+            position: relative; transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1);
+            overflow: hidden; /* Importante */
+        }
+        /* ESTILO PARA LOS SECTORES DE LA RULETA (CSS Canvas alternativo) */
+        .wheel-sector {
+            position: absolute; width: 50%; height: 50%;
+            top: 0; right: 0; transform-origin: 0% 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; color: white; font-size: 12px;
+        }
+
+        .btn-principal { 
+            width: 90%; padding: 15px; border-radius: 30px; border: none; 
+            background: linear-gradient(180deg, var(--azul-ton), #005588); 
+            color: white; font-weight: 800; font-size: 1.2rem; cursor: pointer; 
+            margin: 15px 0; box-shadow: 0 4px 10px rgba(0, 136, 204, 0.3);
+            transition: transform 0.1s;
+        }
+        .btn-principal:active { transform: scale(0.96); }
+        .btn-principal:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .energy-bar-bg { width: 90%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
+        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--azul-ton), var(--cyan-neon)); transition: width 0.3s; }
+
+        /* --- RANKING (T0) --- */
+        .ranking-scroll { flex: 1; width: 100%; overflow-y: auto; padding-bottom: 70px; }
         .rank-card { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px 15px; background: rgba(255,255,255,0.05); 
+            padding: 12px 15px; background: var(--bg-tarjeta); 
             margin-bottom: 8px; border-radius: 12px; border: 1px solid var(--card-border);
         }
         .my-pos-fixed { 
             position: absolute; bottom: 0; left: 0; width: 100%; 
-            background: var(--ton-blue); padding: 15px; font-weight: 800;
-            display: flex; justify-content: space-between; border-radius: 20px 20px 0 0;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.5); z-index: 10;
+            background: var(--azul-ton); padding: 15px 20px; font-weight: 800;
+            display: flex; justify-content: space-between; border-radius: 15px 15px 0 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.4); z-index: 10;
         }
 
-        /* RULETA */
-        #wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
-        #fortune-wheel { 
-            width: 100%; height: 100%; border-radius: 50%; border: 8px solid #1a2a3a; 
-            box-shadow: 0 0 20px var(--ton-blue); transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1);
-        }
+        /* --- INBOX (T3) --- */
+        .card-inbox { width: 90%; background: #d8bfff; border-radius: 15px; padding: 15px; display: flex; align-items: start; margin-bottom: 10px; border: 2px solid #000; color: black; }
+        .check-inbox { background: var(--purpura-boinkers); border-radius: 50%; color: white; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin-right: 10px; margin-top: 3px;}
 
-        /* BOTONES */
-        .btn-main { width: 85%; padding: 15px; border-radius: 30px; border: none; background: linear-gradient(180deg, var(--ton-blue), #005588); color: white; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin: 10px 0; }
-        .energy-bar-bg { width: 80%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 5px auto; overflow: hidden; }
-        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--ton-blue), var(--futuristic-glow)); transition: width 0.3s; }
-
+        /* NAVBAR INFERIOR */
         .nav { height: 70px; display: flex; background: #04101d; border-top: 1px solid var(--card-border); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5; font-size: 10px; color: white; cursor: pointer; }
-        .nav-btn.on { opacity: 1; color: var(--futuristic-glow); border-top: 3px solid var(--futuristic-glow); }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.6; font-size: 10px; color: white; cursor: pointer; }
+        .nav-btn.on { opacity: 1; color: var(--azul-ton); border-top: 3px solid var(--azul-ton); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="username">Cargando...</div>
+        <div id="username">Miguel800🥠</div>
         <div id="ton-connect"></div>
     </div>
 
     <div class="main">
         <div id="t0" class="tab">
-            <div class="ranking-container">
-                <h3 style="margin: 15px 0; color: var(--accent-gold);">🏆 TOP 100 MUNDIAL</h3>
-                <div class="ranking-scroll" id="ranking-list">Cargando ranking...</div>
-                <div class="my-pos-fixed" id="my-rank-card">
-                    <span>ESTÁS EN POSICIÓN:</span>
-                    <span id="my-rank-number">#?</span>
-                </div>
+            <h3 style="color: var(--oro);">🏆 TOP 100 MUNDIAL</h3>
+            <div class="ranking-scroll" id="ranking-list">Cargando ranking...</div>
+            <div class="my-pos-fixed" id="my-rank-card">
+                <span>ESTÁS EN POSICIÓN:</span>
+                <span id="my-rank-number">#?</span>
             </div>
         </div>
 
         <div id="t1" class="tab active">
-            <div style="display: flex; gap: 20px; margin-top: 10px;">
-                <div style="font-size: 1.2rem;">💰 <span id="score">0</span></div>
-                <div style="font-size: 1.2rem; color: var(--accent-gold);">🎫 <span id="user-tickets">0</span></div>
+            <div id="estadisticas">
+                <div>💰 <span id="score">300</span></div>
+                <div>🎫 <span id="user-tickets">0</span></div>
             </div>
+
             <div id="wheel-container">
-                <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--futuristic-glow); z-index: 10;"></div>
-                <img id="fortune-wheel" src="https://i.imgur.com/vHqY7pT.png">
+                <div class="pointer"></div>
+                <div id="fortune-wheel"></div>
             </div>
-            <button class="btn-main" id="spin-btn" onclick="startSpin()">GIRAR (10 ⚡)</button>
-            <div style="font-size: 12px;">⚡ <span id="energy-text">500/500</span></div>
+
+            <button class="btn-principal" id="spin-btn" onclick="startSpin()">GIRAR (10 ⚡)</button>
+            <div style="font-size: 12px;">⚡ <span id="energy-text">486/500</span></div>
             <div class="energy-bar-bg"><div id="energy-fill"></div></div>
         </div>
 
         <div id="t2" class="tab">
-            <h3 style="margin-top: 20px;">MISIONES</h3>
-            <button class="btn-main" style="background: var(--purple-inbox); width: 90%;" onclick="triggerAd()">🎬 VER VIDEO (+2 TICKETS)</button>
-        </div>
+            <h3>MISIONES</h3>
+            <button class="btn-principal" style="background: var(--purpura-boinkers); width: 100%; border-radius: 20px;" onclick="triggerAd()">🎬 VER VIDEO (+2 TICKETS)</button>
+            </div>
 
-        <div id="t3" class="tab">
-            <h3 style="margin-top: 20px;">📩 BUZÓN</h3>
-            <div id="inbox-list" style="width: 90%;">Sin mensajes nuevos.</div>
+        <div id="t3" class="tab" style="background: #8c5af522;">
+            <h2>📩 INBOX</h2>
+            <div id="inbox-list" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <p>No tienes mensajes nuevos.</p>
+            </div>
         </div>
     </div>
 
@@ -113,47 +151,115 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "TU_API_KEY", authDomain: "TU_PROYECTO.firebaseapp.com", projectId: "TU_PROYECTO", storageBucket: "TU_PROYECTO.appspot.com", messagingSenderId: "TU_ID", appId: "TU_APP_ID" };
+        // CONFIGURACIÓN FIREBASE (¡Sustituye con tus datos reales!)
+        const firebaseConfig = { apiKey: "AIzaSy...", authDomain: "...", projectId: "...", storageBucket: "...", messagingSenderId: "...", appId: "..." };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let pts = 0, tickets = 0, energiaActual = 500, girando = false, currentRot = 0;
+        // VARIABLES DE ESTADO
+        let pts = 300, tickets = 0, energiaActual = 486, maxEnergia = 500, girando = false, rotationActual = 0;
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "dev_user";
         const firstName = tg.initDataUnsafe?.user?.first_name || "Jugador";
 
+        // DEFINICIÓN DE PREMIOS DE LA RULETA (8 sectores)
+        const PREMIOS = [
+            { tipo: 'puntos', valor: 50, color: '#030d17' },   // Sector 1 (Top)
+            { tipo: 'tickets', valor: 2, color: '#f59e0b' },   // Sector 2
+            { tipo: 'energia', valor: 100, color: '#030d17' }, // Sector 3
+            { tipo: 'puntos', valor: 1000, color: '#0088cc' }, // Sector 4 (Azul)
+            { tipo: 'tickets', valor: 1, color: '#030d17' },   // Sector 5
+            { tipo: 'energia', valor: 50, color: '#f59e0b' },  // Sector 6
+            { tipo: 'puntos', valor: 250, color: '#030d17' },  // Sector 7
+            { tipo: 'jackpot', valor: 5000, color: '#ff0000' } // Sector 8 (Rojo)
+        ];
+
+        // DIBUJAR LA RULETA CON CÓDIGO (CSS Skew Method)
+        function dibujarRuleta() {
+            const wheel = document.getElementById('fortune-wheel');
+            const anguloSector = 360 / PREMIOS.length;
+            
+            PREMIOS.forEach((premio, i) => {
+                const sectorDiv = document.createElement('div');
+                sectorDiv.className = 'wheel-sector';
+                sectorDiv.style.backgroundColor = premio.color;
+                sectorDiv.style.border = '1px solid rgba(255,255,255,0.1)';
+                
+                // Lógica de Skew para crear sectores circulares (8 sectores = 45deg)
+                sectorDiv.style.transform = `rotate(${i * anguloSector}deg) skewY(-45deg)`; 
+                
+                // Texto del premio (requiere contra-rotación para leerse)
+                const textoPremio = document.createElement('span');
+                textoPremio.style.transform = `skewY(45deg) rotate(22.5deg)`;
+                textoPremio.style.position = 'absolute';
+                textoPremio.style.top = '40px'; // Ajuste visual
+                textoPremio.innerText = `${premio.tipo === 'tickets' ? '🎫' : '💎'}${premio.valor}`;
+                if(premio.tipo === 'jackpot') textoPremio.innerText = "🏆JACKPOT";
+                
+                sectorDiv.appendChild(textoPremio);
+                wheel.appendChild(sectorDiv);
+            });
+        }
+
+        // NAVEGACIÓN
         window.showTab = (id, btn) => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
             document.getElementById(id).classList.add('active');
             btn.classList.add('on');
+            if(id === 't3') markMessagesAsRead(); // Marcar inbox como leído
         };
 
+        // LÓGICA DE GIRO
         window.startSpin = async () => {
             if (girando || energiaActual < 10) return;
             girando = true; energiaActual -= 10; updateUI();
-            
+            document.getElementById('spin-btn').disabled = true;
+
+            const indexPremio = Math.floor(Math.random() * PREMIOS.length);
+            const premio = PREMIOS[indexPremio];
+
+            const girosCompletos = 10 * 360; // 10 vueltas
+            const anguloSector = 360 / PREMIOS.length;
+            // Calculamos el ángulo para que el sector ganador quede BAJO EL PUNTERO (Arriba, 0deg)
+            const anguloFinal = rotationActual + girosCompletos - (indexPremio * anguloSector) - (anguloSector/2);
+            rotationActual = anguloFinal;
+
             const wheel = document.getElementById('fortune-wheel');
-            const addRot = (360 * 5) + Math.floor(Math.random() * 360);
-            currentRot += addRot;
-            wheel.style.transform = `rotate(${currentRot}deg)`;
+            wheel.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.2, 1)";
+            wheel.style.transform = `rotate(${rotationActual}deg)`;
             tg.HapticFeedback.impactOccurred('heavy');
 
             setTimeout(() => {
                 girando = false;
-                pts += 100; // Ejemplo premio fijo
+                document.getElementById('spin-btn').disabled = false;
+                procesarPremio(premio);
                 saveData(); updateUI();
-                tg.showAlert("¡Has ganado 100 puntos!");
             }, 4000);
         };
 
+        function procesarPremio(premio) {
+            let msg = "";
+            switch (premio.tipo) {
+                case 'puntos': pts += premio.valor; msg = `💎 ¡Ganaste ${premio.valor} Puntos!`; break;
+                case 'tickets': tickets += premio.valor; msg = `🎫 ¡Ganaste ${premio.valor} Tickets!`; break;
+                case 'energia': energiaActual = Math.min(energiaActual + premio.valor, maxEnergia); msg = `⚡ ¡Recargaste ${premio.valor} de Energía!`; break;
+                case 'jackpot': pts += premio.valor; msg = `🏆 ¡JACKPOT! ¡${premio.valor} Puntos Extra! 🏆`; break;
+            }
+            tg.showAlert(msg);
+        }
+
+        // TAREAS / ADSGRAM
         window.triggerAd = () => {
-            if (!window.Adsgram) return;
-            const AdController = window.Adsgram.init({ blockId: "27310" });
-            AdController.show().then(res => { if(res.done) { tickets += 2; saveData(); updateUI(); } });
+            if (!window.Adsgram) { tg.showAlert("Anuncios no disponibles."); return; }
+            const AdController = window.Adsgram.init({ blockId: "27310" }); // Tu blockId real
+            AdController.show().then(res => {
+                if(res.done) { tickets += 2; tg.showAlert("+2 Tickets recibidos 🎫"); saveData(); updateUI(); }
+            }).catch(() => tg.showAlert("Anuncio fallido."));
         };
 
+        // FIREBASE Y INICIALIZACIÓN
         async function saveData() {
             await setDoc(doc(db, "jugadores", userId), { 
                 nombre: firstName, puntos: pts, tickets: tickets, energia: energiaActual, lastSeen: serverTimestamp() 
@@ -161,43 +267,61 @@
         }
 
         window.onload = async () => {
-            document.getElementById('username').innerText = firstName;
+            dibujarRuleta(); // Dibujar la ruleta visualmente
+            if(firstName !== "Jugador") document.getElementById('username').innerText = `${firstName}🥠`;
             const d = await getDoc(doc(db, "jugadores", userId));
             if(d.exists()) {
                 const data = d.data();
-                pts = data.puntos || 0; tickets = data.tickets || 0; energiaActual = data.energia ?? 500;
+                pts = data.puntos || pts; tickets = data.tickets || tickets; energiaActual = data.energia ?? energiaActual;
             }
             updateUI();
-            loadRanking(); // Cargar el Top 100
+            loadRanking();
+            loadInbox();
+            // TonConnect
+            new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://tu-url.com/manifest.json', buttonRootId: 'ton-connect' });
         };
 
-        // RANKING TOP 100 + MI POSICIÓN
+        // RANKING TOP 100 Y MI POSICIÓN (Basado en image_4.png)
         function loadRanking() {
-            // Pedimos los 100 mejores
             const q = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(100));
             onSnapshot(q, (snapshot) => {
                 const list = document.getElementById('ranking-list');
                 list.innerHTML = "";
-                let i = 1;
-                let foundMe = false;
-
+                let i = 1; let foundMe = false;
                 snapshot.forEach((doc) => {
                     const data = doc.data();
                     const isMe = doc.id === userId;
-                    if(isMe) {
-                        document.getElementById('my-rank-number').innerText = `#${i}`;
-                        foundMe = true;
-                    }
-
+                    if(isMe) { document.getElementById('my-rank-number').innerText = `#${i}`; foundMe = true; }
+                    
                     list.innerHTML += `
-                        <div class="rank-card" style="${isMe ? 'border: 2px solid var(--futuristic-glow); background: rgba(0,136,204,0.2);' : ''}">
+                        <div class="rank-card" style="${isMe ? 'border: 2px solid var(--azul-ton); background: rgba(0,136,204,0.1);' : ''}">
                             <span><b>#${i}</b> ${data.nombre}</span>
-                            <b>${Math.floor(data.puntos).toLocaleString()}</b>
+                            <b>💰 ${Math.floor(data.puntos).toLocaleString()}</b>
                         </div>`;
                     i++;
                 });
-
                 if(!foundMe) document.getElementById('my-rank-number').innerText = "+100";
+            });
+        }
+
+        // INBOX (Buzón estilo image_1.png)
+        async function loadInbox() {
+            const q = query(collection(db, "buzon"), where("userId", "==", userId));
+            const snap = await getDocs(q);
+            const container = document.getElementById('inbox-list');
+            if(snap.empty) return;
+            container.innerHTML = "";
+            snap.forEach(doc => {
+                const m = doc.data();
+                container.innerHTML += `
+                    <div class="card-inbox ${m.tipo === 'premio_rifa' ? 'premio-won' : ''}">
+                        <div class="check-inbox">✔️</div>
+                        <div>
+                            <small>${new Date(m.fecha.seconds * 1000).toLocaleDateString()}</small><br>
+                            <b>${m.titulo}</b><br>
+                            <small>${m.cuerpo}</small>
+                        </div>
+                    </div>`;
             });
         }
 
@@ -208,7 +332,8 @@
             document.getElementById('energy-fill').style.width = `${(energiaActual/500)*100}%`;
         }
 
-        setInterval(() => { if(energiaActual < 500) { energiaActual += 1; updateUI(); } }, 3000);
+        // Recarga energía y guardado automático
+        setInterval(() => { if(energiaActual < 500 && !girando) { energiaActual += 1; updateUI(); } }, 3000);
     </script>
 </body>
 </html>
