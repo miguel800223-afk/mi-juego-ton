@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Super Ton Clicker - Icon Fix</title>
+    <title>Super Ton Clicker - Official</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
@@ -23,37 +23,36 @@
         .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; position: absolute; top: 0; padding: 15px; overflow-y: auto; }
         .tab.active { display: flex; }
         
-        /* RULETA ARREGLADA */
-        #wheel-container { position: relative; width: 280px; height: 280px; margin: 15px auto; }
-        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--oro); z-index: 100; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
+        /* RULETA - CORRECCIÓN DE ICONOS */
+        #wheel-container { position: relative; width: 300px; height: 300px; margin: 20px auto; }
+        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--oro); z-index: 100; }
         
         #fortune-wheel { 
             width: 100%; height: 100%; border-radius: 50%; 
-            border: 6px solid #1a2a3a; box-shadow: 0 0 25px rgba(0, 136, 204, 0.3); 
+            border: 8px solid #1a2a3a; box-shadow: 0 0 30px rgba(0, 136, 204, 0.3); 
             position: relative; transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1); 
-            overflow: hidden; list-style: none; padding: 0; margin: 0;
+            overflow: hidden;
         }
         
         .wheel-sector { 
             position: absolute; width: 50%; height: 50%; 
             top: 0; right: 0; transform-origin: 0% 100%; 
-            display: flex; align-items: center; justify-content: center; 
         }
         
-        /* Ajuste de los iconos para que no desaparezcan */
         .wheel-icon { 
-            position: absolute; left: 30px; bottom: 60px; 
-            font-size: 24px; z-index: 5;
-            display: block; width: 40px; text-align: center;
+            position: absolute; 
+            left: 20px; /* Movido más al centro */
+            bottom: 40px; 
+            font-size: 26px; 
+            display: block; width: 50px; text-align: center;
         }
 
-        .btn-principal { width: 90%; padding: 12px; border-radius: 25px; border: none; background: linear-gradient(180deg, var(--azul-ton), #005588); color: white; font-weight: 800; cursor: pointer; margin: 8px 0; }
-        .btn-secundario { width: 100%; padding: 12px; border-radius: 15px; border: 1px solid var(--card-border); background: var(--bg-tarjeta); color: white; margin-bottom: 10px; font-size: 13px; text-align: left; }
+        .btn-principal { width: 90%; padding: 14px; border-radius: 25px; border: none; background: linear-gradient(180deg, var(--azul-ton), #005588); color: white; font-weight: 800; cursor: pointer; margin: 8px 0; box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4); }
+        .btn-secundario { width: 100%; padding: 12px; border-radius: 15px; border: 1px solid var(--card-border); background: var(--bg-tarjeta); color: white; margin-bottom: 10px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+        
         .energy-bar-bg { width: 90%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; margin-top: 5px; }
         #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ffcc00, #ffee00); transition: width 0.5s; }
         
-        .rank-card { display: flex; justify-content: space-between; width: 100%; padding: 12px; background: var(--bg-tarjeta); margin-bottom: 8px; border-radius: 12px; font-size: 14px; }
-        .rank-me { border: 2px solid var(--azul-ton); background: rgba(0, 136, 204, 0.15); }
         .nav { height: 70px; display: flex; background: #04101d; border-top: 1px solid var(--card-border); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5; font-size: 10px; color: white; cursor: pointer;}
         .nav-btn.on { opacity: 1; color: var(--azul-ton); border-top: 3px solid var(--azul-ton); }
@@ -62,18 +61,18 @@
 <body>
 
     <div class="header">
-        <div id="username" style="font-weight: 800;">...</div>
+        <div id="username" style="font-weight: 800;">Cargando...</div>
         <div id="ton-connect"></div>
     </div>
 
     <div class="main">
         <div id="t0" class="tab">
-            <h3 style="color: var(--oro);">🏆 RANKING</h3>
+            <h3 style="color: var(--oro);">🏆 TOP PLAYERS</h3>
             <div id="ranking-list" style="width:100%"></div>
         </div>
 
         <div id="t1" class="tab active">
-            <div style="display: flex; gap: 20px; margin: 10px 0; font-weight: 800;">
+            <div style="display: flex; gap: 20px; margin: 10px 0; font-size: 18px; font-weight: 800;">
                 <div>💰 <span id="score">0</span></div>
                 <div>🎫 <span id="user-tickets">0</span></div>
             </div>
@@ -82,28 +81,32 @@
                 <div id="fortune-wheel"></div>
             </div>
             <button class="btn-principal" id="spin-btn" onclick="startSpin()">GIRAR (1 ⚡)</button>
-            <div style="font-size: 13px; margin-top: 10px; font-weight: 600;">⚡ Energía: <span id="energy-text">0/50</span></div>
+            <div style="font-size: 14px; margin-top: 10px; font-weight: 600;">⚡ Energía: <span id="energy-text">0/50</span></div>
             <div class="energy-bar-bg"><div id="energy-fill"></div></div>
             <div id="timer-text" style="font-size: 11px; color: #aaa; margin-top: 5px;">...</div>
         </div>
 
         <div id="t2" class="tab">
-            <h3>TAREAS Y TIENDA</h3>
-            <button class="btn-principal" style="background: #e91e63; margin-bottom: 20px;" onclick="triggerAd()">🎬 VIDEO (+1 TICKET)</button>
+            <h3>🎁 MISIONES</h3>
             <div style="width: 100%; padding: 0 10px;">
-                <h4 style="color: var(--cyan-neon);">🛒 COMPRAS TON</h4>
-                <button class="btn-secundario" onclick="buyPackTON(0.2, 100)">⚡ Pack 100 Energía <span style="float:right">0.2 TON</span></button>
-                <h4 style="margin-top: 15px;">🪙 PUNTOS</h4>
-                <button class="btn-secundario" onclick="buyEnergyPoints()">100 Puntos → +10 Energía ⚡</button>
+                <div id="wallet-task" class="btn-secundario" style="background: rgba(0, 242, 254, 0.1); border-color: var(--cyan-neon);">
+                    <span>🔗 Conectar Wallet (Premio)</span>
+                    <b id="wallet-status">+10 ⚡</b>
+                </div>
+                
+                <button class="btn-principal" style="background: #e91e63; margin: 15px 0;" onclick="triggerAd()">🎬 Ver Video (+1 TICKET)</button>
+                
+                <h4 style="color: var(--oro);">🛒 SHOP</h4>
+                <button class="btn-secundario" onclick="buyPackTON(0.1, 50)"><span>Pack Inicial</span> <span>0.1 TON</span></button>
             </div>
         </div>
 
         <div id="t3" class="tab">
             <h2>📩 INBOX</h2>
             <div id="inbox-list" style="width: 100%;">
-                <div class="card-inbox" style="background:white; color: #333; padding: 15px; border-radius: 12px; display: flex; align-items: center;">
-                    <div style="background:#8c5af5; color:white; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; margin-right:15px;">👥</div>
-                    <div><b>Referidos</b><br><span id="referral-count">0 referidos</span></div>
+                <div class="card-inbox" style="background:white; color: #333; padding: 15px; border-radius: 12px; display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="background:var(--azul-ton); color:white; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; margin-right:15px;">🎁</div>
+                    <div><b>Bono de Bienvenida</b><br><span>+50 Energía gratis aplicada</span></div>
                 </div>
             </div>
         </div>
@@ -120,15 +123,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // --- CONFIGURACIÓN ---
         const MY_WALLET = "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj";
-        const firebaseConfig = { apiKey: "AIza...", projectId: "...", appId: "..." };
+        const firebaseConfig = { apiKey: "AIza...", projectId: "...", appId: "..." }; // Usa tus datos
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
 
-        let pts = 0, tickets = 0, energiaActual = 0, maxEnergia = 50, referidos = 0;
-        let lastSyncTime = Date.now(), rotationActual = 0;
+        let pts = 0, tickets = 0, energiaActual = 0, maxEnergia = 50;
+        let lastSyncTime = Date.now(), rotationActual = 0, walletBonusClaimed = false;
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "dev_user";
         const firstName = tg.initDataUnsafe?.user?.first_name || "Jugador";
 
@@ -138,30 +140,53 @@
         });
 
         const PREMIOS = [
-            { tipo: 'puntos', valor: 50, color: '#030d17', icono: '💎' },
-            { tipo: 'tickets', valor: 1, color: '#f59e0b', icono: '🎫' },
-            { tipo: 'puntos', valor: 100, color: '#030d17', icono: '💎' },
-            { tipo: 'nada', valor: 0, color: '#1a2a3a', icono: '❌' },
-            { tipo: 'puntos', valor: 200, color: '#030d17', icono: '💎' },
-            { tipo: 'jackpot', valor: 5000, color: '#ff0000', icono: '🏆' },
-            { tipo: 'puntos', valor: 10, color: '#030d17', icono: '💎' },
-            { tipo: 'nada', valor: 0, color: '#1a2a3a', icono: '❌' }
+            { icono: '💎', color: '#030d17', valor: 50 },
+            { icono: '🎫', color: '#f59e0b', valor: 1 },
+            { icono: '💰', color: '#030d17', valor: 100 },
+            { icono: '❌', color: '#1a2a3a', valor: 0 },
+            { icono: '💎', color: '#030d17', valor: 200 },
+            { icono: '🏆', color: '#ff0000', valor: 5000 },
+            { icono: '💰', color: '#030d17', valor: 10 },
+            { icono: '❌', color: '#1a2a3a', valor: 0 }
         ];
 
-        window.buyPackTON = async (amount, energyGain) => {
-            const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 60,
-                messages: [{ address: MY_WALLET, amount: (amount * 1000000000).toString() }]
-            };
-            try {
-                await tonConnectUI.sendTransaction(transaction);
-                energiaActual += energyGain; 
-                saveData(); updateUI();
-                tg.showAlert(`¡Compra de ${energyGain} Energía exitosa!`);
-            } catch (e) { tg.showAlert("Pago cancelado."); }
+        // --- LÓGICA DE CARGA INICIAL Y TAREAS ---
+        window.onload = async () => {
+            document.getElementById('username').innerText = firstName;
+            dibujarRuleta();
+            
+            const d = await getDoc(doc(db, "jugadores", userId));
+            if(!d.exists()) {
+                // PRIMERA VEZ: REGALO 50 ENERGÍA
+                energiaActual = 50;
+                pts = 0; tickets = 0;
+                tg.showAlert("¡Bienvenido! Te regalamos 50 de energía inicial.");
+                saveData();
+            } else {
+                const dat = d.data();
+                pts = dat.puntos || 0;
+                tickets = dat.tickets || 0;
+                energiaActual = dat.energia ?? 0;
+                lastSyncTime = dat.lastSeen || Date.now();
+                walletBonusClaimed = dat.walletBonus || false;
+            }
+
+            // Monitorear conexión de Wallet para el premio de +10
+            tonConnectUI.onStatusChange(wallet => {
+                if (wallet && !walletBonusClaimed) {
+                    energiaActual += 10;
+                    walletBonusClaimed = true;
+                    tg.showAlert("¡Wallet conectada! +10 Energía de regalo.");
+                    saveData();
+                    document.getElementById('wallet-status').innerText = "✅ COBRADO";
+                }
+            });
+
+            setInterval(updateEnergy, 1000);
+            loadRanking();
         };
 
-        function updateEnergyLogic() {
+        function updateEnergy() {
             const ms = 25 * 60 * 1000;
             const ahora = Date.now();
             if (energiaActual < maxEnergia) {
@@ -172,9 +197,9 @@
                     saveData();
                 }
                 const f = ms - ((ahora - lastSyncTime) % ms);
-                document.getElementById('timer-text').innerText = `+1⚡ en: ${Math.floor(f/60000)}:${Math.floor((f%60000)/1000).toString().padStart(2,'0')}`;
+                document.getElementById('timer-text').innerText = `Recarga en: ${Math.floor(f/60000)}:${Math.floor((f%60000)/1000).toString().padStart(2,'0')}`;
             } else {
-                document.getElementById('timer-text').innerText = energiaActual > maxEnergia ? "¡Acumulando energía extra!" : "Energía al máximo";
+                document.getElementById('timer-text').innerText = "Energía a tope";
             }
             updateUI();
         }
@@ -187,24 +212,46 @@
             document.getElementById('fortune-wheel').style.transform = `rotate(${rotationActual}deg)`;
             setTimeout(() => {
                 const p = PREMIOS[index];
-                if(p.tipo === 'puntos' || p.tipo === 'jackpot') pts += p.valor;
-                if(p.tipo === 'tickets') tickets += p.valor;
+                if(index !== 3 && index !== 7) {
+                    if(index === 1) tickets += p.valor; else pts += p.valor;
+                    tg.showAlert(`¡Ganaste ${p.valor}!`);
+                }
                 saveData();
             }, 4000);
         };
 
-        window.buyEnergyPoints = () => {
-            if(pts >= 100) { pts -= 100; energiaActual += 10; saveData(); updateUI(); }
-            else tg.showAlert("No tienes 100 puntos.");
-        };
-
         function updateUI() {
-            document.getElementById('score').innerText = Math.floor(pts).toLocaleString();
+            document.getElementById('score').innerText = Math.floor(pts);
             document.getElementById('user-tickets').innerText = tickets;
             document.getElementById('energy-text').innerText = `${energiaActual}/50`;
-            const fill = document.getElementById('energy-fill');
-            fill.style.width = `${Math.min((energiaActual/50)*100, 100)}%`;
-            fill.style.background = energiaActual > 50 ? "var(--cyan-neon)" : "linear-gradient(90deg, #ffcc00, #ffee00)";
+            document.getElementById('energy-fill').style.width = `${Math.min((energiaActual/50)*100, 100)}%`;
+            if(walletBonusClaimed) document.getElementById('wallet-status').innerText = "✅ COBRADO";
+        }
+
+        async function saveData() {
+            await setDoc(doc(db, "jugadores", userId), { 
+                nombre: firstName, puntos: pts, tickets: tickets, 
+                energia: energiaActual, lastSeen: lastSyncTime, walletBonus: walletBonusClaimed 
+            }, { merge: true });
+        }
+
+        function dibujarRuleta() {
+            const wheel = document.getElementById('fortune-wheel');
+            wheel.innerHTML = "";
+            PREMIOS.forEach((p, i) => {
+                const sector = document.createElement('div');
+                sector.className = 'wheel-sector';
+                sector.style.backgroundColor = p.color;
+                sector.style.transform = `rotate(${i * 45}deg) skewY(-45deg)`;
+                
+                const iconWrap = document.createElement('div');
+                iconWrap.className = 'wheel-icon';
+                iconWrap.innerText = p.icono;
+                iconWrap.style.transform = `skewY(45deg) rotate(22.5deg)`;
+                
+                sector.appendChild(iconWrap);
+                wheel.appendChild(sector);
+            });
         }
 
         window.showTab = (id, btn) => {
@@ -214,49 +261,18 @@
             btn.classList.add('on');
         };
 
-        async function saveData() {
-            await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: pts, tickets: tickets, energia: energiaActual, lastSeen: lastSyncTime }, { merge: true });
-        }
-
-        window.onload = async () => {
-            document.getElementById('username').innerText = firstName;
-            dibujarRuleta();
-            const d = await getDoc(doc(db, "jugadores", userId));
-            if(d.exists()) {
-                const dat = d.data(); pts=dat.puntos||0; tickets=dat.tickets||0; 
-                energiaActual=dat.energia??10; lastSyncTime=dat.lastSeen||Date.now();
-            }
-            setInterval(updateEnergyLogic, 1000);
-            onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(50)), (s) => {
+        function loadRanking() {
+            onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(20)), (s) => {
                 const l = document.getElementById('ranking-list'); l.innerHTML = "";
                 let i = 1; s.forEach(docSnap => {
-                    const isMe = docSnap.id === userId;
-                    l.innerHTML += `<div class="rank-card ${isMe?'rank-me':''}"><span>#${i} ${docSnap.data().nombre}</span><b>💰 ${Math.floor(docSnap.data().puntos)}</b></div>`;
+                    l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:var(--bg-tarjeta); margin-bottom:5px; border-radius:10px;">
+                        <span>#${i} ${docSnap.data().nombre}</span><b>${Math.floor(docSnap.data().puntos)}</b>
+                    </div>`;
                     i++;
                 });
-            });
-        };
-
-        function dibujarRuleta() {
-            const wheel = document.getElementById('fortune-wheel');
-            wheel.innerHTML = ""; // Limpiar antes de dibujar
-            PREMIOS.forEach((p, i) => {
-                const sector = document.createElement('div');
-                sector.className = 'wheel-sector';
-                sector.style.backgroundColor = p.color;
-                // SkewY(-45) crea el ángulo de 45 grados para 8 sectores
-                sector.style.transform = `rotate(${i * 45}deg) skewY(-45deg)`;
-                
-                const iconWrap = document.createElement('div');
-                iconWrap.className = 'wheel-icon';
-                iconWrap.innerText = p.icono;
-                // Re-invertimos la deformación para que el icono se vea recto
-                iconWrap.style.transform = `skewY(45deg) rotate(22.5deg)`;
-                
-                sector.appendChild(iconWrap);
-                wheel.appendChild(sector);
             });
         }
     </script>
 </body>
 </html>
+
