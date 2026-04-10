@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Super Ton Clicker - Fix Final</title>
+    <title>Super Ton Clicker - Full Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
@@ -22,15 +22,15 @@
         .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; position: absolute; top: 0; padding: 15px; overflow-y: auto; }
         .tab.active { display: flex; }
         
-        /* RULETA - POSICIONAMIENTO MEJORADO */
+        /* RULETA */
         #wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
         .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--oro); z-index: 100; }
         #fortune-wheel { width: 100%; height: 100%; border-radius: 50%; border: 6px solid #1a2a3a; position: relative; transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1); overflow: hidden; }
         .wheel-sector { position: absolute; width: 50%; height: 50%; top: 0; right: 0; transform-origin: 0% 100%; display: flex; align-items: center; justify-content: center; }
-        .wheel-icon { position: absolute; left: 15px; bottom: 35px; font-size: 22px; transform: skewY(45deg) rotate(22.5deg); }
+        .wheel-icon { position: absolute; left: 18px; bottom: 40px; font-size: 24px; transform: skewY(45deg) rotate(22.5deg); }
 
         .btn-principal { width: 90%; padding: 14px; border-radius: 25px; border: none; background: linear-gradient(180deg, var(--azul-ton), #005588); color: white; font-weight: 800; cursor: pointer; margin: 8px 0; }
-        .btn-secundario { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg-tarjeta); color: white; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-secundario { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg-tarjeta); color: white; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
         
         .energy-bar-bg { width: 90%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; }
         #energy-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ffcc00, #ffee00); transition: width 0.5s; }
@@ -43,7 +43,7 @@
 <body>
 
     <div class="header">
-        <div id="username" style="font-weight: 800;">Cargando...</div>
+        <div id="username" style="font-weight: 800;">...</div>
         <div id="ton-connect"></div>
     </div>
 
@@ -60,33 +60,46 @@
             <button class="btn-principal" onclick="startSpin()">GIRAR (1 ⚡)</button>
             <div style="font-size: 14px; margin-top: 10px;">⚡ Energía: <span id="energy-text">0/50</span></div>
             <div class="energy-bar-bg"><div id="energy-fill"></div></div>
-            <div id="timer-text" style="font-size: 11px; color: #aaa; margin-top: 5px;">Sincronizando...</div>
+            <div id="timer-text" style="font-size: 11px; color: #aaa; margin-top: 5px;">Cargando...</div>
         </div>
 
         <div id="t2" class="tab">
-            <h3>MISIONES DISPONIBLES</h3>
+            <h3>TAREAS Y TIENDA</h3>
             <div style="width: 100%; padding: 0 10px;">
-                <div class="btn-secundario" id="task-wallet">
-                    <span>🔗 Conectar Wallet</span>
+                <div class="btn-secundario" id="task-wallet" onclick="tg.showAlert('¡Conecta tu wallet arriba para cobrar!')">
+                    <span>🔗 Tarea: Conectar Wallet</span>
                     <b id="wallet-badge" style="color: var(--oro);">+10 ⚡</b>
                 </div>
-                <div class="btn-secundario" style="opacity: 0.8;">
-                    <span>🎁 Bono Inicial</span>
-                    <b style="color: #4caf50;">✅ ACTIVADO</b>
-                </div>
+                <button class="btn-principal" style="background: #e91e63; margin: 10px 0;" onclick="tg.showAlert('Cargando anuncio...')">🎬 Video (+1 Ticket)</button>
+                
+                <h4 style="color: var(--cyan-neon); margin: 15px 0 10px;">💎 TIENDA TON</h4>
+                <button class="btn-secundario" onclick="buyTON(0.1, 50)"><span>Pack 50 Energía</span> <b>0.1 TON</b></button>
+                <button class="btn-secundario" onclick="buyTON(0.2, 120)"><span>Pack 120 Energía</span> <b>0.2 TON</b></button>
+                
+                <h4 style="margin: 15px 0 10px;">🪙 CANJES</h4>
+                <button class="btn-secundario" onclick="exchangePoints()"><span>100 Puntos → +10 ⚡</span> <b>Canjear</b></button>
             </div>
         </div>
 
         <div id="t0" class="tab">
-            <h3>🏆 LÍDERES</h3>
+            <h3>🏆 TOP GLOBAL</h3>
             <div id="ranking-list" style="width:100%"></div>
         </div>
 
         <div id="t3" class="tab">
             <h3>📩 INBOX</h3>
-            <div style="width:100%; background:white; color:#333; padding:15px; border-radius:15px; display:flex; align-items:center;">
-                <span style="font-size:30px; margin-right:15px;">🎁</span>
-                <div><b>¡Bienvenido!</b><br>Se han sumado 50 de energía a tu cuenta.</div>
+            <div style="width:100%; padding: 0 10px;">
+                <div style="background:white; color:#333; padding:15px; border-radius:15px; display:flex; align-items:center; margin-bottom:15px;">
+                    <span style="font-size:30px; margin-right:15px;">🎁</span>
+                    <div><b>Regalo de Bienvenida</b><br>+50 Energía aplicada.</div>
+                </div>
+                
+                <div style="background:var(--bg-tarjeta); padding:20px; border-radius:15px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-size: 24px; margin-bottom: 10px;">👥 Referidos</div>
+                    <div style="font-size: 14px; margin-bottom: 15px;">Invita amigos y gana puntos extras.</div>
+                    <div style="font-size: 20px; font-weight: 800; color: var(--azul-ton);" id="ref-count">0 Amigos</div>
+                    <button class="btn-principal" onclick="copyRef()" style="margin-top:15px;">🔗 COPIAR LINK</button>
+                </div>
             </div>
         </div>
     </div>
@@ -102,16 +115,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = { apiKey: "AIza...", projectId: "...", appId: "..." };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
+        const MY_WALLET = "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj";
 
         let pts = 0, tickets = 0, energiaActual = 0, lastSyncTime = Date.now();
-        let walletBonusClaimed = false, rotationActual = 0;
-        const userId = tg.initDataUnsafe?.user?.id?.toString() || "test_user";
-        const firstName = tg.initDataUnsafe?.user?.first_name || "Usuario";
+        let walletBonus = false, referidos = 0, rotationActual = 0;
+        const userId = tg.initDataUnsafe?.user?.id?.toString() || "dev_user";
+        const firstName = tg.initDataUnsafe?.user?.first_name || "Jugador";
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://tu-sitio.com/tonconnect-manifest.json',
@@ -129,79 +142,68 @@
             { icono: '❌', color: '#1a2a3a', valor: 0 }
         ];
 
-        // --- CARGA DE DATOS ---
-        async function loadUserData() {
-            const userRef = doc(db, "jugadores", userId);
-            const d = await getDoc(userRef);
-            
+        async function loadData() {
+            const d = await getDoc(doc(db, "jugadores", userId));
             if (!d.exists()) {
-                // SI ES NUEVO, ASIGNAR 50 DE ENERGÍA Y GUARDAR
-                energiaActual = 50;
-                pts = 0; tickets = 0;
-                walletBonusClaimed = false;
-                await setDoc(userRef, { 
-                    nombre: firstName, puntos: pts, tickets: tickets, 
-                    energia: energiaActual, lastSeen: Date.now(), walletBonus: false 
-                });
+                energiaActual = 50; // REGALO INICIAL
+                await setDoc(doc(db, "jugadores", userId), { nombre: firstName, puntos: 0, tickets: 0, energia: 50, lastSeen: Date.now(), walletBonus: false, referidos: 0 });
             } else {
-                const dat = d.data();
-                pts = dat.puntos || 0;
-                tickets = dat.tickets || 0;
-                energiaActual = dat.energia ?? 0;
-                lastSyncTime = dat.lastSeen || Date.now();
-                walletBonusClaimed = dat.walletBonus || false;
+                const data = d.data();
+                pts = data.puntos || 0;
+                tickets = data.tickets || 0;
+                energiaActual = data.energia ?? 0;
+                lastSyncTime = data.lastSeen || Date.now();
+                walletBonus = data.walletBonus || false;
+                referidos = data.referidos || 0;
             }
             updateUI();
         }
 
-        // --- TAREA WALLET ---
-        tonConnectUI.onStatusChange(async (wallet) => {
-            if (wallet && !walletBonusClaimed) {
-                energiaActual += 10;
-                walletBonusClaimed = true;
-                await saveData();
-                tg.showAlert("✅ ¡Tarea de Wallet completada! +10 Energía.");
-                updateUI();
-            }
-        });
+        window.buyTON = async (amt, gain) => {
+            const tx = { validUntil: Math.floor(Date.now()/1000)+60, messages: [{ address: MY_WALLET, amount: (amt*1000000000).toString() }] };
+            try {
+                await tonConnectUI.sendTransaction(tx);
+                energiaActual += gain; await saveData(); updateUI();
+                tg.showAlert("✅ Compra exitosa!");
+            } catch(e) { tg.showAlert("Cancelado"); }
+        };
 
-        // --- LÓGICA DE JUEGO ---
+        window.exchangePoints = async () => {
+            if(pts >= 100) { pts -= 100; energiaActual += 10; await saveData(); updateUI(); }
+            else tg.showAlert("Faltan puntos");
+        };
+
+        window.copyRef = () => {
+            navigator.clipboard.writeText(`https://t.me/TuBot?start=${userId}`);
+            tg.showAlert("Link copiado!");
+        };
+
         window.startSpin = async () => {
-            if (energiaActual < 1) { tg.showAlert("Sin energía"); return; }
-            energiaActual--;
-            updateUI();
-            
-            let index = Math.random() < 0.01 ? 5 : [0,1,2,3,4,6,7][Math.floor(Math.random()*7)];
-            rotationActual += (360 * 5) + (360 - (index * 45) - 22.5);
+            if (energiaActual < 1) return tg.showAlert("Sin energía");
+            energiaActual--; updateUI();
+            let idx = Math.random() < 0.01 ? 5 : [0,1,2,3,4,6,7][Math.floor(Math.random()*7)];
+            rotationActual += (360 * 5) + (360 - (idx * 45) - 22.5);
             document.getElementById('fortune-wheel').style.transform = `rotate(${rotationActual}deg)`;
-            
             setTimeout(async () => {
-                const p = PREMIOS[index];
-                if (index === 1) tickets += p.valor;
-                else pts += p.valor;
-                if(p.valor > 0) tg.showAlert(`¡Ganaste ${p.valor}!`);
+                const p = PREMIOS[idx];
+                if(idx === 1) tickets += p.valor; else pts += p.valor;
                 await saveData();
             }, 4000);
         };
 
-        function updateEnergy() {
-            const ms = 25 * 60 * 1000;
-            const ahora = Date.now();
-            if (energiaActual < 50) {
-                const ganada = Math.floor((ahora - lastSyncTime) / ms);
-                if (ganada > 0) {
-                    energiaActual = Math.min(50, energiaActual + ganada);
-                    lastSyncTime = ahora - ((ahora - lastSyncTime) % ms);
-                    saveData();
-                }
+        tonConnectUI.onStatusChange(async (w) => {
+            if (w && !walletBonus) {
+                energiaActual += 10; walletBonus = true;
+                await saveData(); updateUI();
+                tg.showAlert("¡Bono de Wallet cobrado! +10 ⚡");
             }
-            updateUI();
-        }
+        });
 
         async function saveData() {
             await setDoc(doc(db, "jugadores", userId), { 
                 nombre: firstName, puntos: pts, tickets: tickets, 
-                energia: energiaActual, lastSeen: lastSyncTime, walletBonus: walletBonusClaimed 
+                energia: energiaActual, lastSeen: lastSyncTime, 
+                walletBonus: walletBonus, referidos: referidos 
             }, { merge: true });
         }
 
@@ -209,28 +211,10 @@
             document.getElementById('score').innerText = Math.floor(pts);
             document.getElementById('user-tickets').innerText = tickets;
             document.getElementById('energy-text').innerText = `${energiaActual}/50`;
-            document.getElementById('energy-fill').style.width = `${(energiaActual/50)*100}%`;
+            document.getElementById('energy-fill').style.width = `${Math.min((energiaActual/50)*100, 100)}%`;
+            document.getElementById('ref-count').innerText = `${referidos} Amigos`;
             document.getElementById('username').innerText = firstName;
-            if(walletBonusClaimed) {
-                document.getElementById('wallet-badge').innerText = "✅";
-                document.getElementById('task-wallet').style.opacity = "0.6";
-            }
-        }
-
-        function dibujarRuleta() {
-            const wheel = document.getElementById('fortune-wheel');
-            wheel.innerHTML = "";
-            PREMIOS.forEach((p, i) => {
-                const sector = document.createElement('div');
-                sector.className = 'wheel-sector';
-                sector.style.backgroundColor = p.color;
-                sector.style.transform = `rotate(${i * 45}deg) skewY(-45deg)`;
-                const icon = document.createElement('div');
-                icon.className = 'wheel-icon';
-                icon.innerText = p.icono;
-                sector.appendChild(icon);
-                wheel.appendChild(sector);
-            });
+            if(walletBonus) document.getElementById('wallet-badge').innerText = "✅";
         }
 
         window.showTab = (id, btn) => {
@@ -241,11 +225,34 @@
         };
 
         window.onload = () => {
-            dibujarRuleta();
-            loadUserData();
-            setInterval(updateEnergy, 5000);
+            const wheel = document.getElementById('fortune-wheel');
+            PREMIOS.forEach((p, i) => {
+                const s = document.createElement('div');
+                s.className = 'wheel-sector'; s.style.backgroundColor = p.color;
+                s.style.transform = `rotate(${i*45}deg) skewY(-45deg)`;
+                const ic = document.createElement('div');
+                ic.className = 'wheel-icon'; ic.innerText = p.icono;
+                s.appendChild(ic); wheel.appendChild(s);
+            });
+            loadData();
+            setInterval(() => {
+                if(energiaActual < 50) {
+                    let now = Date.now();
+                    if(now - lastSyncTime >= 25*60*1000) {
+                        energiaActual++; lastSyncTime += 25*60*1000;
+                        saveData(); updateUI();
+                    }
+                }
+            }, 10000);
+            
+            onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(20)), (s) => {
+                const l = document.getElementById('ranking-list'); l.innerHTML = "";
+                let i = 1; s.forEach(d => {
+                    l.innerHTML += `<div class="btn-secundario"><span>#${i} ${d.data().nombre}</span><b>${Math.floor(d.data().puntos)}</b></div>`;
+                    i++;
+                });
+            });
         };
     </script>
 </body>
 </html>
-
