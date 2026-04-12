@@ -69,13 +69,31 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .error-message {
+            color: #ff6b6b;
+            background: rgba(255,0,0,0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .retry-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #0088cc;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <p style="margin-top: 20px; color: white;">Conectando con Firebase...</p>
+        <p style="margin-top: 20px; color: white;" id="loadingText">Conectando con Firebase...</p>
+        <div id="errorContainer" style="display:none;"></div>
     </div>
 
     <div class="header">
@@ -144,27 +162,27 @@
         <div class="nav-btn" data-tab="t3">📩 INBOX</div>
     </div>
 
-    <script type="module">
+    <script>
         // ========== CONFIGURACIÓN ==========
-        // 🔴 ¡REEMPLAZA ESTO CON TUS CREDENCIALES DE FIREBASE!
+        // 🔴 ¡REEMPLAZA ESTO CON TUS CREDENCIALES REALES DE FIREBASE!
         const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "TU_PROYECTO.firebaseapp.com",
-            projectId: "TU_PROYECTO",
-            storageBucket: "TU_PROYECTO.appspot.com",
-            messagingSenderId: "TU_SENDER_ID",
-            appId: "TU_APP_ID"
+            apiKey: "AIzaSyD1234567890ABCDEF",  // <--- REEMPLAZA
+            authDomain: "tu-proyecto.firebaseapp.com",  // <--- REEMPLAZA
+            projectId: "tu-proyecto",  // <--- REEMPLAZA
+            storageBucket: "tu-proyecto.appspot.com",  // <--- REEMPLAZA
+            messagingSenderId: "1234567890",  // <--- REEMPLAZA
+            appId: "1:1234567890:web:abcdef123456"  // <--- REEMPLAZA
         };
 
         const MY_WALLET = "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj";
-        const REGEN_TIME = 25 * 60 * 1000; // 25 minutos
+        const REGEN_TIME = 25 * 60 * 1000;
         
-        // Variables globales
-        let db, auth, tg;
+        let db, auth;
         let pts = 0, tickets = 0, energiaActual = 0, lastSyncTime = Date.now();
         let walletBonus = false, referidos = 0, rotationActual = 0, isSpinning = false;
         let userId = null, firstName = "Jugador";
         let tonConnectUI;
+        let tg;
         
         const PREMIOS = [
             { icono: '💎', color: '#030d17', valor: 50, tipo: 'pts' },
@@ -177,7 +195,6 @@
             { icono: '❌', color: '#1a2a3a', valor: 0, tipo: 'none' }
         ];
 
-        // ========== FUNCIONES AUXILIARES ==========
         function showToast(msg, isError = false) {
             const toast = document.createElement('div');
             toast.className = 'toast-notification';
@@ -195,11 +212,26 @@
             }
         }
 
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            const loadingText = document.getElementById('loadingText');
+            if(errorContainer && loadingText) {
+                loadingText.style.display = 'none';
+                errorContainer.style.display = 'block';
+                errorContainer.innerHTML = `
+                    <div class="error-message">
+                        ❌ ${message}<br>
+                        <button class="retry-btn" onclick="location.reload()">Reintentar</button>
+                    </div>
+                `;
+            }
+        }
+
         async function saveData() {
-            if (!db || !userId) return;
+            if (!db || !userId) return false;
             try {
                 await setDoc(doc(db, "jugadores", userId), { 
-                    userId: userId,  // Campo clave para las reglas de seguridad
+                    userId: userId,
                     nombre: firstName, 
                     puntos: pts, 
                     tickets: tickets, 
@@ -208,9 +240,10 @@
                     walletBonus: walletBonus, 
                     referidos: referidos 
                 }, { merge: true });
+                return true;
             } catch(e) { 
                 console.error("Error saving:", e); 
-                showToast("Error al guardar datos", true);
+                return false;
             }
         }
 
@@ -243,7 +276,6 @@
                 tickets = data.tickets || 0;
                 walletBonus = data.walletBonus || false;
                 referidos = data.referidos || 0;
-
                 const transcurrido = ahora - (data.lastSeen || ahora);
                 const ganada = Math.floor(transcurrido / REGEN_TIME);
                 energiaActual = Math.min(50, (data.energia ?? 0) + ganada);
@@ -264,10 +296,7 @@
             
             if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
-            // Seleccionar premio (1% de probabilidad de jackpot)
             let idx = Math.random() < 0.01 ? 5 : [0,1,2,3,4,6,7][Math.floor(Math.random()*7)];
-            
-            // Calcular rotación
             const sectorAngle = 45;
             const targetRotation = (360 - (idx * sectorAngle) - 22.5) % 360;
             rotationActual += (360 * 5) + targetRotation;
@@ -276,15 +305,9 @@
             setTimeout(async () => {
                 const p = PREMIOS[idx];
                 let mensaje = `¡Ganaste ${p.valor} ${p.icono}!`;
-                
-                if(p.tipo === 'pts') {
-                    pts += p.valor;
-                } else if(p.tipo === 'tkt') {
-                    tickets += p.valor;
-                } else if(p.valor === 0) {
-                    mensaje = "❌ ¡Sin premio! Vuelve a intentarlo.";
-                }
-                
+                if(p.tipo === 'pts') pts += p.valor;
+                else if(p.tipo === 'tkt') tickets += p.valor;
+                else if(p.valor === 0) mensaje = "❌ ¡Sin premio!";
                 showToast(mensaje);
                 isSpinning = false;
                 await saveData();
@@ -292,21 +315,15 @@
             }, 4000);
         }
 
-        // ========== FUNCIONES DE TIENDA Y TAREAS ==========
         async function buyTON(amt, gain) {
             if (!tonConnectUI || !tonConnectUI.connected) {
                 showToast("⚠️ Conecta tu wallet TON primero", true);
                 return;
             }
-            
             const tx = { 
                 validUntil: Math.floor(Date.now()/1000) + 300, 
-                messages: [{ 
-                    address: MY_WALLET, 
-                    amount: (amt * 1000000000).toString() 
-                }] 
+                messages: [{ address: MY_WALLET, amount: (amt * 1000000000).toString() }] 
             };
-            
             try {
                 showToast("⏳ Enviando transacción...");
                 await tonConnectUI.sendTransaction(tx);
@@ -315,7 +332,6 @@
                 updateUI();
                 showToast(`✅ Compra exitosa! +${gain} ⚡`);
             } catch(e) { 
-                console.error(e);
                 showToast("❌ Transacción cancelada", true); 
             }
         }
@@ -333,10 +349,10 @@
         }
 
         function copyRefLink() {
-            const botUsername = tg ? tg.initDataUnsafe?.user?.username : "tu_bot";
+            const botUsername = tg?.initDataUnsafe?.user?.username || "tu_bot";
             const refLink = `https://t.me/${botUsername}?start=${userId}`;
             navigator.clipboard.writeText(refLink);
-            showToast("✅ Link de referido copiado!");
+            showToast("✅ Link copiado!");
         }
 
         function showVideoAd() {
@@ -349,168 +365,177 @@
             }, 2000);
         }
 
-        // ========== AUTENTICACIÓN CON FIREBASE ==========
-        async function initFirebaseAuth() {
-            // Importar Firebase modules
-            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-            const { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-            const { getAuth, signInAnonymously } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-            
-            // Inicializar Firebase
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            // Autenticación anónima
+        // ========== INICIALIZACIÓN PRINCIPAL ==========
+        async function init() {
             try {
-                const userCred = await signInAnonymously(auth);
-                userId = userCred.user.uid;
-                console.log("✅ Autenticado con UID:", userId);
+                // 1. Inicializar Telegram
+                tg = window.Telegram.WebApp;
+                if(tg) {
+                    tg.expand();
+                    tg.ready();
+                    if(tg.initDataUnsafe?.user) {
+                        firstName = tg.initDataUnsafe.user.first_name || "Jugador";
+                    }
+                }
+
+                // 2. Cargar Firebase dinámicamente
+                const loadingText = document.getElementById('loadingText');
+                if(loadingText) loadingText.innerText = "Cargando Firebase...";
                 
-                // Obtener datos de Telegram para el nombre
-                if(tg && tg.initDataUnsafe?.user) {
-                    firstName = tg.initDataUnsafe.user.first_name || "Jugador";
+                const firebaseModules = await Promise.all([
+                    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
+                    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"),
+                    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js")
+                ]);
+                
+                const { initializeApp } = firebaseModules[0];
+                const { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } = firebaseModules[1];
+                const { getAuth, signInAnonymously } = firebaseModules[2];
+                
+                // Guardar funciones globalmente
+                window.doc = doc;
+                window.setDoc = setDoc;
+                window.getDoc = getDoc;
+                window.collection = collection;
+                window.query = query;
+                window.orderBy = orderBy;
+                window.limit = limit;
+                window.onSnapshot = onSnapshot;
+                
+                if(loadingText) loadingText.innerText = "Conectando a Firebase...";
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // 3. Autenticación anónima
+                if(loadingText) loadingText.innerText = "Autenticando usuario...";
+                
+                try {
+                    const userCred = await signInAnonymously(auth);
+                    userId = userCred.user.uid;
+                    console.log("✅ Autenticado:", userId);
+                } catch(authError) {
+                    console.error("Auth error:", authError);
+                    // Fallback: usar ID de Telegram
+                    if(tg?.initDataUnsafe?.user?.id) {
+                        userId = tg.initDataUnsafe.user.id.toString();
+                        showToast("⚠️ Modo offline - datos locales", true);
+                    } else {
+                        userId = "guest_" + Date.now();
+                    }
                 }
                 
+                // 4. Cargar datos del usuario
+                if(loadingText) loadingText.innerText = "Cargando tus datos...";
                 await loadData();
-                hideLoading();
-                return true;
-            } catch(error) {
-                console.error("❌ Error de autenticación:", error);
-                showToast("Error de conexión. Reintentando...", true);
                 
-                // Fallback: usar ID de Telegram si falla la autenticación
-                if(tg && tg.initDataUnsafe?.user) {
-                    userId = tg.initDataUnsafe.user.id.toString();
-                    firstName = tg.initDataUnsafe.user.first_name || "Jugador";
-                    await loadData();
-                    hideLoading();
-                    showToast("⚠️ Modo sin autenticación segura", true);
-                    return true;
+                // 5. Crear ruleta
+                const wheel = document.getElementById('fortune-wheel');
+                if(wheel) {
+                    wheel.innerHTML = '';
+                    PREMIOS.forEach((p, i) => {
+                        const s = document.createElement('div');
+                        s.className = 'wheel-sector';
+                        s.style.backgroundColor = p.color;
+                        s.style.transform = `rotate(${i*45}deg) skewY(-45deg)`;
+                        const ic = document.createElement('div');
+                        ic.className = 'wheel-icon';
+                        ic.innerText = p.icono;
+                        s.appendChild(ic);
+                        wheel.appendChild(s);
+                    });
                 }
-                return false;
+                
+                // 6. Configurar TON Connect
+                if(window.TON_CONNECT_UI) {
+                    tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({
+                        manifestUrl: 'https://raw.githubusercontent.com/ton-connect/docs/main/public/manifest.json',
+                        buttonRootId: 'ton-connect'
+                    });
+                    tonConnectUI.onStatusChange(async (wallet) => {
+                        if (wallet && !walletBonus) {
+                            energiaActual = Math.min(50, energiaActual + 10);
+                            walletBonus = true;
+                            await saveData();
+                            updateUI();
+                            showToast("🎉 Bono de Wallet! +10 ⚡");
+                        }
+                    });
+                }
+                
+                // 7. Configurar eventos
+                document.getElementById('spin-btn').onclick = startSpin;
+                document.getElementById('task-wallet').onclick = () => tonConnectUI?.openModal();
+                document.getElementById('video-ad-btn').onclick = showVideoAd;
+                document.getElementById('exchange-points-btn').onclick = exchangePoints;
+                document.getElementById('copy-ref-btn').onclick = copyRefLink;
+                
+                document.querySelectorAll('[data-pack]').forEach(btn => {
+                    btn.onclick = () => buyTON(parseFloat(btn.dataset.price), parseInt(btn.dataset.pack));
+                });
+                
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        const tabId = btn.dataset.tab;
+                        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+                        document.getElementById(tabId).classList.add('active');
+                        btn.classList.add('on');
+                    };
+                });
+                
+                // 8. Ranking (solo si db está disponible)
+                if(db && window.collection && window.query && window.orderBy && window.limit && window.onSnapshot) {
+                    try {
+                        const rankingQuery = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(50));
+                        onSnapshot(rankingQuery, (snapshot) => {
+                            const listDiv = document.getElementById('ranking-list');
+                            if(listDiv) {
+                                listDiv.innerHTML = '';
+                                let i = 1;
+                                snapshot.forEach(docSnap => {
+                                    const data = docSnap.data();
+                                    listDiv.innerHTML += `<div class="btn-secundario"><span>#${i} ${data.nombre || 'Anon'}</span><b>${Math.floor(data.puntos || 0)} pts</b></div>`;
+                                    i++;
+                                });
+                            }
+                        });
+                    } catch(e) {
+                        console.error("Ranking error:", e);
+                    }
+                }
+                
+                // 9. Loop de energía
+                setInterval(() => {
+                    if (energiaActual < 50) {
+                        const ahora = Date.now();
+                        const diff = ahora - lastSyncTime;
+                        if (diff >= REGEN_TIME) {
+                            energiaActual++;
+                            lastSyncTime += REGEN_TIME;
+                            saveData();
+                        }
+                        const restante = Math.floor((REGEN_TIME - diff) / 1000);
+                        const m = Math.floor(restante / 60);
+                        const s = restante % 60;
+                        document.getElementById('timer-text').innerHTML = `⚡ +1 en ${m}:${s < 10 ? '0' : ''}${s}`;
+                    } else {
+                        document.getElementById('timer-text').innerHTML = "⚡ Energía al máximo";
+                    }
+                    updateUI();
+                }, 1000);
+                
+                // 10. Ocultar loading
+                hideLoading();
+                
+            } catch(error) {
+                console.error("Init error:", error);
+                showError(error.message || "Error al conectar con Firebase. Verifica tus credenciales.");
             }
         }
-
-        // ========== INICIALIZACIÓN ==========
-        window.initApp = async function() {
-            // Inicializar Telegram
-            tg = window.Telegram.WebApp;
-            if(tg) {
-                tg.expand();
-                tg.ready();
-            }
-            
-            // Inicializar Firebase con autenticación
-            const authSuccess = await initFirebaseAuth();
-            if(!authSuccess) {
-                document.getElementById('loadingOverlay').innerHTML = '<p style="color:red;">Error de conexión. Recarga la página.</p>';
-                return;
-            }
-            
-            // Crear ruleta visual
-            const wheel = document.getElementById('fortune-wheel');
-            wheel.innerHTML = '';
-            PREMIOS.forEach((p, i) => {
-                const s = document.createElement('div');
-                s.className = 'wheel-sector';
-                s.style.backgroundColor = p.color;
-                s.style.transform = `rotate(${i*45}deg) skewY(-45deg)`;
-                const ic = document.createElement('div');
-                ic.className = 'wheel-icon';
-                ic.innerText = p.icono;
-                s.appendChild(ic);
-                wheel.appendChild(s);
-            });
-            
-            // Inicializar TON Connect
-            if(window.TON_CONNECT_UI) {
-                tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({
-                    manifestUrl: 'https://raw.githubusercontent.com/ton-connect/docs/main/public/manifest.json',
-                    buttonRootId: 'ton-connect'
-                });
-                
-                tonConnectUI.onStatusChange(async (wallet) => {
-                    if (wallet && !walletBonus) {
-                        energiaActual = Math.min(50, energiaActual + 10);
-                        walletBonus = true;
-                        await saveData();
-                        updateUI();
-                        showToast("🎉 Bono de Wallet cobrado! +10 ⚡");
-                    }
-                });
-            }
-            
-            // Configurar eventos
-            document.getElementById('spin-btn').onclick = startSpin;
-            document.getElementById('task-wallet').onclick = () => {
-                if(tonConnectUI) tonConnectUI.openModal();
-                else showToast("⚠️ TON Connect no disponible", true);
-            };
-            document.getElementById('video-ad-btn').onclick = showVideoAd;
-            document.getElementById('exchange-points-btn').onclick = exchangePoints;
-            document.getElementById('copy-ref-btn').onclick = copyRefLink;
-            
-            // Botones de tienda
-            document.querySelectorAll('[data-pack]').forEach(btn => {
-                btn.onclick = () => {
-                    const gain = parseInt(btn.dataset.pack);
-                    const price = parseFloat(btn.dataset.price);
-                    buyTON(price, gain);
-                };
-            });
-            
-            // Navegación
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const tabId = btn.dataset.tab;
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
-                    document.getElementById(tabId).classList.add('active');
-                    btn.classList.add('on');
-                };
-            });
-            
-            // Ranking en tiempo real
-            if(db) {
-                const rankingQuery = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(50));
-                onSnapshot(rankingQuery, (snapshot) => {
-                    const listDiv = document.getElementById('ranking-list');
-                    listDiv.innerHTML = '';
-                    let i = 1;
-                    snapshot.forEach(docSnap => {
-                        const data = docSnap.data();
-                        listDiv.innerHTML += `<div class="btn-secundario"><span>#${i} ${data.nombre || 'Anon'}</span><b>${Math.floor(data.puntos || 0)} pts</b></div>`;
-                        i++;
-                    });
-                });
-            }
-            
-            // Loop de regeneración de energía
-            setInterval(() => {
-                if (energiaActual < 50) {
-                    const ahora = Date.now();
-                    const diff = ahora - lastSyncTime;
-                    
-                    if (diff >= REGEN_TIME) {
-                        energiaActual++;
-                        lastSyncTime += REGEN_TIME;
-                        saveData();
-                    }
-                    
-                    const restante = Math.floor((REGEN_TIME - diff) / 1000);
-                    const m = Math.floor(restante / 60);
-                    const s = restante % 60;
-                    document.getElementById('timer-text').innerHTML = `⚡ +1 en ${m}:${s < 10 ? '0' : ''}${s}`;
-                } else {
-                    document.getElementById('timer-text').innerHTML = "⚡ Energía al máximo";
-                }
-                updateUI();
-            }, 1000);
-        };
         
-        // Iniciar cuando cargue la página
-        window.onload = initApp;
+        window.onload = init;
     </script>
 </body>
-                        </html>
+                </html>
