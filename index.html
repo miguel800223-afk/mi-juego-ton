@@ -2,470 +2,107 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Super Ton Clicker - Pro Edition</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://telegram.org/js/adsgram.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0a0f1a 0%, #0a1a2a 100%);
-            color: #ffffff;
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 153, 255, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .username {
-            font-weight: 700;
-            font-size: 16px;
-            background: rgba(0, 153, 255, 0.2);
-            padding: 6px 14px;
-            border-radius: 20px;
-        }
-        
-        .stats-container {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            margin: 10px;
-            border-radius: 25px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, rgba(0, 153, 255, 0.2), rgba(0, 153, 255, 0.05));
-            padding: 12px 25px;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid rgba(0, 153, 255, 0.3);
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: 800;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-        
-        .wheel-wrapper {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-            position: relative;
-        }
-        
-        .wheel-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-        }
-        
-        .pointer {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-top: 45px solid #ffcc00;
-            z-index: 10;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-        }
-        
-        canvas {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(0, 153, 255, 0.5);
-            cursor: pointer;
-        }
-        
-        .btn-primary {
-            width: 85%;
-            padding: 16px;
-            margin: 10px auto;
-            display: block;
-            background: linear-gradient(135deg, #0099ff, #0066cc);
-            border: none;
-            border-radius: 50px;
-            color: white;
-            font-weight: 800;
-            font-size: 18px;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            box-shadow: 0 5px 20px rgba(0, 153, 255, 0.4);
-        }
-        
-        .btn-primary:active {
-            transform: scale(0.96);
-        }
-        
-        .btn-primary.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        
-        .btn-secondary {
-            width: 100%;
-            padding: 14px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: all 0.2s;
-        }
-        
-        .btn-secondary:active {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(0.98);
-        }
-        
-        .energy-section {
-            width: 90%;
-            margin: 15px auto;
-        }
-        
-        .energy-bar-bg {
-            width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        
-        #energy-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #ffcc00, #ff9900);
-            border-radius: 20px;
-            transition: width 0.3s;
-        }
-        
-        .energy-text {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 153, 255, 0.3);
-            padding: 8px 0;
-            z-index: 100;
-        }
-        
-        .nav-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px;
-            cursor: pointer;
-            opacity: 0.5;
-            transition: all 0.2s;
-            font-size: 12px;
-        }
-        
-        .nav-btn.on {
-            opacity: 1;
-            color: #0099ff;
-            border-top: 2px solid #0099ff;
-            background: rgba(0, 153, 255, 0.1);
-        }
-        
-        .nav-icon {
-            font-size: 22px;
-        }
-        
-        .tab {
-            display: none;
-            padding: 15px;
-            padding-bottom: 80px;
-            min-height: 100vh;
-        }
-        
-        .tab.active {
-            display: block;
-        }
-        
-        .ranking-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            margin: 8px 0;
-            border-radius: 12px;
-            border-left: 3px solid #0099ff;
-        }
-        
-        .rank-number {
-            font-weight: 800;
-            color: #ffcc00;
-            width: 40px;
-        }
-        
-        .rank-name {
-            flex: 1;
-            font-weight: 600;
-        }
-        
-        .rank-points {
-            font-weight: 800;
-            color: #00ffcc;
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.95);
-            color: #ffcc00;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            z-index: 1000;
-            animation: toastFade 2s ease forwards;
-            white-space: nowrap;
-            border: 1px solid #ffcc00;
-        }
-        
-        @keyframes toastFade {
-            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            80% { opacity: 1; }
-            100% { opacity: 0; visibility: hidden; }
-        }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #0a0f1a;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            gap: 20px;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(0, 153, 255, 0.3);
-            border-top-color: #0099ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .referral-link {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            word-break: break-all;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .ad-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-            gap: 20px;
-        }
-        
-        .ad-countdown {
-            font-size: 48px;
-            font-weight: 800;
-            color: #ffcc00;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #0a0f1a; color: #ffffff; font-family: 'Poppins', sans-serif; min-height: 100vh; overflow-x: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 153, 255, 0.3); position: sticky; top: 0; z-index: 100; }
+        .username { font-weight: 700; font-size: 14px; background: rgba(0, 153, 255, 0.2); padding: 6px 14px; border-radius: 20px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+        .stats-container { display: flex; gap: 10px; justify-content: center; padding: 15px; }
+        .stat-card { background: linear-gradient(135deg, rgba(0, 153, 255, 0.2), rgba(0, 153, 255, 0.05)); padding: 10px 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(0, 153, 255, 0.3); flex: 1; }
+        .stat-value { font-size: 24px; font-weight: 800; }
+        .stat-label { font-size: 10px; opacity: 0.7; }
+        .wheel-wrapper { display: flex; justify-content: center; margin: 20px 0; position: relative; }
+        .wheel-container { position: relative; width: 300px; height: 300px; }
+        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ffcc00; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+        canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 30px rgba(0, 153, 255, 0.3); }
+        .btn-primary { width: 85%; padding: 16px; margin: 10px auto; display: block; background: linear-gradient(135deg, #0099ff, #0066cc); border: none; border-radius: 50px; color: white; font-weight: 800; font-size: 18px; cursor: pointer; transition: transform 0.1s; box-shadow: 0 5px 20px rgba(0, 153, 255, 0.4); }
+        .btn-primary:active { transform: scale(0.96); }
+        .btn-primary.disabled { opacity: 0.5; pointer-events: none; }
+        .btn-secondary { width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 15px; color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .energy-section { width: 90%; margin: 15px auto; }
+        .energy-bar-bg { width: 100%; height: 12px; background: rgba(255, 255, 255, 0.15); border-radius: 20px; overflow: hidden; }
+        #energy-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ffcc00, #ff9900); transition: width 0.3s; }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: rgba(0, 0, 0, 0.9); padding: 10px 0; border-top: 1px solid rgba(0, 153, 255, 0.3); padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+        .nav-btn { flex: 1; text-align: center; opacity: 0.5; font-size: 12px; }
+        .nav-btn.on { opacity: 1; color: #0099ff; }
+        .tab { display: none; padding: 15px; padding-bottom: 100px; }
+        .tab.active { display: block; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #000; color: #ffcc00; padding: 10px 20px; border-radius: 50px; border: 1px solid #ffcc00; z-index: 1000; animation: fade 2s forwards; }
+        @keyframes fade { 0% { opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+        #loadingOverlay { position: fixed; inset: 0; background: #0a0f1a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
     </style>
 </head>
 <body>
 
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <p style="color: white;">🚀 Conectando...</p>
+    <div id="loadingOverlay">
+        <div style="border: 4px solid #333; border-top-color: #0099ff; width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 15px;">Conectando a la red TON...</p>
     </div>
 
     <div class="header">
-        <div class="username" id="username">✨ Cargando...</div>
+        <div class="username" id="username">Cargando...</div>
         <div id="ton-connect"></div>
     </div>
 
-    <div class="main">
-        <div id="tab-game" class="tab active">
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-value">💰 <span id="score">0</span></div>
-                    <div class="stat-label">PUNTOS</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">🎫 <span id="user-tickets">0</span></div>
-                    <div class="stat-label">TICKETS</div>
-                </div>
+    <div id="tab-game" class="tab active">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">PUNTOS</div>
             </div>
-            
-            <div class="wheel-wrapper">
-                <div class="wheel-container">
-                    <div class="pointer"></div>
-                    <canvas id="wheelCanvas" width="300" height="300"></canvas>
-                </div>
-            </div>
-            
-            <button id="spin-btn" class="btn-primary">🎡 GIRAR (1 ⚡)</button>
-            
-            <div class="energy-section">
-                <div class="energy-text">
-                    <span>⚡ Energía disponible</span>
-                    <span><span id="energy-text">0</span>/50</span>
-                </div>
-                <div class="energy-bar-bg">
-                    <div id="energy-fill"></div>
-                </div>
-                <div id="timer-text" style="font-size: 12px; text-align: center; margin-top: 8px; color: #88aacc;">✨ ¡Energía al máximo!</div>
+            <div class="stat-card">
+                <div class="stat-value" id="user-tickets">0</div>
+                <div class="stat-label">TICKETS</div>
             </div>
         </div>
-        
-        <div id="tab-tasks" class="tab">
-            <h3 style="color: #00d4ff; margin-bottom: 15px;">✅ TAREAS Y TIENDA</h3>
-            
-            <div class="btn-secondary" id="task-wallet">
-                <span>🔗 Conectar Wallet TON</span>
-                <b id="wallet-badge" style="background: #ffcc00; color: #000; padding: 4px 12px; border-radius: 20px;">+10 ⚡</b>
-            </div>
-            
-            <button class="btn-primary" id="video-ad-btn" style="background: linear-gradient(135deg, #e91e63, #c2185b);">🎬 Ver Video (+1 Ticket)</button>
-            
-            <h4 style="color: #00d4ff; margin: 20px 0 10px;">💎 TIENDA TON</h4>
-            <div class="btn-secondary" data-pack="50" data-price="0.1">
-                <span>⚡ Pack 50 Energía</span>
-                <b style="color: #ffaa00;">0.1 TON</b>
-            </div>
-            <div class="btn-secondary" data-pack="120" data-price="0.2">
-                <span>⚡ Pack 120 Energía</span>
-                <b style="color: #ffaa00;">0.2 TON</b>
-            </div>
-            
-            <h4 style="margin: 20px 0 10px;">🪙 CANJES</h4>
-            <div class="btn-secondary" id="exchange-points-btn">
-                <span>💱 100 Puntos → +10 ⚡</span>
-                <b style="color: #4caf50;">Canjear</b>
+        <div class="wheel-wrapper">
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <canvas id="wheelCanvas" width="300" height="300"></canvas>
             </div>
         </div>
-        
-        <div id="tab-ranking" class="tab">
-            <h3 style="color: #00d4ff; margin-bottom: 15px;">🏆 TOP GLOBAL</h3>
-            <div id="ranking-list"></div>
-        </div>
-        
-        <div id="tab-inbox" class="tab">
-            <h3 style="color: #00d4ff; margin-bottom: 15px;">📩 INBOX & AMIGOS</h3>
-            
-            <div class="btn-secondary" style="background: linear-gradient(135deg, #f59e0b20, #ffaa0020); border: 1px solid #f59e0b;">
-                <div>
-                    <span style="font-size: 24px;">🎁</span>
-                    <div><b>Regalo de Bienvenida</b><br><small>+50 Energía aplicada</small></div>
-                </div>
+        <button id="spin-btn" class="btn-primary">🎡 GIRAR (1 ⚡)</button>
+        <div class="energy-section">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                <span>Energía</span>
+                <span id="energy-text">0/50</span>
             </div>
-            
-            <div class="btn-secondary" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-                <div style="font-size: 20px; font-weight: 800;">👥 Programa de Referidos</div>
-                <div style="font-size: 13px;">Invita amigos y recibe <strong style="color:#f59e0b">20 puntos</strong> por cada amigo</div>
-                <div style="font-size: 28px; font-weight: 800; color: #0099ff;" id="ref-count">0 Amigos</div>
-                <button id="copy-ref-btn" style="width: 100%; padding: 12px; background: #0099ff; border: none; border-radius: 30px; color: white; font-weight: bold; cursor: pointer;">🔗 COPIAR LINK DE INVITACIÓN</button>
-                <div class="referral-link" id="ref-link-preview">Cargando...</div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="nav">
-        <div class="nav-btn" data-tab="ranking">
-            <div class="nav-icon">🏆</div>
-            <div>TOP</div>
-        </div>
-        <div class="nav-btn on" data-tab="game">
-            <div class="nav-icon">🎮</div>
-            <div>JUEGO</div>
-        </div>
-        <div class="nav-btn" data-tab="tasks">
-            <div class="nav-icon">✅</div>
-            <div>TAREAS</div>
-        </div>
-        <div class="nav-btn" data-tab="inbox">
-            <div class="nav-icon">📩</div>
-            <div>INBOX</div>
+            <div class="energy-bar-bg"><div id="energy-fill"></div></div>
+            <div id="timer-text" style="text-align: center; font-size: 11px; margin-top: 5px; color: #aaa;"></div>
         </div>
     </div>
 
+    <div id="tab-tasks" class="tab">
+        <h3 style="margin-bottom: 15px;">Tareas</h3>
+        <button class="btn-secondary" id="video-ad-btn">🎬 Ver Video (+1 Ticket)</button>
+        <button class="btn-secondary" id="exchange-points-btn">💱 100 Puntos -> 10 ⚡</button>
+    </div>
+
+    <div id="tab-ranking" class="tab">
+        <h3 style="margin-bottom: 15px;">Ranking Global</h3>
+        <div id="ranking-list"></div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-btn on" data-tab="game">🎮<br>Juego</div>
+        <div class="nav-btn" data-tab="tasks">✅<br>Tareas</div>
+        <div class="nav-btn" data-tab="ranking">🏆<br>Top</div>
+    </div>
+
     <script>
-        // ========== CONFIGURACIÓN ==========
+        // CONFIGURACIÓN (REEMPLAZA CON TUS DATOS)
         const firebaseConfig = {
             apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I",
             authDomain: "mytonclicker.firebaseapp.com",
@@ -478,473 +115,133 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+        const tg = window.Telegram.WebApp;
         
-        // Constantes
-        const REGEN_TIME = 25 * 60 * 1000; // 25 minutos por energía
-        const MY_WALLET = "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj";
-        const ADSGRAM_BLOCK_ID = "26422"; // Tu Platform ID de Adsgram
-        
-        // Segmentos de la ruleta
+        const REGEN_TIME = 25 * 60 * 1000; 
+        const ADSGRAM_BLOCK_ID = "26422";
         const SEGMENTS = [
             { name: "+50", value: 50, type: "points", color: "#FF6B6B", icon: "💎" },
             { name: "+1 🎫", value: 1, type: "ticket", color: "#4ECDC4", icon: "🎫" },
             { name: "+100", value: 100, type: "points", color: "#45B7D1", icon: "💰" },
-            { name: "0", value: 0, type: "none", color: "#96CEB4", icon: "❌" },
+            { name: "0", value: 0, type: "none", color: "#333", icon: "❌" },
             { name: "+200", value: 200, type: "points", color: "#FFEAA7", icon: "💎" },
             { name: "+500", value: 500, type: "points", color: "#DDA0DD", icon: "🏆" },
             { name: "+10", value: 10, type: "points", color: "#98D8C8", icon: "💰" },
-            { name: "0", value: 0, type: "none", color: "#F7D794", icon: "🍀" }
+            { name: "0", value: 0, type: "none", color: "#444", icon: "🍀" }
         ];
-        
-        // Variables del juego
-        let puntos = 0;
-        let tickets = 0;
-        let energia = 50;
-        let walletBonus = false;
-        let referidos = 0;
-        let userId = null;
-        let userName = "Jugador";
-        let isSpinning = false;
-        let currentRotation = 0;
-        let tonConnectUI;
-        let tg;
-        let canvas, ctx;
-        
-        // Mostrar notificación
-        function showToast(msg, isError = false) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = msg;
-            toast.style.background = isError ? 'rgba(200, 0, 0, 0.95)' : 'rgba(0, 0, 0, 0.95)';
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
+
+        let puntos = 0, tickets = 0, energia = 50, userId = "guest", userName = "Jugador", isSpinning = false, tonConnectUI;
+
+        function showToast(m) {
+            const t = document.createElement('div'); t.className = 'toast'; t.textContent = m;
+            document.body.appendChild(t); setTimeout(() => t.remove(), 2000);
         }
-        
-        // Ocultar loading
-        function hideLoading() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) overlay.style.display = 'none';
+
+        async function save() {
+            if (userId === "guest") return;
+            await db.collection("jugadores").doc(userId).set({
+                puntos, tickets, energia, lastSeen: Date.now(), nombre: userName
+            }, { merge: true });
         }
-        
-        // Guardar datos en Firestore
-        async function saveToFirebase() {
-            if (!userId) return;
-            try {
-                await db.collection("jugadores").doc(userId).set({
-                    userId: userId,
-                    nombre: userName,
-                    puntos: puntos,
-                    tickets: tickets,
-                    energia: energia,
-                    lastSeen: Date.now(),
-                    walletBonus: walletBonus,
-                    referidos: referidos
-                }, { merge: true });
-            } catch(e) {
-                console.error("Error guardando:", e);
-            }
-        }
-        
-        // Cargar datos desde Firestore
-        async function loadFromFirebase() {
-            if (!userId) return;
-            try {
-                const doc = await db.collection("jugadores").doc(userId).get();
-                const ahora = Date.now();
-                
-                if (!doc.exists) {
-                    energia = 50;
-                    puntos = 0;
-                    tickets = 0;
-                    walletBonus = false;
-                    referidos = 0;
-                    await saveToFirebase();
-                } else {
-                    const data = doc.data();
-                    puntos = data.puntos || 0;
-                    tickets = data.tickets || 0;
-                    walletBonus = data.walletBonus || false;
-                    referidos = data.referidos || 0;
-                    
-                    // Recargar energía por tiempo offline
-                    const tiempoOffline = ahora - (data.lastSeen || ahora);
-                    const energiaRecuperada = Math.floor(tiempoOffline / REGEN_TIME);
-                    energia = Math.min(50, (data.energia || 50) + energiaRecuperada);
-                }
-                updateUI();
-            } catch(e) {
-                console.error("Error cargando:", e);
-                energia = 50;
-                updateUI();
-            }
-        }
-        
-        // Actualizar UI
+
         function updateUI() {
             document.getElementById('score').textContent = Math.floor(puntos);
             document.getElementById('user-tickets').textContent = tickets;
-            document.getElementById('energy-text').textContent = energia;
-            document.getElementById('energy-fill').style.width = `${(energia / 50) * 100}%`;
+            document.getElementById('energy-text').textContent = `${energia}/50`;
+            document.getElementById('energy-fill').style.width = `${(energia/50)*100}%`;
             document.getElementById('username').textContent = userName;
-            document.getElementById('ref-count').textContent = `${referidos} Amigos`;
-            
-            const walletBadge = document.getElementById('wallet-badge');
-            if (walletBonus) {
-                walletBadge.innerHTML = "✅";
-                walletBadge.style.background = "#4caf50";
-            } else {
-                walletBadge.innerHTML = "+10 ⚡";
-                walletBadge.style.background = "#ffcc00";
-            }
-            
-            const spinBtn = document.getElementById('spin-btn');
-            if (spinBtn) {
-                spinBtn.classList.toggle('disabled', energia < 1 || isSpinning);
-            }
+            document.getElementById('spin-btn').classList.toggle('disabled', energia < 1 || isSpinning);
         }
-        
-        // Dibujar ruleta
+
         function drawWheel() {
-            if (!canvas || !ctx) return;
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
             const anglePerSegment = (Math.PI * 2) / SEGMENTS.length;
-            
-            SEGMENTS.forEach((segment, i) => {
-                const startAngle = i * anglePerSegment + currentRotation;
-                const endAngle = startAngle + anglePerSegment;
-                
-                ctx.beginPath();
-                ctx.fillStyle = segment.color;
-                ctx.moveTo(150, 150);
-                ctx.arc(150, 150, 150, startAngle, endAngle);
-                ctx.fill();
-                ctx.strokeStyle = "white";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                
-                ctx.save();
-                ctx.translate(150, 150);
-                ctx.rotate(startAngle + anglePerSegment / 2);
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.font = "bold 24px Poppins";
-                ctx.fillStyle = "white";
-                ctx.shadowBlur = 0;
-                ctx.fillText(segment.icon, 90, 10);
-                ctx.font = "bold 14px Poppins";
-                ctx.fillStyle = "#fff";
-                ctx.fillText(segment.name, 90, 40);
-                ctx.restore();
+            ctx.clearRect(0,0,300,300);
+            SEGMENTS.forEach((s, i) => {
+                const start = i * anglePerSegment;
+                ctx.beginPath(); ctx.fillStyle = s.color; ctx.moveTo(150,150);
+                ctx.arc(150,150,150,start,start+anglePerSegment); ctx.fill();
+                ctx.save(); ctx.translate(150,150); ctx.rotate(start + anglePerSegment/2);
+                ctx.fillStyle = "white"; ctx.font = "bold 12px Arial";
+                ctx.fillText(s.icon, 100, 0); ctx.fillText(s.name, 100, 15); ctx.restore();
             });
         }
-        
-        // Girar ruleta
+
         async function spinWheel() {
-            if (isSpinning || energia < 1) {
-                if (energia < 1) showToast("⚡ ¡Sin energía! Espera a que recargue.", true);
-                return;
-            }
-            
-            isSpinning = true;
-            energia--;
-            updateUI();
-            
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            
-            // Elegir premio (1% de probabilidad de ganar el premio mayor)
-            let randomIndex;
-            if (Math.random() < 0.01) {
-                randomIndex = 5; // Premio mayor: 500 puntos
-            } else {
-                const opciones = [0, 1, 2, 3, 4, 6, 7];
-                randomIndex = opciones[Math.floor(Math.random() * opciones.length)];
-            }
-            
-            const anglePerSegment = 360 / SEGMENTS.length;
-            const targetAngle = (360 - (randomIndex * anglePerSegment) - 22.5) % 360;
-            const spins = 360 * 5;
-            const newRotationDeg = (currentRotation * 180 / Math.PI) + spins + targetAngle;
-            
-            const canvasElem = document.getElementById('wheelCanvas');
-            canvasElem.style.transform = `rotate(${newRotationDeg}deg)`;
-            canvasElem.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.15, 1)";
-            
+            if (isSpinning || energia < 1) return;
+            isSpinning = true; energia--; updateUI();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+            const randomIndex = Math.random() < 0.05 ? 5 : Math.floor(Math.random() * SEGMENTS.length);
+            const deg = 3600 + (randomIndex * (360/SEGMENTS.length));
+            const canvas = document.getElementById('wheelCanvas');
+            canvas.style.transition = "transform 4s cubic-bezier(0.1, 0, 0, 1)";
+            canvas.style.transform = `rotate(-${deg}deg)`;
+
             setTimeout(async () => {
                 const prize = SEGMENTS[randomIndex];
-                let mensaje = "";
-                
-                if (prize.type === "ticket") {
-                    tickets += prize.value;
-                    mensaje = `🎫 ¡Ganaste ${prize.value} Ticket!`;
-                } else if (prize.type === "points" && prize.value > 0) {
-                    puntos += prize.value;
-                    mensaje = `✨ ¡Ganaste ${prize.value} puntos! ${prize.icon}`;
-                } else {
-                    mensaje = `😢 ${prize.icon} ¡Sin premio! Vuelve a intentarlo.`;
-                }
-                
-                showToast(mensaje);
-                isSpinning = false;
-                currentRotation = (newRotationDeg % 360) * Math.PI / 180;
-                await saveToFirebase();
-                updateUI();
-                loadRanking();
-                drawWheel();
+                if (prize.type === "ticket") tickets += prize.value;
+                else if (prize.type === "points") puntos += prize.value;
+                showToast(prize.value > 0 ? `Ganaste ${prize.name}` : "Sigue intentando");
+                isSpinning = false; canvas.style.transition = "none";
+                canvas.style.transform = `rotate(-${deg % 360}deg)`;
+                await save(); updateUI();
             }, 4000);
         }
-        
-        // Canjear puntos por energía
-        async function exchangePoints() {
-            if (puntos >= 100) {
-                puntos -= 100;
-                energia = Math.min(50, energia + 10);
-                await saveToFirebase();
-                updateUI();
-                showToast("🔄 Canje exitoso! +10 ⚡");
-            } else {
-                showToast("❌ Necesitas 100 puntos para canjear", true);
-            }
-        }
-        
-        // Ver video anuncio con Adsgram
+
         function showVideoAd() {
-            if (typeof window.Adsgram !== 'undefined') {
-                // Crear contenedor para el anuncio
-                let adContainer = document.getElementById('ad-container');
-                if (!adContainer) {
-                    adContainer = document.createElement('div');
-                    adContainer.id = 'ad-container';
-                    adContainer.style.position = 'fixed';
-                    adContainer.style.top = '0';
-                    adContainer.style.left = '0';
-                    adContainer.style.width = '100%';
-                    adContainer.style.height = '100%';
-                    adContainer.style.zIndex = '9999';
-                    document.body.appendChild(adContainer);
-                }
-                
-                const adController = window.Adsgram.show({
-                    blockId: ADSGRAM_BLOCK_ID,
-                    containerId: 'ad-container',
-                    debug: false
-                });
-                
-                adController.then(() => {
-                    // Anuncio completado con éxito
-                    tickets++;
-                    saveToFirebase();
-                    updateUI();
-                    showToast("🎫 ¡+1 Ticket! Gracias por ver el anuncio.");
-                    adContainer.remove();
-                }).catch((error) => {
-                    // Error o usuario cerró el anuncio
-                    console.error('Error en anuncio:', error);
-                    showToast("❌ No se pudo mostrar el anuncio", true);
-                    adContainer.remove();
-                });
-            } else {
-                // Fallback si Adsgram no está disponible
-                showToast("📺 Anuncio simulado: +1 Ticket", true);
-                tickets++;
-                saveToFirebase();
-                updateUI();
-            }
+            if (!window.Adsgram) return showToast("Publicidad no disponible");
+            const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+            AdController.show().then(() => {
+                tickets++; save(); updateUI(); showToast("🎫 +1 Ticket!");
+            }).catch(() => showToast("❌ Video no completado", true));
         }
-        
-        // Copiar link de referido
-        function copyReferralLink() {
-            const botUsername = tg?.initDataUnsafe?.user?.username || "mytonclickerbot";
-            const link = `https://t.me/${botUsername}?start=${userId}`;
-            navigator.clipboard.writeText(link);
-            showToast("✅ Link de invitación copiado!");
-        }
-        
-        // Comprar con TON
-        async function buyTonPack(priceTON, energyGain) {
-            if (!tonConnectUI || !tonConnectUI.connected) {
-                showToast("⚠️ Conecta tu wallet TON primero", true);
-                return;
-            }
-            
-            const amount = (priceTON * 1000000000).toString();
-            const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 300,
-                messages: [{
-                    address: MY_WALLET,
-                    amount: amount
-                }]
-            };
-            
-            try {
-                showToast("⏳ Enviando transacción...");
-                await tonConnectUI.sendTransaction(transaction);
-                energia = Math.min(50, energia + energyGain);
-                await saveToFirebase();
-                updateUI();
-                showToast(`✅ Compra exitosa! +${energyGain} ⚡`);
-            } catch(e) {
-                showToast("❌ Transacción cancelada", true);
-            }
-        }
-        
-        // Cargar ranking
-        async function loadRanking() {
-            try {
-                const snapshot = await db.collection("jugadores")
-                    .orderBy("puntos", "desc")
-                    .limit(50)
-                    .get();
-                
-                const rankingDiv = document.getElementById('ranking-list');
-                if (!rankingDiv) return;
-                
-                if (snapshot.empty) {
-                    rankingDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Aún no hay jugadores en el ranking</div>';
-                    return;
-                }
-                
-                rankingDiv.innerHTML = '';
-                let pos = 1;
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const item = document.createElement('div');
-                    item.className = 'ranking-item';
-                    item.innerHTML = `
-                        <span class="rank-number">#${pos}</span>
-                        <span class="rank-name">${data.nombre || 'Anónimo'}</span>
-                        <span class="rank-points">💰 ${Math.floor(data.puntos || 0)}</span>
-                    `;
-                    rankingDiv.appendChild(item);
-                    pos++;
-                });
-            } catch(e) {
-                console.error("Error ranking:", e);
-                const rankingDiv = document.getElementById('ranking-list');
-                if (rankingDiv) rankingDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Error al cargar ranking</div>';
-            }
-        }
-        
-        // Recarga de energía en segundo plano
-        function startEnergyRegen() {
-            let lastUpdate = Date.now();
-            setInterval(async () => {
-                const ahora = Date.now();
-                if (energia < 50) {
-                    const diff = ahora - lastUpdate;
-                    if (diff >= REGEN_TIME) {
-                        energia = Math.min(50, energia + 1);
-                        lastUpdate = ahora;
-                        await saveToFirebase();
-                        updateUI();
-                    }
-                    
-                    const restante = REGEN_TIME - diff;
-                    if (restante > 0 && restante < REGEN_TIME) {
-                        const minutos = Math.floor(restante / 60000);
-                        const segundos = Math.floor((restante % 60000) / 1000);
-                        document.getElementById('timer-text').innerHTML = `⏳ +1 energía en ${minutos}:${segundos.toString().padStart(2, '0')}`;
-                    } else {
-                        document.getElementById('timer-text').innerHTML = `✨ ¡Energía al máximo!`;
-                    }
-                } else {
-                    document.getElementById('timer-text').innerHTML = `✨ ¡Energía al máximo!`;
-                }
-            }, 1000);
-        }
-        
-        // Inicialización
+
         async function init() {
-            try {
-                // Telegram
-                tg = window.Telegram.WebApp;
-                if (tg) {
-                    tg.expand();
-                    tg.ready();
-                    if (tg.initDataUnsafe?.user) {
-                        userName = tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username || "Jugador";
-                        userId = tg.initDataUnsafe.user.id?.toString();
-                    }
+            if (tg) {
+                tg.expand();
+                tg.enableClosingConfirmation();
+                tg.setHeaderColor('#0a0f1a');
+                if (tg.initDataUnsafe?.user) {
+                    userId = tg.initDataUnsafe.user.id.toString();
+                    userName = tg.initDataUnsafe.user.first_name;
                 }
-                
-                if (!userId) userId = "user_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
-                
-                // Firebase Auth anónima
-                try {
-                    await auth.signInAnonymously();
-                } catch(e) {
-                    console.log("Auth anónima:", e);
-                }
-                
-                await loadFromFirebase();
-                
-                // Inicializar canvas de la ruleta
-                canvas = document.getElementById('wheelCanvas');
-                ctx = canvas.getContext('2d');
-                drawWheel();
-                
-                // TON Connect
-                if (window.TON_CONNECT_UI) {
-                    tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({
-                        manifestUrl: 'https://raw.githubusercontent.com/ton-connect/docs/main/public/manifest.json',
-                        buttonRootId: 'ton-connect'
-                    });
-                    tonConnectUI.onStatusChange(async (wallet) => {
-                        if (wallet && !walletBonus) {
-                            energia = Math.min(50, energia + 10);
-                            walletBonus = true;
-                            await saveToFirebase();
-                            updateUI();
-                            showToast("🎉 ¡Bono de Wallet! +10 ⚡");
-                        }
-                    });
-                }
-                
-                // Event listeners
-                document.getElementById('spin-btn').onclick = spinWheel;
-                document.getElementById('task-wallet').onclick = () => tonConnectUI?.openModal();
-                document.getElementById('video-ad-btn').onclick = showVideoAd;
-                document.getElementById('exchange-points-btn').onclick = exchangePoints;
-                document.getElementById('copy-ref-btn').onclick = copyReferralLink;
-                
-                document.querySelectorAll('[data-pack]').forEach(btn => {
-                    btn.onclick = () => {
-                        const pack = parseInt(btn.dataset.pack);
-                        const price = parseFloat(btn.dataset.price);
-                        buyTonPack(price, pack);
-                    };
-                });
-                
-                // Navegación
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    btn.onclick = () => {
-                        const tabId = btn.dataset.tab;
-                        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
-                        document.getElementById(`tab-${tabId}`).classList.add('active');
-                        btn.classList.add('on');
-                        
-                        if (tabId === 'ranking') loadRanking();
-                    };
-                });
-                
-                // Link de referido en UI
-                const botName = tg?.initDataUnsafe?.user?.username || "mytonclickerbot";
-                document.getElementById('ref-link-preview').textContent = `t.me/${botName}?start=${userId}`;
-                
-                startEnergyRegen();
-                await loadRanking();
-                hideLoading();
-                
-            } catch(error) {
-                console.error("Error init:", error);
-                hideLoading();
-                showToast("Error de conexión, modo offline", true);
-                energia = 50;
-                updateUI();
-                startEnergyRegen();
             }
+
+            await auth.signInAnonymously();
+            const doc = await db.collection("jugadores").doc(userId).get();
+            if (doc.exists) {
+                const d = doc.data();
+                puntos = d.puntos || 0; tickets = d.tickets || 0;
+                const rec = Math.floor((Date.now() - (d.lastSeen || Date.now())) / REGEN_TIME);
+                energia = Math.min(50, (d.energia || 50) + rec);
+            }
+
+            if (window.TON_CONNECT_UI) {
+                tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                    manifestUrl: 'https://tu-dominio.com/tonconnect-manifest.json',
+                    buttonRootId: 'ton-connect'
+                });
+            }
+
+            drawWheel(); updateUI();
+            document.getElementById('spin-btn').onclick = spinWheel;
+            document.getElementById('video-ad-btn').onclick = showVideoAd;
+            document.getElementById('loadingOverlay').style.display = 'none';
+
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.onclick = () => {
+                    document.querySelectorAll('.tab, .nav-btn').forEach(x => x.classList.remove('active', 'on'));
+                    document.getElementById(`tab-${b.dataset.tab}`).classList.add('active');
+                    b.classList.add('on');
+                }
+            });
+
+            setInterval(() => { if(energia < 50) { energia++; updateUI(); save(); } }, REGEN_TIME);
         }
-        
+
         window.onload = init;
     </script>
 </body>
-    </html>
+</html>
