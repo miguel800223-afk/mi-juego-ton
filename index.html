@@ -70,7 +70,11 @@
                     <span>🔗 Tarea: Conectar Wallet</span>
                     <b id="wallet-badge" style="color: var(--oro);">+10 ⚡</b>
                 </div>
-                <button class="btn-principal" style="background: #e91e63; margin: 10px 0;" onclick="tg.showAlert('Cargando anuncio...')">🎬 Video (+1 Ticket)</button>
+                <button id="btn-ad" class="btn-principal" style="background: #e91e63; margin: 10px 0;" onclick="showVideoAd()">
+    🎬 Ver Video (+1 Ticket)
+</button>
+<div id="ad-status" style="font-size: 10px; color: #aaa; text-align: center; margin-top: -5px;"></div>
+
                 
                 <h4 style="color: var(--cyan-neon); margin: 15px 0 10px;">💎 TIENDA TON</h4>
                 <button class="btn-secundario" onclick="buyTON(0.1, 50)"><span>Pack 50 Energía</span> <b>0.1 TON</b></button>
@@ -177,6 +181,62 @@
             navigator.clipboard.writeText(`https://t.me/TuBot?start=${userId}`);
             tg.showAlert("Link copiado!");
         };
+        // Configuración de Adsgram
+const AD_BLOCK_ID = "2642"; // Tu ID real
+
+window.showVideoAd = async () => {
+    const btn = document.getElementById('btn-ad');
+    const status = document.getElementById('ad-status');
+    
+    // 1. Inicializar Adsgram
+    const AdController = window.Adsgram.init({ blockId: AD_BLOCK_ID });
+
+    try {
+        // Bloquear botón temporalmente para evitar doble clic
+        btn.disabled = true;
+        btn.innerText = "CARGANDO...";
+
+        const result = await AdController.show();
+        
+        if (result.done) {
+            // RECOMPENSA
+            tickets += 1;
+            await saveData();
+            updateUI();
+            tg.showAlert("✅ ¡Felicidades! Has ganado 1 Ticket 🎫");
+            
+            // Iniciar cooldown de 30 segundos (opcional, ajusta según prefieras)
+            iniciarCooldownAd(30);
+        } else {
+            tg.showAlert("⚠️ No terminaste el video, no hay recompensa.");
+            btn.disabled = false;
+            btn.innerText = "🎬 Ver Video (+1 Ticket)";
+        }
+    } catch (error) {
+        console.error("Adsgram Error:", error);
+        tg.showAlert("❌ No hay anuncios disponibles ahora.");
+        btn.disabled = false;
+        btn.innerText = "🎬 Ver Video (+1 Ticket)";
+    }
+};
+
+function iniciarCooldownAd(segundos) {
+    const btn = document.getElementById('btn-ad');
+    let restante = segundos;
+    
+    const interval = setInterval(() => {
+        btn.disabled = true;
+        btn.innerText = `ESPERA (${restante}s)`;
+        restante--;
+        
+        if (restante < 0) {
+            clearInterval(interval);
+            btn.disabled = false;
+            btn.innerText = "🎬 Ver Video (+1 Ticket)";
+        }
+    }, 1000);
+}
+
 
         window.startSpin = async () => {
             if (energiaActual < 1) return tg.showAlert("Sin energía");
