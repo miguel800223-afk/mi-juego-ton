@@ -42,6 +42,8 @@
     </style>
 </head>
 <body>
+    <script src="https://adsgram.ai/sdk-v1.js"></script>
+
 
     <div class="header">
         <div id="username" style="font-weight: 800;">...</div>
@@ -174,26 +176,43 @@
 
         // --- FUNCIONES DE ADSGRAM ---
         window.showVideoAd = async () => {
-            const btn = document.getElementById('btn-ad');
-            const AdController = window.Adsgram.init({ blockId: AD_BLOCK_ID });
+    const btn = document.getElementById('btn-ad');
+    
+    // Verificamos si la librería cargó
+    if (!window.Adsgram) {
+        tg.showAlert("⚠️ Error: La librería de anuncios no cargó. Revisa tu conexión o desactiva AdBlock.");
+        return;
+    }
 
-            try {
-                btn.disabled = true;
-                btn.innerText = "CARGANDO VIDEO...";
+    const AdController = window.Adsgram.init({ blockId: AD_BLOCK_ID });
 
-                const result = await AdController.show();
-                
-                if (result.done) {
-                    tickets += 1;
-                    await saveData();
-                    updateUI();
-                    tg.showAlert("✅ +1 Ticket por ver el video!");
-                    iniciarCooldownAd(30); 
-                } else {
-                    tg.showAlert("⚠️ No terminaste el video.");
-                    btn.disabled = false;
-                    btn.innerText = "🎬 Video (+1 Ticket)";
-                }
+    try {
+        btn.disabled = true;
+        btn.innerText = "CONECTANDO...";
+
+        // Mostramos el anuncio
+        const result = await AdController.show();
+        
+        if (result.done) {
+            tickets += 1;
+            await saveData();
+            updateUI();
+            tg.showAlert("✅ ¡Ticket recibido!");
+            iniciarCooldownAd(30); 
+        } else {
+            tg.showAlert("⚠️ No terminaste el video.");
+            btn.disabled = false;
+            btn.innerText = "🎬 Video (+1 Ticket)";
+        }
+    } catch (error) {
+        // Esto nos dirá exactamente qué dice Adsgram (ej. 'No ads available')
+        console.error("Adsgram Error:", error);
+        tg.showAlert("❌ Error de Adsgram: " + (error.description || "Sin anuncios"));
+        btn.disabled = false;
+        btn.innerText = "🎬 Video (+1 Ticket)";
+    }
+};
+
             } catch (error) {
                 tg.showAlert("❌ No hay anuncios disponibles.");
                 btn.disabled = false;
