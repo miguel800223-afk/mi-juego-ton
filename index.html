@@ -6,6 +6,7 @@
     <title>Super Ton Clicker - Pro Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <script src="https://telegram.org/js/adsgram.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <!-- Firebase SDKs -->
@@ -30,7 +31,6 @@
             overflow-x: hidden;
         }
         
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -52,7 +52,6 @@
             border-radius: 20px;
         }
         
-        /* Stats Cards */
         .stats-container {
             display: flex;
             gap: 20px;
@@ -81,7 +80,6 @@
             opacity: 0.7;
         }
         
-        /* Ruleta */
         .wheel-wrapper {
             display: flex;
             justify-content: center;
@@ -109,53 +107,14 @@
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
         }
         
-        #fortune-wheel {
+        canvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 4px solid #ffcc00;
-            position: relative;
-            transition: transform 4s cubic-bezier(0.25, 0.1, 0.15, 1);
-            overflow: hidden;
             box-shadow: 0 0 30px rgba(0, 153, 255, 0.5);
             cursor: pointer;
         }
         
-        .wheel-sector {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transform-origin: 0% 100%;
-            font-weight: bold;
-        }
-        
-        .sector-content {
-            position: absolute;
-            left: 30%;
-            bottom: 40%;
-            transform: rotate(22.5deg);
-            text-align: center;
-        }
-        
-        .sector-icon {
-            font-size: 28px;
-            display: block;
-        }
-        
-        .sector-value {
-            font-size: 14px;
-            font-weight: 800;
-            background: rgba(0,0,0,0.6);
-            padding: 2px 6px;
-            border-radius: 12px;
-            margin-top: 5px;
-        }
-        
-        /* Botones */
         .btn-primary {
             width: 85%;
             padding: 16px;
@@ -201,7 +160,6 @@
             transform: scale(0.98);
         }
         
-        /* Barra de energía */
         .energy-section {
             width: 90%;
             margin: 15px auto;
@@ -231,7 +189,6 @@
             font-weight: 600;
         }
         
-        /* Navegación */
         .nav {
             position: fixed;
             bottom: 0;
@@ -269,7 +226,6 @@
             font-size: 22px;
         }
         
-        /* Tabs */
         .tab {
             display: none;
             padding: 15px;
@@ -281,7 +237,6 @@
             display: block;
         }
         
-        /* Ranking */
         .ranking-item {
             display: flex;
             justify-content: space-between;
@@ -309,7 +264,6 @@
             color: #00ffcc;
         }
         
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 100px;
@@ -333,7 +287,6 @@
             100% { opacity: 0; visibility: hidden; }
         }
         
-        /* Loading */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -362,7 +315,16 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Ad modal */
+        .referral-link {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            word-break: break-all;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
         .ad-modal {
             position: fixed;
             top: 0;
@@ -383,33 +345,13 @@
             font-weight: 800;
             color: #ffcc00;
         }
-        
-        .close-ad {
-            background: #0099ff;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .referral-link {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            word-break: break-all;
-            text-align: center;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
 
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <p style="color: white;">🚀 Conectando con Firebase...</p>
+        <p style="color: white;">🚀 Conectando...</p>
     </div>
 
     <div class="header">
@@ -418,7 +360,6 @@
     </div>
 
     <div class="main">
-        <!-- Tab Juego -->
         <div id="tab-game" class="tab active">
             <div class="stats-container">
                 <div class="stat-card">
@@ -434,7 +375,7 @@
             <div class="wheel-wrapper">
                 <div class="wheel-container">
                     <div class="pointer"></div>
-                    <div id="fortune-wheel"></div>
+                    <canvas id="wheelCanvas" width="300" height="300"></canvas>
                 </div>
             </div>
             
@@ -452,7 +393,6 @@
             </div>
         </div>
         
-        <!-- Tab Tareas -->
         <div id="tab-tasks" class="tab">
             <h3 style="color: #00d4ff; margin-bottom: 15px;">✅ TAREAS Y TIENDA</h3>
             
@@ -480,13 +420,11 @@
             </div>
         </div>
         
-        <!-- Tab Ranking -->
         <div id="tab-ranking" class="tab">
             <h3 style="color: #00d4ff; margin-bottom: 15px;">🏆 TOP GLOBAL</h3>
             <div id="ranking-list"></div>
         </div>
         
-        <!-- Tab Inbox -->
         <div id="tab-inbox" class="tab">
             <h3 style="color: #00d4ff; margin-bottom: 15px;">📩 INBOX & AMIGOS</h3>
             
@@ -537,40 +475,40 @@
             appId: "1:847124098754:web:17c7f23ae15acdfef2155b"
         };
         
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
         
         // Constantes
-        const REGEN_TIME = 25 * 60 * 1000;
+        const REGEN_TIME = 25 * 60 * 1000; // 25 minutos por energía
         const MY_WALLET = "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj";
+        const ADSGRAM_BLOCK_ID = "26422"; // Tu Platform ID de Adsgram
+        
+        // Segmentos de la ruleta
+        const SEGMENTS = [
+            { name: "+50", value: 50, type: "points", color: "#FF6B6B", icon: "💎" },
+            { name: "+1 🎫", value: 1, type: "ticket", color: "#4ECDC4", icon: "🎫" },
+            { name: "+100", value: 100, type: "points", color: "#45B7D1", icon: "💰" },
+            { name: "0", value: 0, type: "none", color: "#96CEB4", icon: "❌" },
+            { name: "+200", value: 200, type: "points", color: "#FFEAA7", icon: "💎" },
+            { name: "+500", value: 500, type: "points", color: "#DDA0DD", icon: "🏆" },
+            { name: "+10", value: 10, type: "points", color: "#98D8C8", icon: "💰" },
+            { name: "0", value: 0, type: "none", color: "#F7D794", icon: "🍀" }
+        ];
         
         // Variables del juego
         let puntos = 0;
         let tickets = 0;
         let energia = 50;
-        let lastSyncTime = Date.now();
         let walletBonus = false;
         let referidos = 0;
         let userId = null;
         let userName = "Jugador";
         let isSpinning = false;
-        let rotation = 0;
+        let currentRotation = 0;
         let tonConnectUI;
         let tg;
-        
-        // Premios de la ruleta (icono, valor, tipo, color)
-        const PREMIOS = [
-            { icono: "💎", valor: 50, tipo: "puntos", color: "#1a1a3a", label: "+50" },
-            { icono: "🎫", valor: 1, tipo: "ticket", color: "#f59e0b", label: "+1" },
-            { icono: "💰", valor: 100, tipo: "puntos", color: "#2a4a2a", label: "+100" },
-            { icono: "❌", valor: 0, tipo: "nada", color: "#3a2a2a", label: "0" },
-            { icono: "💎", valor: 200, tipo: "puntos", color: "#1a1a5a", label: "+200" },
-            { icono: "🏆", valor: 500, tipo: "puntos", color: "#5a3a1a", label: "+500" },
-            { icono: "💰", valor: 10, tipo: "puntos", color: "#2a4a2a", label: "+10" },
-            { icono: "🍀", valor: 0, tipo: "nada", color: "#3a3a2a", label: "0" }
-        ];
+        let canvas, ctx;
         
         // Mostrar notificación
         function showToast(msg, isError = false) {
@@ -585,10 +523,7 @@
         // Ocultar loading
         function hideLoading() {
             const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 500);
-            }
+            if (overlay) overlay.style.display = 'none';
         }
         
         // Guardar datos en Firestore
@@ -623,7 +558,6 @@
                     tickets = 0;
                     walletBonus = false;
                     referidos = 0;
-                    lastSyncTime = ahora;
                     await saveToFirebase();
                 } else {
                     const data = doc.data();
@@ -636,7 +570,6 @@
                     const tiempoOffline = ahora - (data.lastSeen || ahora);
                     const energiaRecuperada = Math.floor(tiempoOffline / REGEN_TIME);
                     energia = Math.min(50, (data.energia || 50) + energiaRecuperada);
-                    lastSyncTime = ahora;
                 }
                 updateUI();
             } catch(e) {
@@ -666,42 +599,41 @@
             
             const spinBtn = document.getElementById('spin-btn');
             if (spinBtn) {
-                if (energia < 1 || isSpinning) {
-                    spinBtn.classList.add('disabled');
-                } else {
-                    spinBtn.classList.remove('disabled');
-                }
+                spinBtn.classList.toggle('disabled', energia < 1 || isSpinning);
             }
         }
         
-        // Construir ruleta con valores visibles
-        function buildWheel() {
-            const wheel = document.getElementById('fortune-wheel');
-            if (!wheel) return;
-            wheel.innerHTML = '';
+        // Dibujar ruleta
+        function drawWheel() {
+            if (!canvas || !ctx) return;
+            const anglePerSegment = (Math.PI * 2) / SEGMENTS.length;
             
-            PREMIOS.forEach((premio, i) => {
-                const sector = document.createElement('div');
-                sector.className = 'wheel-sector';
-                sector.style.backgroundColor = premio.color;
-                sector.style.transform = `rotate(${i * 45}deg) skewY(-45deg)`;
+            SEGMENTS.forEach((segment, i) => {
+                const startAngle = i * anglePerSegment + currentRotation;
+                const endAngle = startAngle + anglePerSegment;
                 
-                const content = document.createElement('div');
-                content.className = 'sector-content';
-                content.style.transform = `rotate(${45/2}deg)`;
+                ctx.beginPath();
+                ctx.fillStyle = segment.color;
+                ctx.moveTo(150, 150);
+                ctx.arc(150, 150, 150, startAngle, endAngle);
+                ctx.fill();
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 2;
+                ctx.stroke();
                 
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'sector-icon';
-                iconSpan.textContent = premio.icono;
-                
-                const valueSpan = document.createElement('span');
-                valueSpan.className = 'sector-value';
-                valueSpan.textContent = premio.label;
-                
-                content.appendChild(iconSpan);
-                content.appendChild(valueSpan);
-                sector.appendChild(content);
-                wheel.appendChild(sector);
+                ctx.save();
+                ctx.translate(150, 150);
+                ctx.rotate(startAngle + anglePerSegment / 2);
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.font = "bold 24px Poppins";
+                ctx.fillStyle = "white";
+                ctx.shadowBlur = 0;
+                ctx.fillText(segment.icon, 90, 10);
+                ctx.font = "bold 14px Poppins";
+                ctx.fillStyle = "#fff";
+                ctx.fillText(segment.name, 90, 40);
+                ctx.restore();
             });
         }
         
@@ -719,48 +651,51 @@
             if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             
             // Elegir premio (1% de probabilidad de ganar el premio mayor)
-            let idx;
+            let randomIndex;
             if (Math.random() < 0.01) {
-                idx = 5; // Premio mayor: 500 puntos
+                randomIndex = 5; // Premio mayor: 500 puntos
             } else {
                 const opciones = [0, 1, 2, 3, 4, 6, 7];
-                idx = opciones[Math.floor(Math.random() * opciones.length)];
+                randomIndex = opciones[Math.floor(Math.random() * opciones.length)];
             }
             
-            const sectorAngle = 45;
-            const targetRotation = (360 - (idx * sectorAngle) - 22.5) % 360;
-            rotation += (360 * 5) + targetRotation;
+            const anglePerSegment = 360 / SEGMENTS.length;
+            const targetAngle = (360 - (randomIndex * anglePerSegment) - 22.5) % 360;
+            const spins = 360 * 5;
+            const newRotationDeg = (currentRotation * 180 / Math.PI) + spins + targetAngle;
             
-            const wheelDiv = document.getElementById('fortune-wheel');
-            wheelDiv.style.transform = `rotate(${rotation}deg)`;
+            const canvasElem = document.getElementById('wheelCanvas');
+            canvasElem.style.transform = `rotate(${newRotationDeg}deg)`;
+            canvasElem.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.15, 1)";
             
             setTimeout(async () => {
-                const premio = PREMIOS[idx];
+                const prize = SEGMENTS[randomIndex];
                 let mensaje = "";
                 
-                if (premio.tipo === "puntos") {
-                    puntos += premio.valor;
-                    mensaje = `✨ ¡Ganaste ${premio.valor} puntos! ${premio.icono}`;
-                } else if (premio.tipo === "ticket") {
-                    tickets += premio.valor;
-                    mensaje = `🎫 ¡Ganaste ${premio.valor} Ticket!`;
+                if (prize.type === "ticket") {
+                    tickets += prize.value;
+                    mensaje = `🎫 ¡Ganaste ${prize.value} Ticket!`;
+                } else if (prize.type === "points" && prize.value > 0) {
+                    puntos += prize.value;
+                    mensaje = `✨ ¡Ganaste ${prize.value} puntos! ${prize.icon}`;
                 } else {
-                    mensaje = `😢 ${premio.icono} ¡Sin premio! Vuelve a intentarlo.`;
+                    mensaje = `😢 ${prize.icon} ¡Sin premio! Vuelve a intentarlo.`;
                 }
                 
                 showToast(mensaje);
                 isSpinning = false;
+                currentRotation = (newRotationDeg % 360) * Math.PI / 180;
                 await saveToFirebase();
                 updateUI();
                 loadRanking();
+                drawWheel();
             }, 4000);
         }
         
-        // Canjear puntos por energía (CORREGIDO: ahora suma correctamente)
+        // Canjear puntos por energía
         async function exchangePoints() {
             if (puntos >= 100) {
                 puntos -= 100;
-                // CORRECCIÓN: suma a la energía existente sin sobrepasar 50
                 energia = Math.min(50, energia + 10);
                 await saveToFirebase();
                 updateUI();
@@ -770,38 +705,49 @@
             }
         }
         
-        // Ver video anuncio (AHORA SÍ OBLIGA A VER)
+        // Ver video anuncio con Adsgram
         function showVideoAd() {
-            // Crear modal de anuncio simulado
-            const modal = document.createElement('div');
-            modal.className = 'ad-modal';
-            modal.innerHTML = `
-                <div style="background: #1a2a3a; padding: 30px; border-radius: 20px; text-align: center;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">🎬</div>
-                    <div style="font-size: 18px; margin-bottom: 20px;">Viendo anuncio...</div>
-                    <div class="ad-countdown" id="adCountdown">3</div>
-                    <div style="font-size: 12px; margin-top: 15px;">Espera a que termine el anuncio</div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            
-            let countdown = 3;
-            const countdownEl = modal.querySelector('#adCountdown');
-            
-            const interval = setInterval(() => {
-                countdown--;
-                if (countdownEl) countdownEl.textContent = countdown;
+            if (typeof window.Adsgram !== 'undefined') {
+                // Crear contenedor para el anuncio
+                let adContainer = document.getElementById('ad-container');
+                if (!adContainer) {
+                    adContainer = document.createElement('div');
+                    adContainer.id = 'ad-container';
+                    adContainer.style.position = 'fixed';
+                    adContainer.style.top = '0';
+                    adContainer.style.left = '0';
+                    adContainer.style.width = '100%';
+                    adContainer.style.height = '100%';
+                    adContainer.style.zIndex = '9999';
+                    document.body.appendChild(adContainer);
+                }
                 
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    modal.remove();
-                    // Ahora sí da la recompensa
+                const adController = window.Adsgram.show({
+                    blockId: ADSGRAM_BLOCK_ID,
+                    containerId: 'ad-container',
+                    debug: false
+                });
+                
+                adController.then(() => {
+                    // Anuncio completado con éxito
                     tickets++;
                     saveToFirebase();
                     updateUI();
                     showToast("🎫 ¡+1 Ticket! Gracias por ver el anuncio.");
-                }
-            }, 1000);
+                    adContainer.remove();
+                }).catch((error) => {
+                    // Error o usuario cerró el anuncio
+                    console.error('Error en anuncio:', error);
+                    showToast("❌ No se pudo mostrar el anuncio", true);
+                    adContainer.remove();
+                });
+            } else {
+                // Fallback si Adsgram no está disponible
+                showToast("📺 Anuncio simulado: +1 Ticket", true);
+                tickets++;
+                saveToFirebase();
+                updateUI();
+            }
         }
         
         // Copiar link de referido
@@ -879,13 +825,14 @@
         
         // Recarga de energía en segundo plano
         function startEnergyRegen() {
+            let lastUpdate = Date.now();
             setInterval(async () => {
+                const ahora = Date.now();
                 if (energia < 50) {
-                    const ahora = Date.now();
-                    const diff = ahora - lastSyncTime;
+                    const diff = ahora - lastUpdate;
                     if (diff >= REGEN_TIME) {
                         energia = Math.min(50, energia + 1);
-                        lastSyncTime = ahora;
+                        lastUpdate = ahora;
                         await saveToFirebase();
                         updateUI();
                     }
@@ -928,7 +875,11 @@
                 }
                 
                 await loadFromFirebase();
-                buildWheel();
+                
+                // Inicializar canvas de la ruleta
+                canvas = document.getElementById('wheelCanvas');
+                ctx = canvas.getContext('2d');
+                drawWheel();
                 
                 // TON Connect
                 if (window.TON_CONNECT_UI) {
@@ -988,7 +939,6 @@
                 hideLoading();
                 showToast("Error de conexión, modo offline", true);
                 energia = 50;
-                buildWheel();
                 updateUI();
                 startEnergyRegen();
             }
