@@ -26,7 +26,7 @@
         .btn { padding: 10px 18px; border-radius: 20px; border: none; font-weight: 700; color: #fff; cursor: pointer; font-size: 11px; }
         .btn-ads { background: linear-gradient(90deg, #6f42c1, #a176ff); width: 100%; padding: 15px; font-size: 14px; margin-bottom: 15px; }
         .nav { height: 75px; display: flex; background: #04101d; border-top: 1px solid var(--card-border); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 11px; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; font-size: 11px; color: white; cursor: pointer; }
         .nav-btn.on { opacity: 1; color: var(--futuristic-glow); border-top: 3px solid var(--futuristic-glow); }
         .floating-text { position: absolute; color: white; font-weight: 800; font-size: 32px; pointer-events: none; animation: moveUp 0.6s forwards; z-index: 10; }
         @keyframes moveUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
@@ -71,16 +71,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Tus datos de Firebase permanecen intactos
-        const firebaseConfig = { 
-            apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", 
-            authDomain: "mytonclicker.firebaseapp.com", 
-            projectId: "mytonclicker", 
-            storageBucket: "mytonclicker.firebasestorage.app", 
-            messagingSenderId: "847124098754", 
-            appId: "1:847124098754:web:17c7f23ae15acdfef2155b" 
-        };
-        
+        const firebaseConfig = { apiKey: "AIzaSyA2tERIcCyLoKo8U-Ue-wVJ9YYSz32MJ9I", authDomain: "mytonclicker.firebaseapp.com", projectId: "mytonclicker", storageBucket: "mytonclicker.firebasestorage.app", messagingSenderId: "847124098754", appId: "1:847124098754:web:17c7f23ae15acdfef2155b" };
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp; 
@@ -93,60 +84,40 @@
         window.ir = (t, b) => { 
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('on'));
-            document.getElementById(t).classList.add('active'); 
-            document.getElementById(b).classList.add('on');
+            document.getElementById(t).classList.add('active'); document.getElementById(b).classList.add('on');
         };
 
         window.handleCoinClick = (e) => {
             if (energiaActual < nivelClic) { tg.HapticFeedback.notificationOccurred('error'); return; }
-            pts += nivelClic; energiaActual -= nivelClic; updateUI();
+            pts += nivelClic; energiaActual -= nivelClic; 
+            updateUI();
             const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
             const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            const f = document.createElement("div"); 
-            f.className = "floating-text"; 
-            f.innerText = `+${nivelClic}`;
-            f.style.left = `${x-20}px`; 
-            f.style.top = `${y-40}px`; 
-            document.body.appendChild(f);
-            setTimeout(() => f.remove(), 600); 
-            tg.HapticFeedback.impactOccurred('medium');
+            const f = document.createElement("div"); f.className = "floating-text"; f.innerText = `+${nivelClic}`;
+            f.style.left = `${x-20}px`; f.style.top = `${y-40}px`; document.body.appendChild(f);
+            setTimeout(() => f.remove(), 600); tg.HapticFeedback.impactOccurred('medium');
         };
 
         window.triggerAd = () => {
-            if (!window.Adsgram) {
-                tg.showAlert("Cargando anuncios...");
-                return;
-            }
             const adBtn = document.getElementById('ad-btn');
-            adBtn.disabled = true; 
-            adBtn.innerText = "Conectando...";
-
-            const AdController = window.Adsgram.init({ blockId: "27310" });
-            
-            AdController.show().then(res => {
+            if (!window.Adsgram) { tg.showAlert("Cargando anuncios..."); return; }
+            adBtn.disabled = true; adBtn.innerText = "Conectando...";
+            const AdsgramController = window.Adsgram.init({ blockId: "27310" });
+            AdsgramController.show().then(res => {
                 if(res.done) { 
                     energiaActual = Math.min(energiaActual + 250, maxEnergia); 
-                    tg.showAlert("¡+250 Energía!"); 
                     updateUI();
                     saveData();
+                    tg.showAlert("¡+250 Energía!"); 
                 }
-            }).catch(() => {
-                tg.showAlert("No hay videos disponibles.");
-            }).finally(() => { 
-                adBtn.disabled = false; 
-                adBtn.innerText = "🎬 VIDEO (+250 ENERGÍA)"; 
-            });
+            }).catch(() => tg.showAlert("Anuncio no disponible."))
+            .finally(() => { adBtn.disabled = false; adBtn.innerText = "🎬 VIDEO (+250 ENERGÍA)"; });
         };
 
         window.claim = (type) => {
-            if(type === 'canal') { 
-                tg.openTelegramLink('https://t.me/+eMrzkqBJInk3MTkx'); 
-                pts += 5000; 
-            } else { 
-                tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/SuperTonClicker_bot?start=${userId}&text=¡Gana TON jugando conmigo!`); 
-            }
-            updateUI(); 
-            saveData();
+            if(type === 'canal') { tg.openTelegramLink('https://t.me/+eMrzkqBJInk3MTkx'); pts += 5000; } 
+            else { tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/SuperTonClicker_bot?start=${userId}&text=¡Gana TON!`); }
+            updateUI(); saveData();
         };
 
         window.pay = (t) => tg.showAlert("Conecta tu wallet para procesar el pago.");
@@ -161,51 +132,77 @@
         async function saveData() { 
             try { 
                 await setDoc(doc(db, "jugadores", userId), { 
-                    nombre: firstName, puntos: pts, nivelClic, energia: energiaActual, lastSeen: serverTimestamp() 
+                    nombre: firstName, 
+                    puntos: pts, 
+                    nivelClic: nivelClic, 
+                    energia: energiaActual, 
+                    lastSeen: serverTimestamp() 
                 }, { merge: true }); 
-            } catch(e){} 
+            } catch(e){ console.error("Error al guardar:", e); } 
         }
 
         window.onload = async () => {
             document.getElementById('username').innerText = firstName;
-            const d = await getDoc(doc(db, "jugadores", userId));
-            if(d.exists()) { 
-                const data = d.data(); 
-                pts = data.puntos || 0; 
-                nivelClic = data.nivelClic || 1; 
-                energiaActual = data.energia ?? 500; 
+            
+            // Carga de datos inicial
+            try {
+                const d = await getDoc(doc(db, "jugadores", userId));
+                if(d.exists()) { 
+                    const data = d.data(); 
+                    pts = data.puntos || 0; 
+                    nivelClic = data.nivelClic || 1; 
+                    // Si existe energía guardada, la cargamos. Si no, le damos el max.
+                    energiaActual = (data.energia !== undefined) ? data.energia : maxEnergia;
+                } else {
+                    energiaActual = maxEnergia; // Nuevo usuario
+                    await saveData();
+                }
+            } catch(e) {
+                console.error("Error al cargar:", e);
+                energiaActual = maxEnergia;
             }
+            
             updateUI();
+
             if(window.TON_CONNECT_UI) {
                 new TON_CONNECT_UI.TonConnectUI({ 
                     manifestUrl: 'https://miguel800223-afk.github.io/mi-juego-ton/tonconnect-manifest.json', 
                     buttonRootId: 'ton-connect' 
                 });
             }
-        };
 
-        setInterval(() => { 
-            if(energiaActual < maxEnergia) { 
-                energiaActual = Math.min(energiaActual + 1.2, maxEnergia); 
-                updateUI(); 
-            } 
-        }, 1000);
+            // --- RECARGA DE ENERGÍA Y GUARDADO ---
+            setInterval(() => { 
+                if(energiaActual < maxEnergia) { 
+                    energiaActual = Math.min(energiaActual + 1.2, maxEnergia); 
+                    updateUI(); 
+                } 
+            }, 1000);
 
-        setInterval(saveData, 15000);
+            setInterval(saveData, 15000); // Guardado automático cada 15s
 
-        onSnapshot(query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(10)), (s) => {
-            const list = document.getElementById('ranking-list');
-            if(!list) return;
-            list.innerHTML = "<h2 style='margin-bottom:20px'>🏆 Top Líderes</h2>";
-            let i = 1;
-            s.forEach(doc => {
-                const d = doc.data();
-                if(d && d.nombre) {
-                    list.innerHTML += `<div class="rank-item"><span>#${i} ${d.nombre}</span><b>${Math.floor(d.puntos || 0).toLocaleString()}</b></div>`;
-                    i++;
-                }
+            // --- RANKING CORREGIDO (Escucha en tiempo real) ---
+            const rankingQuery = query(collection(db, "jugadores"), orderBy("puntos", "desc"), limit(20));
+            onSnapshot(rankingQuery, (snapshot) => {
+                const list = document.getElementById('ranking-list');
+                if(!list) return;
+                list.innerHTML = "<h2 style='margin-bottom:20px'>🏆 Top Líderes</h2>";
+                let i = 1;
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    if(d && d.nombre) {
+                        list.innerHTML += `
+                            <div class="rank-item">
+                                <span>#${i} ${d.nombre}</span>
+                                <b>${Math.floor(d.puntos || 0).toLocaleString()}</b>
+                            </div>`;
+                        i++;
+                    }
+                });
+            }, (error) => {
+                console.error("Error en ranking:", error);
             });
-        });
+        };
     </script>
 </body>
 </html>
