@@ -266,6 +266,13 @@
             color: #00ffcc;
         }
         
+        .rank-tickets {
+            font-weight: 600;
+            color: #ffaa00;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        
         .toast {
             position: fixed;
             bottom: 100px;
@@ -329,6 +336,23 @@
         
         #ton-connect {
             min-width: 45px;
+        }
+        
+        .wallet-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+        
+        .wallet-status.connected {
+            background: #4caf50;
+            box-shadow: 0 0 5px #4caf50;
+        }
+        
+        .wallet-status.disconnected {
+            background: #ff4444;
         }
         
         /* Estilos del Panel Admin */
@@ -448,7 +472,7 @@
             <h3 style="color: #00d4ff; margin-bottom: 15px;">✅ TAREAS Y TIENDA</h3>
             
             <div class="btn-secondary" id="task-wallet">
-                <span>🔗 Conectar Wallet TON</span>
+                <span>🔗 Conectar Wallet TON <span id="wallet-status-indicator" class="wallet-status disconnected"></span></span>
                 <b id="wallet-badge" style="background: #ffcc00; color: #000; padding: 4px 12px; border-radius: 20px;">+10 ⚡</b>
             </div>
             
@@ -594,7 +618,7 @@
         const REGEN_TIME = 25 * 60 * 1000;
         const MY_WALLET = "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj";
         const ADSGRAM_BLOCK_ID = "26422";
-        const ADMIN_PASSWORD = "Ces@rPerez*7852"; // Cambia esta contraseña
+        const ADMIN_PASSWORD = "Ces@rPerez*7852";
         
         // Segmentos de la ruleta
         const SEGMENTS = [
@@ -622,6 +646,7 @@
         let tg;
         let canvas, ctx;
         let isAdmin = false;
+        let walletConnected = false;
         
         function showToast(msg, isError = false) {
             const toast = document.createElement('div');
@@ -665,7 +690,8 @@
                     energia: energia,
                     lastSeen: Date.now(),
                     walletBonus: walletBonus,
-                    referidos: referidos
+                    referidos: referidos,
+                    walletConnected: walletConnected
                 }, { merge: true });
             } catch(e) {
                 console.error("Error guardando:", e);
@@ -684,6 +710,7 @@
                     tickets = 0;
                     walletBonus = false;
                     referidos = 0;
+                    walletConnected = false;
                     await saveToFirebase();
                 } else {
                     const data = doc.data();
@@ -691,6 +718,7 @@
                     tickets = data.tickets || 0;
                     walletBonus = data.walletBonus || false;
                     referidos = data.referidos || 0;
+                    walletConnected = data.walletConnected || false;
                     
                     const tiempoOffline = ahora - (data.lastSeen || ahora);
                     const energiaRecuperada = Math.floor(tiempoOffline / REGEN_TIME);
@@ -719,6 +747,16 @@
             } else {
                 walletBadge.innerHTML = "+10 ⚡";
                 walletBadge.style.background = "#ffcc00";
+            }
+            
+            // Actualizar indicador de wallet
+            const walletIndicator = document.getElementById('wallet-status-indicator');
+            if (walletIndicator) {
+                if (walletConnected) {
+                    walletIndicator.className = 'wallet-status connected';
+                } else {
+                    walletIndicator.className = 'wallet-status disconnected';
+                }
             }
             
             const spinBtn = document.getElementById('spin-btn');
@@ -808,7 +846,7 @@
                 
                 if (prize.type === "ticket") {
                     tickets += prize.value;
-                    mensaje = `🎫 ¡Ganaste ${prize.value} Ticket!`;
+                    mensaje = `🎫 ¡Ganaste ${prize.value} Ticket! Total: ${tickets} tickets`;
                 } else if (prize.type === "points" && prize.value > 0) {
                     puntos += prize.value;
                     mensaje = `✨ ¡Ganaste ${prize.value} puntos! ${prize.icon}`;
@@ -864,7 +902,7 @@
                     tickets++;
                     saveToFirebase();
                     updateUI();
-                    showToast("🎫 ¡+1 Ticket! Gracias por ver el anuncio.");
+                    showToast(`🎫 ¡+1 Ticket! Total: ${tickets} tickets`);
                     if(adContainer) adContainer.remove();
                 }).catch((error) => {
                     console.error('Error en anuncio:', error);
@@ -887,8 +925,14 @@
         }
         
         async function buyTonPack(priceTON, energyGain) {
-            if (!tonConnectUI || !tonConnectUI.connected) {
+            if (!tonConnectUI) {
+                showToast("⚠️ Inicializando wallet...", true);
+                return;
+            }
+            
+            if (!tonConnectUI.connected) {
                 showToast("⚠️ Conecta tu wallet TON primero", true);
+                tonConnectUI.openModal();
                 return;
             }
             
@@ -909,6 +953,7 @@
                 updateUI();
                 showToast(`✅ Compra exitosa! +${energyGain} ⚡`);
             } catch(e) {
+                console.error("Error en transacción:", e);
                 showToast("❌ Transacción cancelada o error", true);
             }
         }
@@ -937,7 +982,10 @@
                     item.innerHTML = `
                         <span class="rank-number">#${pos}</span>
                         <span class="rank-name">${data.nombre || 'Anónimo'}</span>
-                        <span class="rank-points">💰 ${Math.floor(data.puntos || 0)}</span>
+                        <div style="display: flex; gap: 15px;">
+                            <span class="rank-points">💰 ${Math.floor(data.puntos || 0)}</span>
+                            <span class="rank-tickets">🎫 ${data.tickets || 0}</span>
+                        </div>
                     `;
                     rankingDiv.appendChild(item);
                     pos++;
@@ -981,9 +1029,9 @@
         async function adminDarPuntos() {
             if (!isAdmin) return;
             const userIdTarget = document.getElementById('adminUserId').value;
-            const puntos = parseInt(document.getElementById('adminPuntos').value);
+            const puntosGive = parseInt(document.getElementById('adminPuntos').value);
             
-            if (!userIdTarget || isNaN(puntos)) {
+            if (!userIdTarget || isNaN(puntosGive)) {
                 showToast("❌ ID o cantidad inválida", true);
                 return;
             }
@@ -991,9 +1039,9 @@
             try {
                 const userRef = db.collection('jugadores').doc(userIdTarget);
                 await userRef.update({
-                    puntos: firebase.firestore.FieldValue.increment(puntos)
+                    puntos: firebase.firestore.FieldValue.increment(puntosGive)
                 });
-                showToast(`✅ +${puntos} puntos a ${userIdTarget}`);
+                showToast(`✅ +${puntosGive} puntos a ${userIdTarget}`);
                 document.getElementById('adminUserId').value = '';
                 document.getElementById('adminPuntos').value = '';
             } catch(e) {
@@ -1004,9 +1052,9 @@
         async function adminDarTickets() {
             if (!isAdmin) return;
             const userIdTarget = document.getElementById('adminTicketsUser').value;
-            const tickets = parseInt(document.getElementById('adminTickets').value);
+            const ticketsGive = parseInt(document.getElementById('adminTickets').value);
             
-            if (!userIdTarget || isNaN(tickets)) {
+            if (!userIdTarget || isNaN(ticketsGive)) {
                 showToast("❌ ID o cantidad inválida", true);
                 return;
             }
@@ -1014,9 +1062,9 @@
             try {
                 const userRef = db.collection('jugadores').doc(userIdTarget);
                 await userRef.update({
-                    tickets: firebase.firestore.FieldValue.increment(tickets)
+                    tickets: firebase.firestore.FieldValue.increment(ticketsGive)
                 });
-                showToast(`✅ +${tickets} tickets a ${userIdTarget}`);
+                showToast(`✅ +${ticketsGive} tickets a ${userIdTarget}`);
                 document.getElementById('adminTicketsUser').value = '';
                 document.getElementById('adminTickets').value = '';
             } catch(e) {
@@ -1111,7 +1159,6 @@
             for (const doc of snapshot.docs) {
                 try {
                     if (tg && tg.sendMessage) {
-                        // En Telegram WebApp
                         tg.sendMessage(mensaje);
                     }
                     enviados++;
@@ -1133,7 +1180,7 @@
             snapshot.forEach(doc => {
                 const data = doc.data();
                 if (doc.id.includes(termino) || data.nombre?.toLowerCase().includes(termino.toLowerCase())) {
-                    resultados.push({ id: doc.id, nombre: data.nombre, puntos: data.puntos });
+                    resultados.push({ id: doc.id, nombre: data.nombre, puntos: data.puntos, tickets: data.tickets });
                 }
             });
             
@@ -1142,7 +1189,7 @@
             } else {
                 let html = "🔍 Resultados:<br>";
                 resultados.slice(0, 5).forEach(r => {
-                    html += `📌 ID: ${r.id}<br>   Nombre: ${r.nombre}<br>   Puntos: ${r.puntos}<br><br>`;
+                    html += `📌 ID: ${r.id}<br>   Nombre: ${r.nombre}<br>   Puntos: ${r.puntos}<br>   Tickets: ${r.tickets}<br><br>`;
                 });
                 document.getElementById('searchResult').innerHTML = html;
             }
@@ -1159,7 +1206,8 @@
                     tickets: 0,
                     energia: 50,
                     walletBonus: false,
-                    referidos: 0
+                    referidos: 0,
+                    walletConnected: false
                 });
                 showToast(`✅ Usuario ${userIdTarget} reseteado`);
                 document.getElementById('resetUserId').value = '';
@@ -1198,24 +1246,64 @@
                 ctx = canvas.getContext('2d');
                 drawWheel();
                 
+                // Inicializar TON Connect
                 if (window.TON_CONNECT_UI) {
-                    tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({
-                        manifestUrl: 'https://raw.githubusercontent.com/ton-connect/docs/main/public/manifest.json',
-                        buttonRootId: 'ton-connect'
-                    });
-                    tonConnectUI.onStatusChange(async (wallet) => {
-                        if (wallet && !walletBonus) {
-                            energia = Math.min(50, energia + 10);
-                            walletBonus = true;
-                            await saveToFirebase();
+                    try {
+                        tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({
+                            manifestUrl: 'https://raw.githubusercontent.com/ton-connect/docs/main/public/manifest.json',
+                            buttonRootId: 'ton-connect'
+                        });
+                        
+                        // Escuchar cambios en el estado de la wallet
+                        tonConnectUI.onStatusChange(async (wallet) => {
+                            if (wallet && wallet.account) {
+                                walletConnected = true;
+                                if (!walletBonus) {
+                                    energia = Math.min(50, energia + 10);
+                                    walletBonus = true;
+                                    await saveToFirebase();
+                                    showToast("🎉 ¡Bono de Wallet! +10 ⚡");
+                                }
+                                showToast("✅ Wallet conectada exitosamente");
+                            } else {
+                                walletConnected = false;
+                                showToast("👛 Wallet desconectada");
+                            }
                             updateUI();
-                            showToast("🎉 ¡Bono de Wallet! +10 ⚡");
+                            await saveToFirebase();
+                        });
+                        
+                        // Verificar si ya hay una wallet conectada
+                        const currentWallet = tonConnectUI.wallet;
+                        if (currentWallet && currentWallet.account) {
+                            walletConnected = true;
+                            if (!walletBonus) {
+                                energia = Math.min(50, energia + 10);
+                                walletBonus = true;
+                                await saveToFirebase();
+                            }
+                            updateUI();
                         }
-                    });
+                        
+                    } catch(e) {
+                        console.error("Error inicializando TON Connect:", e);
+                    }
+                } else {
+                    console.warn("TON_CONNECT_UI no disponible");
                 }
                 
                 document.getElementById('spin-btn').onclick = spinWheel;
-                document.getElementById('task-wallet').onclick = () => tonConnectUI?.openModal();
+                document.getElementById('task-wallet').onclick = () => {
+                    if (tonConnectUI) {
+                        if (!tonConnectUI.connected) {
+                            tonConnectUI.openModal();
+                        } else {
+                            tonConnectUI.disconnect();
+                        }
+                    } else {
+                        showToast("⚠️ Wallet no disponible temporalmente", true);
+                    }
+                };
                 document.getElementById('video-ad-btn').onclick = showVideoAd;
                 document.getElementById('exchange-points-btn').onclick = exchangePoints;
                 document.getElementById('copy-ref-btn').onclick = copyReferralLink;
