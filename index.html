@@ -50,6 +50,7 @@
             background: rgba(0, 153, 255, 0.2);
             padding: 6px 14px;
             border-radius: 20px;
+            cursor: pointer;
         }
         
         .stats-container {
@@ -113,6 +114,7 @@
             border-radius: 50%;
             box-shadow: 0 0 30px rgba(0, 153, 255, 0.5);
             cursor: pointer;
+            transition: transform 0.1s;
         }
         
         .btn-primary {
@@ -324,6 +326,76 @@
             text-align: center;
             margin-top: 10px;
         }
+        
+        #ton-connect {
+            min-width: 45px;
+        }
+        
+        /* Estilos del Panel Admin */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+        }
+        
+        .admin-panel.show {
+            display: block;
+        }
+        
+        .admin-card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #0099ff;
+        }
+        
+        .admin-input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #0099ff;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .admin-btn {
+            background: #0099ff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .admin-btn.danger {
+            background: #ff4444;
+        }
+        
+        .admin-btn.success {
+            background: #00cc88;
+        }
+        
+        .close-admin {
+            position: sticky;
+            top: 10px;
+            float: right;
+            background: #ff4444;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -334,7 +406,7 @@
     </div>
 
     <div class="header">
-        <div class="username" id="username">✨ Cargando...</div>
+        <div class="username" id="username" ondblclick="showAdminLogin()">✨ Cargando...</div>
         <div id="ton-connect"></div>
     </div>
 
@@ -443,6 +515,66 @@
         </div>
     </div>
 
+    <!-- PANEL ADMIN (OCULTO) -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="close-admin" onclick="closeAdminPanel()">✖ CERRAR</div>
+        
+        <h2 style="color: #ffcc00; margin-bottom: 20px;">🔧 PANEL DE ADMINISTRADOR</h2>
+        
+        <div class="admin-card">
+            <h3>💰 Dar Puntos a Usuario</h3>
+            <input type="text" id="adminUserId" class="admin-input" placeholder="ID del usuario">
+            <input type="number" id="adminPuntos" class="admin-input" placeholder="Cantidad de puntos">
+            <button class="admin-btn success" onclick="adminDarPuntos()">➕ Añadir Puntos</button>
+        </div>
+        
+        <div class="admin-card">
+            <h3>🎫 Dar Tickets</h3>
+            <input type="text" id="adminTicketsUser" class="admin-input" placeholder="ID del usuario">
+            <input type="number" id="adminTickets" class="admin-input" placeholder="Cantidad de tickets">
+            <button class="admin-btn success" onclick="adminDarTickets()">🎟️ Dar Tickets</button>
+        </div>
+        
+        <div class="admin-card">
+            <h3>⚡ Dar Energía</h3>
+            <input type="text" id="adminEnergyUser" class="admin-input" placeholder="ID del usuario">
+            <input type="number" id="adminEnergy" class="admin-input" placeholder="Energía (máx 50)">
+            <button class="admin-btn success" onclick="adminDarEnergia()">⚡ Dar Energía</button>
+        </div>
+        
+        <div class="admin-card">
+            <h3>🎁 BONO MASIVO</h3>
+            <input type="number" id="bonusPuntos" class="admin-input" placeholder="Puntos para TODOS">
+            <input type="number" id="bonusTickets" class="admin-input" placeholder="Tickets para TODOS">
+            <button class="admin-btn" onclick="adminBonusMasivo()">🎁 Aplicar Bono Masivo</button>
+        </div>
+        
+        <div class="admin-card">
+            <h3>📊 Estadísticas Globales</h3>
+            <button class="admin-btn" onclick="adminVerEstadisticas()">📈 Ver Estadísticas</button>
+            <div id="estadisticasDiv" style="margin-top: 10px; font-size: 12px;"></div>
+        </div>
+        
+        <div class="admin-card">
+            <h3>📢 Mensaje Masivo</h3>
+            <textarea id="mensajeMasivo" class="admin-input" rows="3" placeholder="Mensaje para todos los usuarios"></textarea>
+            <button class="admin-btn" onclick="adminEnviarMensaje()">📨 Enviar Mensaje</button>
+        </div>
+        
+        <div class="admin-card">
+            <h3>🔍 Buscar Usuario</h3>
+            <input type="text" id="searchUser" class="admin-input" placeholder="ID o nombre">
+            <button class="admin-btn" onclick="adminBuscarUsuario()">🔍 Buscar</button>
+            <div id="searchResult" style="margin-top: 10px; font-size: 12px;"></div>
+        </div>
+        
+        <div class="admin-card">
+            <h3>⚠️ Resetear Usuario</h3>
+            <input type="text" id="resetUserId" class="admin-input" placeholder="ID del usuario">
+            <button class="admin-btn danger" onclick="adminResetearUsuario()">🔄 RESETEAR</button>
+        </div>
+    </div>
+
     <script>
         // ========== CONFIGURACIÓN ==========
         const firebaseConfig = {
@@ -462,6 +594,7 @@
         const REGEN_TIME = 25 * 60 * 1000;
         const MY_WALLET = "UQBtAljw2oszCrCJhx2zt4g6IyHIPReHbWZ_bPnE_aaZTdHj";
         const ADSGRAM_BLOCK_ID = "26422";
+        const ADMIN_PASSWORD = "admin123"; // Cambia esta contraseña
         
         // Segmentos de la ruleta
         const SEGMENTS = [
@@ -488,6 +621,7 @@
         let tonConnectUI;
         let tg;
         let canvas, ctx;
+        let isAdmin = false;
         
         function showToast(msg, isError = false) {
             const toast = document.createElement('div');
@@ -501,6 +635,23 @@
         function hideLoading() {
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) overlay.style.display = 'none';
+        }
+        
+        // Mostrar login de admin (doble click en el nombre)
+        function showAdminLogin() {
+            const password = prompt("🔐 Ingrese contraseña de administrador:");
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById('adminPanel').classList.add('show');
+                showToast("✅ Acceso de administrador concedido");
+                cargarEstadisticasRapido();
+            } else if (password !== null) {
+                showToast("❌ Contraseña incorrecta", true);
+            }
+        }
+        
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').classList.remove('show');
         }
         
         async function saveToFirebase() {
@@ -578,35 +729,47 @@
         
         function drawWheel() {
             if (!canvas || !ctx) return;
+            const centerX = 150, centerY = 150, radius = 150;
             const anglePerSegment = (Math.PI * 2) / SEGMENTS.length;
             
+            ctx.clearRect(0, 0, 300, 300);
             SEGMENTS.forEach((segment, i) => {
                 const startAngle = i * anglePerSegment + currentRotation;
                 const endAngle = startAngle + anglePerSegment;
                 
                 ctx.beginPath();
                 ctx.fillStyle = segment.color;
-                ctx.moveTo(150, 150);
-                ctx.arc(150, 150, 150, startAngle, endAngle);
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
                 ctx.fill();
                 ctx.strokeStyle = "white";
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
                 ctx.save();
-                ctx.translate(150, 150);
+                ctx.translate(centerX, centerY);
                 ctx.rotate(startAngle + anglePerSegment / 2);
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.font = "bold 24px Poppins";
                 ctx.fillStyle = "white";
-                ctx.shadowBlur = 0;
-                ctx.fillText(segment.icon, 90, 10);
+                ctx.fillText(segment.icon, 85, 10);
                 ctx.font = "bold 14px Poppins";
                 ctx.fillStyle = "#fff";
-                ctx.fillText(segment.name, 90, 40);
+                ctx.fillText(segment.name, 85, 40);
                 ctx.restore();
             });
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
+            ctx.fillStyle = "#0a0f1a";
+            ctx.fill();
+            ctx.strokeStyle = "#ffcc00";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = "white";
+            ctx.font = "bold 18px Poppins";
+            ctx.fillText("TON", 135, 158);
         }
         
         async function spinWheel() {
@@ -622,16 +785,17 @@
             if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             
             let randomIndex;
-            if (Math.random() < 0.01) {
+            const r = Math.random();
+            if (r < 0.01) {
                 randomIndex = 5;
             } else {
-                const opciones = [0, 1, 2, 3, 4, 6, 7];
-                randomIndex = opciones[Math.floor(Math.random() * opciones.length)];
+                const posibles = [0, 1, 2, 3, 4, 6, 7];
+                randomIndex = posibles[Math.floor(Math.random() * posibles.length)];
             }
             
             const anglePerSegment = 360 / SEGMENTS.length;
             const targetAngle = (360 - (randomIndex * anglePerSegment) - 22.5) % 360;
-            const spins = 360 * 5;
+            const spins = 360 * 6;
             const newRotationDeg = (currentRotation * 180 / Math.PI) + spins + targetAngle;
             
             const canvasElem = document.getElementById('wheelCanvas');
@@ -659,6 +823,7 @@
                 updateUI();
                 loadRanking();
                 drawWheel();
+                canvasElem.style.transition = "";
             }, 4000);
         }
         
@@ -700,14 +865,14 @@
                     saveToFirebase();
                     updateUI();
                     showToast("🎫 ¡+1 Ticket! Gracias por ver el anuncio.");
-                    adContainer.remove();
+                    if(adContainer) adContainer.remove();
                 }).catch((error) => {
                     console.error('Error en anuncio:', error);
                     showToast("❌ No se pudo mostrar el anuncio", true);
-                    adContainer.remove();
+                    if(adContainer) adContainer.remove();
                 });
             } else {
-                showToast("📺 Anuncio simulado: +1 Ticket", true);
+                showToast("📺 Anuncio simulado: +1 Ticket", false);
                 tickets++;
                 saveToFirebase();
                 updateUI();
@@ -715,8 +880,8 @@
         }
         
         function copyReferralLink() {
-            const botUsername = tg?.initDataUnsafe?.user?.username || "mytonclickerbot";
-            const link = `https://t.me/${botUsername}?start=${userId}`;
+            const botUsername = tg?.initDataUnsafe?.user?.username ? `@${tg.initDataUnsafe.user.username}` : "mytonclickerbot";
+            const link = `https://t.me/${botUsername.startsWith('@') ? botUsername.substring(1) : botUsername}?start=${userId}`;
             navigator.clipboard.writeText(link);
             showToast("✅ Link de invitación copiado!");
         }
@@ -744,7 +909,7 @@
                 updateUI();
                 showToast(`✅ Compra exitosa! +${energyGain} ⚡`);
             } catch(e) {
-                showToast("❌ Transacción cancelada", true);
+                showToast("❌ Transacción cancelada o error", true);
             }
         }
         
@@ -811,6 +976,202 @@
             }, 1000);
         }
         
+        // ========== FUNCIONES DE ADMIN ==========
+        
+        async function adminDarPuntos() {
+            if (!isAdmin) return;
+            const userIdTarget = document.getElementById('adminUserId').value;
+            const puntos = parseInt(document.getElementById('adminPuntos').value);
+            
+            if (!userIdTarget || isNaN(puntos)) {
+                showToast("❌ ID o cantidad inválida", true);
+                return;
+            }
+            
+            try {
+                const userRef = db.collection('jugadores').doc(userIdTarget);
+                await userRef.update({
+                    puntos: firebase.firestore.FieldValue.increment(puntos)
+                });
+                showToast(`✅ +${puntos} puntos a ${userIdTarget}`);
+                document.getElementById('adminUserId').value = '';
+                document.getElementById('adminPuntos').value = '';
+            } catch(e) {
+                showToast("❌ Error al dar puntos", true);
+            }
+        }
+        
+        async function adminDarTickets() {
+            if (!isAdmin) return;
+            const userIdTarget = document.getElementById('adminTicketsUser').value;
+            const tickets = parseInt(document.getElementById('adminTickets').value);
+            
+            if (!userIdTarget || isNaN(tickets)) {
+                showToast("❌ ID o cantidad inválida", true);
+                return;
+            }
+            
+            try {
+                const userRef = db.collection('jugadores').doc(userIdTarget);
+                await userRef.update({
+                    tickets: firebase.firestore.FieldValue.increment(tickets)
+                });
+                showToast(`✅ +${tickets} tickets a ${userIdTarget}`);
+                document.getElementById('adminTicketsUser').value = '';
+                document.getElementById('adminTickets').value = '';
+            } catch(e) {
+                showToast("❌ Error al dar tickets", true);
+            }
+        }
+        
+        async function adminDarEnergia() {
+            if (!isAdmin) return;
+            const userIdTarget = document.getElementById('adminEnergyUser').value;
+            const energiaGive = parseInt(document.getElementById('adminEnergy').value);
+            
+            if (!userIdTarget || isNaN(energiaGive) || energiaGive > 50) {
+                showToast("❌ ID o cantidad inválida (máx 50)", true);
+                return;
+            }
+            
+            try {
+                const userDoc = await db.collection('jugadores').doc(userIdTarget).get();
+                const energiaActual = userDoc.data()?.energia || 0;
+                const nuevaEnergia = Math.min(50, energiaActual + energiaGive);
+                await db.collection('jugadores').doc(userIdTarget).update({ energia: nuevaEnergia });
+                showToast(`✅ +${energiaGive} energía a ${userIdTarget}`);
+                document.getElementById('adminEnergyUser').value = '';
+                document.getElementById('adminEnergy').value = '';
+            } catch(e) {
+                showToast("❌ Error al dar energía", true);
+            }
+        }
+        
+        async function adminBonusMasivo() {
+            if (!isAdmin) return;
+            const bonusPuntos = parseInt(document.getElementById('bonusPuntos').value) || 0;
+            const bonusTickets = parseInt(document.getElementById('bonusTickets').value) || 0;
+            
+            if (bonusPuntos === 0 && bonusTickets === 0) {
+                showToast("❌ Ingresa al menos un bono", true);
+                return;
+            }
+            
+            const snapshot = await db.collection('jugadores').get();
+            let count = 0;
+            
+            for (const doc of snapshot.docs) {
+                if (bonusPuntos > 0) {
+                    await doc.ref.update({ puntos: firebase.firestore.FieldValue.increment(bonusPuntos) });
+                }
+                if (bonusTickets > 0) {
+                    await doc.ref.update({ tickets: firebase.firestore.FieldValue.increment(bonusTickets) });
+                }
+                count++;
+            }
+            
+            showToast(`🎁 Bono masivo aplicado a ${count} usuarios!`);
+            document.getElementById('bonusPuntos').value = '';
+            document.getElementById('bonusTickets').value = '';
+        }
+        
+        async function adminVerEstadisticas() {
+            if (!isAdmin) return;
+            const snapshot = await db.collection('jugadores').get();
+            const totalUsers = snapshot.size;
+            let totalPuntos = 0;
+            let totalTickets = 0;
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                totalPuntos += data.puntos || 0;
+                totalTickets += data.tickets || 0;
+            });
+            
+            document.getElementById('estadisticasDiv').innerHTML = `
+                👥 Usuarios: ${totalUsers}<br>
+                💰 Puntos totales: ${totalPuntos.toLocaleString()}<br>
+                🎫 Tickets totales: ${totalTickets}<br>
+                📊 Promedio puntos: ${Math.floor(totalPuntos/totalUsers) || 0}
+            `;
+        }
+        
+        async function adminEnviarMensaje() {
+            if (!isAdmin) return;
+            const mensaje = document.getElementById('mensajeMasivo').value;
+            if (!mensaje) {
+                showToast("❌ Escribe un mensaje", true);
+                return;
+            }
+            
+            showToast("📢 Enviando mensajes masivos...");
+            const snapshot = await db.collection('jugadores').get();
+            let enviados = 0;
+            
+            for (const doc of snapshot.docs) {
+                try {
+                    if (tg && tg.sendMessage) {
+                        // En Telegram WebApp
+                        tg.sendMessage(mensaje);
+                    }
+                    enviados++;
+                } catch(e) {}
+            }
+            
+            showToast(`✅ Mensaje enviado a ${enviados} usuarios (simulado)`);
+            document.getElementById('mensajeMasivo').value = '';
+        }
+        
+        async function adminBuscarUsuario() {
+            if (!isAdmin) return;
+            const termino = document.getElementById('searchUser').value;
+            if (!termino) return;
+            
+            const snapshot = await db.collection('jugadores').get();
+            let resultados = [];
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (doc.id.includes(termino) || data.nombre?.toLowerCase().includes(termino.toLowerCase())) {
+                    resultados.push({ id: doc.id, nombre: data.nombre, puntos: data.puntos });
+                }
+            });
+            
+            if (resultados.length === 0) {
+                document.getElementById('searchResult').innerHTML = "❌ No encontrado";
+            } else {
+                let html = "🔍 Resultados:<br>";
+                resultados.slice(0, 5).forEach(r => {
+                    html += `📌 ID: ${r.id}<br>   Nombre: ${r.nombre}<br>   Puntos: ${r.puntos}<br><br>`;
+                });
+                document.getElementById('searchResult').innerHTML = html;
+            }
+        }
+        
+        async function adminResetearUsuario() {
+            if (!isAdmin) return;
+            const userIdTarget = document.getElementById('resetUserId').value;
+            if (!userIdTarget) return;
+            
+            if (confirm(`⚠️ ¿Resetear completamente a ${userIdTarget}? Esta acción no se puede deshacer.`)) {
+                await db.collection('jugadores').doc(userIdTarget).set({
+                    puntos: 0,
+                    tickets: 0,
+                    energia: 50,
+                    walletBonus: false,
+                    referidos: 0
+                });
+                showToast(`✅ Usuario ${userIdTarget} reseteado`);
+                document.getElementById('resetUserId').value = '';
+            }
+        }
+        
+        async function cargarEstadisticasRapido() {
+            if (!isAdmin) return;
+            const snapshot = await db.collection('jugadores').get();
+            document.getElementById('estadisticasDiv').innerHTML = `👥 ${snapshot.size} usuarios registrados`;
+        }
+        
         async function init() {
             try {
                 tg = window.Telegram.WebApp;
@@ -874,12 +1235,11 @@
                         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
                         document.getElementById(`tab-${tabId}`).classList.add('active');
                         btn.classList.add('on');
-                        
                         if (tabId === 'ranking') loadRanking();
                     };
                 });
                 
-                const botName = tg?.initDataUnsafe?.user?.username || "mytonclickerbot";
+                const botName = tg?.initDataUnsafe?.user?.username ? tg.initDataUnsafe.user.username : "mytonclickerbot";
                 document.getElementById('ref-link-preview').textContent = `t.me/${botName}?start=${userId}`;
                 
                 startEnergyRegen();
